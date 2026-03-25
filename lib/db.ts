@@ -8,6 +8,7 @@ import type {
   MemberRelation,
   ActivityRecord,
   SiteStat,
+  SiteConfig,
 } from './types';
 
 // Authenticated client — for INSERT / UPDATE / DELETE (needs auth token)
@@ -269,4 +270,22 @@ export function updateSiteStat(id: number, data: Partial<Pick<SiteStat, 'label' 
     .eq('id', id)
     .select()
     .single<SiteStat>();
+}
+
+// ─── Site Config ────────────────────────────────────────────────────
+
+export function getSiteConfig(key: string) {
+  return getAnonSupabase()
+    .from('site_config')
+    .select('*')
+    .eq('key', key)
+    .single<SiteConfig>();
+}
+
+export function upsertSiteConfig(key: string, value: string) {
+  return getSupabase()
+    .from('site_config')
+    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+    .select()
+    .single<SiteConfig>();
 }

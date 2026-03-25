@@ -115,6 +115,12 @@ export interface SiteStat {
   updated_at: string;
 }
 
+export interface SiteConfig {
+  key: string;
+  value: string;
+  updated_at: string;
+}
+
 export interface ActivityRecord {
   id: string;
   title: string;
