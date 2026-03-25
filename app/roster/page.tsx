@@ -22,9 +22,15 @@ export default function RosterPage() {
   const { isAdminOrOwner, profile: currentProfile } = useAuth();
 
   const fetchData = useCallback(async () => {
-    const { data } = await getProfiles();
-    if (data) setProfiles(data);
-    setLoading(false);
+    try {
+      const { data, error } = await getProfiles();
+      if (error) console.error('getProfiles error:', error);
+      if (data) setProfiles(data);
+    } catch (err) {
+      console.error('getProfiles exception:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
