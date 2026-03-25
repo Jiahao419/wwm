@@ -5,16 +5,16 @@ import { Profile, MemberRelation } from '@/lib/types';
 import { RELATION_TYPES } from '@/lib/constants';
 
 interface AddRelationModalProps {
-  currentUserId: string;
+  currentProfileId: string;
   profiles: Profile[];
   relations: MemberRelation[];
   defaultType: string | null;
-  onConfirm: (targetUserId: string, relationType: MemberRelation['relation_type']) => void;
+  onConfirm: (targetProfileId: string, relationType: MemberRelation['relation_type']) => void;
   onClose: () => void;
 }
 
 export default function AddRelationModal({
-  currentUserId,
+  currentProfileId,
   profiles,
   relations,
   defaultType,
@@ -25,20 +25,22 @@ export default function AddRelationModal({
   const [selectedTarget, setSelectedTarget] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
-  // Count existing relations of each type for the current user
+  const currentProfile = profiles.find(p => p.id === currentProfileId);
+
+  // Count existing relations of each type for the current user (using profile.id)
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     RELATION_TYPES.forEach(t => { counts[t.id] = 0; });
 
     relations.forEach(r => {
-      if (r.from_user_id === currentUserId || r.to_user_id === currentUserId) {
+      if (r.from_user_id === currentProfileId || r.to_user_id === currentProfileId) {
         const type = r.relation_type;
         // For shifu/tudi, only count from the right perspective
         if (type === 'shifu') {
-          if (r.to_user_id === currentUserId) counts.shifu = (counts.shifu || 0) + 1;
+          if (r.to_user_id === currentProfileId) counts.shifu = (counts.shifu || 0) + 1;
           else counts.tudi = (counts.tudi || 0) + 1;
         } else if (type === 'tudi') {
-          if (r.from_user_id === currentUserId) counts.tudi = (counts.tudi || 0) + 1;
+          if (r.from_user_id === currentProfileId) counts.tudi = (counts.tudi || 0) + 1;
           else counts.shifu = (counts.shifu || 0) + 1;
         } else {
           counts[type] = (counts[type] || 0) + 1;
@@ -46,7 +48,7 @@ export default function AddRelationModal({
       }
     });
     return counts;
-  }, [relations, currentUserId]);
+  }, [relations, currentProfileId]);
 
   // Exclude current user and already-related users of the selected type
   const availableTargets = useMemo(() => {
@@ -56,13 +58,13 @@ export default function AddRelationModal({
           // Also check the inverse for shifu/tudi
           (selectedType === 'shifu' && r.relation_type === 'tudi') ||
           (selectedType === 'tudi' && r.relation_type === 'shifu')) {
-        if (r.from_user_id === currentUserId) existingTargets.add(r.to_user_id);
-        if (r.to_user_id === currentUserId) existingTargets.add(r.from_user_id);
+        if (r.from_user_id === currentProfileId) existingTargets.add(r.to_user_id);
+        if (r.to_user_id === currentProfileId) existingTargets.add(r.from_user_id);
       }
     });
 
-    return profiles.filter(p => p.user_id !== currentUserId && !existingTargets.has(p.user_id));
-  }, [profiles, relations, currentUserId, selectedType]);
+    return profiles.filter(p => p.id !== currentProfileId && !existingTargets.has(p.id));
+  }, [profiles, relations, currentProfileId, selectedType]);
 
   const currentType = RELATION_TYPES.find(t => t.id === selectedType);
   const currentCount = typeCounts[selectedType] || 0;
@@ -92,7 +94,7 @@ export default function AddRelationModal({
         <div className="p-5 border-b border-gold/10">
           <h3 className="font-title text-text-primary text-lg">添加关系</h3>
           <p className="text-text-secondary text-xs mt-1">
-            为 {profiles.find(p => p.user_id === currentUserId)?.nickname} 添加新的关系
+            为 {currentProfile?.nickname || '成员'} 添加新的关系
           </p>
         </div>
 
@@ -164,7 +166,7 @@ export default function AddRelationModal({
               >
                 <option value="">请选择成员...</option>
                 {availableTargets.map(p => (
-                  <option key={p.user_id} value={p.user_id}>
+                  <option key={p.id} value={p.id}>
                     {p.nickname}{p.identity ? ` (${p.identity})` : ''}
                   </option>
                 ))}

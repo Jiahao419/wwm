@@ -10,9 +10,9 @@ const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false 
 interface ForceGraphProps {
   profiles: Profile[];
   relations: MemberRelation[];
-  selectedUserId?: string | null;
+  selectedProfileId?: string | null;
   viewMode: 'individual' | 'global';
-  onNodeClick?: (userId: string) => void;
+  onNodeClick?: (profileId: string) => void;
 }
 
 interface GraphNode {
@@ -37,7 +37,7 @@ interface GraphLink {
 
 const sizeMap = { small: 4, medium: 6, large: 8 };
 
-export default function ForceGraph({ profiles, relations, selectedUserId, viewMode: _viewMode, onNodeClick }: ForceGraphProps) {
+export default function ForceGraph({ profiles, relations, selectedProfileId, viewMode: _viewMode, onNodeClick }: ForceGraphProps) {
   void _viewMode; // available for future use
   const graphRef = useRef<any>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
@@ -58,28 +58,34 @@ export default function ForceGraph({ profiles, relations, selectedUserId, viewMo
     return () => ro.disconnect();
   }, []);
 
+  // Use profile.id as node identifier (works for all profiles, including admin-created ones)
   const nodes: GraphNode[] = profiles.map(p => ({
-    id: p.user_id,
+    id: p.id,
     name: p.nickname,
     color: p.node_color || '#9a8a6a',
     size: sizeMap[p.node_size] || 6,
     val: sizeMap[p.node_size] || 6,
-    isSelected: p.user_id === selectedUserId,
+    isSelected: p.id === selectedProfileId,
     x: p.graph_x ? (p.graph_x / 100) * dimensions.width : undefined,
     y: p.graph_y ? (p.graph_y / 100) * dimensions.height : undefined,
   }));
 
-  const links: GraphLink[] = relations.map(r => {
-    const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
-    return {
-      source: r.from_user_id,
-      target: r.to_user_id,
-      type: r.relation_type,
-      color: r.line_color || relType?.color || '#5a5a6a',
-      label: relType?.label || r.label || undefined,
-      dashes: relType?.style === 'dashed',
-    };
-  });
+  // Build a set of valid node IDs for filtering links
+  const nodeIds = new Set(nodes.map(n => n.id));
+
+  const links: GraphLink[] = relations
+    .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
+    .map(r => {
+      const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
+      return {
+        source: r.from_user_id,
+        target: r.to_user_id,
+        type: r.relation_type,
+        color: r.line_color || relType?.color || '#5a5a6a',
+        label: relType?.label || r.label || undefined,
+        dashes: relType?.style === 'dashed',
+      };
+    });
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const r = node.size || 6;
@@ -188,7 +194,7 @@ export default function ForceGraph({ profiles, relations, selectedUserId, viewMo
             <span className="text-text-primary text-sm font-title">{hoveredNode.name}</span>
           </div>
           <p className="text-text-secondary text-xs">
-            {profiles.find(p => p.user_id === hoveredNode.id)?.identity || '成员'}
+            {profiles.find(p => p.id === hoveredNode.id)?.identity || '成员'}
           </p>
         </div>
       )}

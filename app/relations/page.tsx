@@ -15,14 +15,15 @@ import type { Profile, MemberRelation } from '@/lib/types';
 type ViewMode = 'individual' | 'global';
 
 export default function RelationsPage() {
-  const { isAdminOrOwner, user } = useAuth();
+  const { isAdminOrOwner, user, profile: myProfile } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [relations, setRelations] = useState<MemberRelation[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('global');
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addRelationType, setAddRelationType] = useState<string | null>(null);
+  const [usingMock, setUsingMock] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -35,9 +36,11 @@ export default function RelationsPage() {
       const r = relationsRes.data?.length ? relationsRes.data : mockRelations;
       setProfiles(p);
       setRelations(r);
+      setUsingMock(!profilesRes.data?.length);
     } catch {
       setProfiles(mockProfiles);
       setRelations(mockRelations);
+      setUsingMock(true);
     } finally {
       setLoading(false);
     }
@@ -47,66 +50,91 @@ export default function RelationsPage() {
     fetchData();
   }, [fetchData]);
 
-  const selectedProfile = profiles.find(p => p.user_id === selectedUserId) || null;
+  const selectedProfile = profiles.find(p => p.id === selectedProfileId) || null;
 
-  // Get relations for the selected member
-  const getRelationsForUser = (userId: string) => {
+  // Check if user can edit a specific profile's relations
+  const canEditProfile = (profileId: string) => {
+    if (isAdminOrOwner) return true;
+    // User can edit their own profile's relations
+    if (myProfile && myProfile.id === profileId) return true;
+    return false;
+  };
+
+  // Get relations for the selected member (using profile.id)
+  const getRelationsForProfile = (profileId: string) => {
     return relations.filter(
-      r => r.from_user_id === userId || r.to_user_id === userId
+      r => r.from_user_id === profileId || r.to_user_id === profileId
     );
   };
 
   // Get filtered graph data based on view mode
-  const graphProfiles = viewMode === 'individual' && selectedUserId
+  const graphProfiles = viewMode === 'individual' && selectedProfileId
     ? (() => {
-        const userRelations = getRelationsForUser(selectedUserId);
-        const connectedIds = new Set<string>([selectedUserId]);
-        userRelations.forEach(r => {
+        const profileRelations = getRelationsForProfile(selectedProfileId);
+        const connectedIds = new Set<string>([selectedProfileId]);
+        profileRelations.forEach(r => {
           connectedIds.add(r.from_user_id);
           connectedIds.add(r.to_user_id);
         });
-        return profiles.filter(p => connectedIds.has(p.user_id));
+        return profiles.filter(p => connectedIds.has(p.id));
       })()
     : profiles;
 
-  const graphRelations = viewMode === 'individual' && selectedUserId
-    ? getRelationsForUser(selectedUserId)
+  const graphRelations = viewMode === 'individual' && selectedProfileId
+    ? getRelationsForProfile(selectedProfileId)
     : relations;
 
-  const handleNodeClick = (userId: string) => {
-    setSelectedUserId(userId);
+  const handleNodeClick = (profileId: string) => {
+    setSelectedProfileId(profileId);
     if (viewMode === 'global') {
       setViewMode('individual');
     }
   };
 
   const handleAddRelation = async (
-    targetUserId: string,
+    targetProfileId: string,
     relationType: MemberRelation['relation_type']
   ) => {
-    if (!selectedUserId || !user) return;
+    if (!selectedProfileId || !user) return;
+    if (usingMock) {
+      alert('演示数据无法编辑');
+      return;
+    }
     try {
-      await createRelation({
-        from_user_id: selectedUserId,
-        to_user_id: targetUserId,
+      const { error } = await createRelation({
+        from_user_id: selectedProfileId,
+        to_user_id: targetProfileId,
         relation_type: relationType,
         label: RELATION_TYPES.find(t => t.id === relationType)?.label || null,
         line_color: null,
         group_name: null,
         created_by: user.id,
       });
-      await fetchData();
+      if (error) {
+        console.error('Failed to create relation:', error);
+        alert('添加关系失败：' + error.message);
+      } else {
+        await fetchData();
+      }
     } catch (err) {
       console.error('Failed to create relation:', err);
+      alert('添加关系失败');
     }
     setShowAddModal(false);
     setAddRelationType(null);
   };
 
   const handleDeleteRelation = async (relationId: string) => {
+    if (usingMock) return;
+    if (!confirm('确定删除此关系？')) return;
     try {
-      await deleteRelation(relationId);
-      await fetchData();
+      const { error } = await deleteRelation(relationId);
+      if (error) {
+        console.error('Failed to delete relation:', error);
+        alert('删除关系失败：' + error.message);
+      } else {
+        await fetchData();
+      }
     } catch (err) {
       console.error('Failed to delete relation:', err);
     }
@@ -134,8 +162,10 @@ export default function RelationsPage() {
           <button
             onClick={() => {
               setViewMode('individual');
-              if (!selectedUserId && profiles.length > 0) {
-                setSelectedUserId(profiles[0].user_id);
+              if (!selectedProfileId && profiles.length > 0) {
+                // Default to user's own profile, otherwise first profile
+                const myP = myProfile ? profiles.find(p => p.id === myProfile.id) : null;
+                setSelectedProfileId(myP?.id || profiles[0].id);
               }
             }}
             className={`px-4 py-1.5 text-sm border rounded-sm transition-all ${
@@ -166,7 +196,7 @@ export default function RelationsPage() {
           className="flex gap-6"
         >
           {/* Force graph */}
-          <div className={viewMode === 'individual' && selectedUserId ? 'flex-1 min-w-0' : 'w-full'}>
+          <div className={viewMode === 'individual' && selectedProfileId ? 'flex-1 min-w-0' : 'w-full'}>
             {loading ? (
               <div className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm flex items-center justify-center">
                 <span className="text-text-secondary text-sm">Loading...</span>
@@ -175,7 +205,7 @@ export default function RelationsPage() {
               <ForceGraph
                 profiles={graphProfiles}
                 relations={graphRelations}
-                selectedUserId={selectedUserId}
+                selectedProfileId={selectedProfileId}
                 viewMode={viewMode}
                 onNodeClick={handleNodeClick}
               />
@@ -183,7 +213,7 @@ export default function RelationsPage() {
           </div>
 
           {/* Detail panel (individual view only) */}
-          {viewMode === 'individual' && selectedUserId && selectedProfile && (
+          {viewMode === 'individual' && selectedProfileId && selectedProfile && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -191,9 +221,10 @@ export default function RelationsPage() {
             >
               <RelationPanel
                 profile={selectedProfile}
-                relations={getRelationsForUser(selectedUserId)}
+                relations={getRelationsForProfile(selectedProfileId)}
                 profiles={profiles}
-                isAdmin={isAdminOrOwner}
+                canEdit={canEditProfile(selectedProfileId)}
+                isSelf={myProfile?.id === selectedProfileId}
                 onAddRelation={handleOpenAddModal}
                 onDeleteRelation={handleDeleteRelation}
               />
@@ -217,10 +248,10 @@ export default function RelationsPage() {
             <div className="flex flex-wrap justify-center gap-2">
               {profiles.map(p => (
                 <button
-                  key={p.user_id}
-                  onClick={() => setSelectedUserId(p.user_id)}
+                  key={p.id}
+                  onClick={() => setSelectedProfileId(p.id)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 text-xs border rounded-sm transition-all ${
-                    selectedUserId === p.user_id
+                    selectedProfileId === p.id
                       ? 'bg-gold/20 border-gold/50 text-gold'
                       : 'border-gold/10 text-text-secondary bg-bg-card hover:border-gold/30'
                   }`}
@@ -230,6 +261,9 @@ export default function RelationsPage() {
                     style={{ backgroundColor: p.node_color }}
                   />
                   {p.nickname}
+                  {myProfile?.id === p.id && (
+                    <span className="text-[9px] bg-green-900/30 text-green-400 px-1 rounded">我</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -238,9 +272,9 @@ export default function RelationsPage() {
       </div>
 
       {/* Add Relation Modal */}
-      {showAddModal && selectedUserId && (
+      {showAddModal && selectedProfileId && (
         <AddRelationModal
-          currentUserId={selectedUserId}
+          currentProfileId={selectedProfileId}
           profiles={profiles}
           relations={relations}
           defaultType={addRelationType}

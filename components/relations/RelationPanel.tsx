@@ -7,7 +7,8 @@ interface RelationPanelProps {
   profile: Profile;
   relations: MemberRelation[];
   profiles: Profile[];
-  isAdmin: boolean;
+  canEdit: boolean;
+  isSelf: boolean;
   onAddRelation: (relationType?: string) => void;
   onDeleteRelation: (relationId: string) => void;
 }
@@ -18,11 +19,12 @@ export default function RelationPanel({
   profile,
   relations,
   profiles,
-  isAdmin,
+  canEdit,
+  isSelf,
   onAddRelation,
   onDeleteRelation,
 }: RelationPanelProps) {
-  // Categorize relations for this user
+  // Categorize relations for this user (using profile.id)
   const categorized: Record<RelationTypeId, { relation: MemberRelation; other: Profile }[]> = {
     xiayuan: [],
     jieyi: [],
@@ -31,8 +33,8 @@ export default function RelationPanel({
   };
 
   relations.forEach(r => {
-    const otherId = r.from_user_id === profile.user_id ? r.to_user_id : r.from_user_id;
-    const otherProfile = profiles.find(p => p.user_id === otherId);
+    const otherId = r.from_user_id === profile.id ? r.to_user_id : r.from_user_id;
+    const otherProfile = profiles.find(p => p.id === otherId);
     if (!otherProfile) return;
 
     const type = r.relation_type as RelationTypeId;
@@ -42,7 +44,7 @@ export default function RelationPanel({
       categorized[type].push({ relation: r, other: otherProfile });
     } else if (type === 'shifu') {
       // from_user_id is the shifu, to_user_id is the tudi
-      if (r.to_user_id === profile.user_id) {
+      if (r.to_user_id === profile.id) {
         // This user has a shifu
         categorized.shifu.push({ relation: r, other: otherProfile });
       } else {
@@ -51,7 +53,7 @@ export default function RelationPanel({
       }
     } else if (type === 'tudi') {
       // from_user_id has the tudi (to_user_id)
-      if (r.from_user_id === profile.user_id) {
+      if (r.from_user_id === profile.id) {
         categorized.tudi.push({ relation: r, other: otherProfile });
       } else {
         categorized.shifu.push({ relation: r, other: otherProfile });
@@ -89,10 +91,20 @@ export default function RelationPanel({
             )}
           </div>
           <div>
-            <h3 className="font-title text-text-primary text-base">{profile.nickname}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-title text-text-primary text-base">{profile.nickname}</h3>
+              {isSelf && (
+                <span className="text-[9px] bg-green-900/30 text-green-400 px-1.5 py-0.5 rounded">我</span>
+              )}
+            </div>
             <p className="text-text-secondary text-xs">{profile.identity || '成员'}</p>
           </div>
         </div>
+        {canEdit && (
+          <p className="text-gold/40 text-[10px] mt-2">
+            {isSelf ? '你可以编辑自己的关系' : '管理员模式：可编辑关系'}
+          </p>
+        )}
       </div>
 
       {/* Relation sections */}
@@ -112,7 +124,7 @@ export default function RelationPanel({
                   ({section.items.length}/{section.max})
                 </span>
               </div>
-              {isAdmin && section.canAdd && (
+              {canEdit && section.canAdd && (
                 <button
                   onClick={() => onAddRelation(section.id)}
                   className="text-[10px] text-gold/60 hover:text-gold border border-gold/10 hover:border-gold/30 px-1.5 py-0.5 rounded-sm transition-all"
@@ -144,7 +156,7 @@ export default function RelationPanel({
                       </span>
                       <span className="text-text-primary text-xs">{other.nickname}</span>
                     </div>
-                    {isAdmin && (
+                    {canEdit && (
                       <button
                         onClick={() => onDeleteRelation(relation.id)}
                         className="opacity-0 group-hover:opacity-100 text-red-400/60 hover:text-red-400 text-xs transition-all px-1"
