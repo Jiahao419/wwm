@@ -7,6 +7,7 @@ import type {
   Notice,
   MemberRelation,
   ActivityRecord,
+  SiteStat,
 } from './types';
 
 // Helper: get a fresh supabase client per call (avoids stale module-level singleton)
@@ -181,4 +182,23 @@ export function createRelation(data: Omit<MemberRelation, 'id' | 'created_at'>) 
 
 export function deleteRelation(id: string) {
   return getSupabase().from('member_relations').delete().eq('id', id);
+}
+
+// ─── Site Stats ─────────────────────────────────────────────────────
+
+export function getSiteStats() {
+  return getSupabase()
+    .from('site_stats')
+    .select('*')
+    .order('sort_order', { ascending: true })
+    .returns<SiteStat[]>();
+}
+
+export function updateSiteStat(id: number, data: Partial<Pick<SiteStat, 'label' | 'value' | 'suffix'>>) {
+  return getSupabase()
+    .from('site_stats')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single<SiteStat>();
 }

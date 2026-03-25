@@ -106,6 +106,15 @@ export interface RelationGroup {
   updated_at: string;
 }
 
+export interface SiteStat {
+  id: number;
+  sort_order: number;
+  label: string;
+  value: number;
+  suffix: string;
+  updated_at: string;
+}
+
 export interface ActivityRecord {
   id: string;
   title: string;
