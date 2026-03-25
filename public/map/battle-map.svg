@@ -1,0 +1,455 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none">
+  <defs>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="redGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c05050" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#c05050" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blueGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5080c0" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#5080c0" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- ===== BACKGROUND ===== -->
+  <rect width="1200" height="900" fill="#0d0d14"/>
+
+  <!-- ===== OUTER WALL (Rectangular city wall) ===== -->
+  <!-- Outer wall - thick -->
+  <rect x="60" y="50" width="1080" height="800" fill="none" stroke="#c9a84c" stroke-width="6" stroke-opacity="0.12"/>
+  <!-- Inner wall -->
+  <rect x="68" y="58" width="1064" height="784" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.2"/>
+  <!-- Wall fill subtle -->
+  <rect x="60" y="50" width="1080" height="800" fill="#c9a84c" fill-opacity="0.008"/>
+
+  <!-- ===== FOUR CORNER FORTIFICATIONS ===== -->
+  <!-- Top-left -->
+  <rect x="42" y="32" width="38" height="38" fill="#0d0d14" stroke="#c9a84c" stroke-width="2" stroke-opacity="0.35"/>
+  <rect x="48" y="38" width="26" height="26" fill="#c9a84c" fill-opacity="0.04" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.2"/>
+  <!-- Top-right -->
+  <rect x="1120" y="32" width="38" height="38" fill="#0d0d14" stroke="#c9a84c" stroke-width="2" stroke-opacity="0.35"/>
+  <rect x="1126" y="38" width="26" height="26" fill="#c9a84c" fill-opacity="0.04" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.2"/>
+  <!-- Bottom-left -->
+  <rect x="42" y="830" width="38" height="38" fill="#0d0d14" stroke="#c9a84c" stroke-width="2" stroke-opacity="0.35"/>
+  <rect x="48" y="836" width="26" height="26" fill="#c9a84c" fill-opacity="0.04" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.2"/>
+  <!-- Bottom-right -->
+  <rect x="1120" y="830" width="38" height="38" fill="#0d0d14" stroke="#c9a84c" stroke-width="2" stroke-opacity="0.35"/>
+  <rect x="1126" y="836" width="26" height="26" fill="#c9a84c" fill-opacity="0.04" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.2"/>
+
+  <!-- ===== TOP GATE (North) ===== -->
+  <rect x="570" y="38" width="60" height="22" fill="#0d0d14" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.4"/>
+  <path d="M 585 38 L 600 22 L 615 38" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-opacity="0.35"/>
+  <line x1="600" y1="22" x2="600" y2="14" stroke="#c9a84c" stroke-width="1" stroke-opacity="0.3"/>
+
+  <!-- ===== BOTTOM GATE (South) ===== -->
+  <rect x="570" y="840" width="60" height="22" fill="#0d0d14" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.4"/>
+  <path d="M 585 862 L 600 878 L 615 862" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-opacity="0.35"/>
+  <line x1="600" y1="878" x2="600" y2="886" stroke="#c9a84c" stroke-width="1" stroke-opacity="0.3"/>
+
+  <!-- ===== WALL ENTRANCE PATHS (top/bottom approach roads) ===== -->
+  <line x1="600" y1="60" x2="600" y2="170" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.15"/>
+  <line x1="600" y1="730" x2="600" y2="840" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.15"/>
+
+  <!-- ===== LEFT/RIGHT BASE APPROACH ROADS ===== -->
+  <line x1="60" y1="450" x2="180" y2="450" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.15"/>
+  <line x1="1020" y1="450" x2="1140" y2="450" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.15"/>
+
+  <!-- ===== OUTER OVAL ROAD (main ring road) ===== -->
+  <ellipse cx="600" cy="450" rx="410" ry="300" fill="none" stroke="#c9a84c" stroke-width="3" stroke-opacity="0.18"/>
+  <ellipse cx="600" cy="450" rx="380" ry="275" fill="none" stroke="#c9a84c" stroke-width="1" stroke-opacity="0.08"/>
+
+  <!-- ===== INNER OVAL ROAD ===== -->
+  <ellipse cx="600" cy="450" rx="260" ry="185" fill="none" stroke="#c9a84c" stroke-width="2" stroke-opacity="0.15"/>
+  <ellipse cx="600" cy="450" rx="240" ry="168" fill="none" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.08"/>
+
+  <!-- Center glow -->
+  <ellipse cx="600" cy="450" rx="160" ry="120" fill="url(#centerGlow)"/>
+
+  <!-- ===== THREE MAIN LANES ===== -->
+
+  <!-- 上路 TOP LANE - runs along upper portion of oval -->
+  <g id="zone-top-lane">
+    <!-- Main top lane path -->
+    <path d="M 195 390 C 195 200, 400 150, 600 150 C 800 150, 1005 200, 1005 390"
+          fill="none" stroke="#c9a84c" stroke-width="2.5" stroke-opacity="0.2"/>
+    <!-- Lane edge lines -->
+    <path d="M 205 380 C 205 210, 405 162, 600 162 C 795 162, 995 210, 995 380"
+          fill="none" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+    <path d="M 185 400 C 185 195, 395 138, 600 138 C 805 138, 1015 195, 1015 400"
+          fill="none" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+    <text x="600" y="128" text-anchor="middle" fill="#c9a84c" fill-opacity="0.5" font-size="14" font-family="serif" letter-spacing="8">上 路</text>
+  </g>
+
+  <!-- 中路 MID LANE - straight horizontal -->
+  <g id="zone-mid-lane">
+    <line x1="195" y1="450" x2="1005" y2="450" stroke="#c9a84c" stroke-width="3" stroke-opacity="0.22"/>
+    <line x1="195" y1="438" x2="1005" y2="438" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+    <line x1="195" y1="462" x2="1005" y2="462" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+    <text x="600" y="432" text-anchor="middle" fill="#c9a84c" fill-opacity="0.5" font-size="14" font-family="serif" letter-spacing="8">中 路</text>
+  </g>
+
+  <!-- 下路 BOT LANE - runs along lower portion of oval -->
+  <g id="zone-bot-lane">
+    <path d="M 195 510 C 195 700, 400 750, 600 750 C 800 750, 1005 700, 1005 510"
+          fill="none" stroke="#c9a84c" stroke-width="2.5" stroke-opacity="0.2"/>
+    <path d="M 205 520 C 205 690, 405 738, 600 738 C 795 738, 995 690, 995 520"
+          fill="none" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+    <path d="M 185 500 C 185 710, 395 762, 600 762 C 805 762, 1015 710, 1015 500"
+          fill="none" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+    <text x="600" y="778" text-anchor="middle" fill="#c9a84c" fill-opacity="0.5" font-size="14" font-family="serif" letter-spacing="8">下 路</text>
+  </g>
+
+  <!-- ===== CROSS CONNECTING PATHS (vertical shortcuts) ===== -->
+  <!-- Left vertical -->
+  <line x1="390" y1="230" x2="390" y2="670" stroke="#c9a84c" stroke-width="1.2" stroke-opacity="0.1"/>
+  <!-- Center-left vertical -->
+  <line x1="490" y1="280" x2="490" y2="620" stroke="#c9a84c" stroke-width="1" stroke-opacity="0.08"/>
+  <!-- Center-right vertical -->
+  <line x1="710" y1="280" x2="710" y2="620" stroke="#c9a84c" stroke-width="1" stroke-opacity="0.08"/>
+  <!-- Right vertical -->
+  <line x1="810" y1="230" x2="810" y2="670" stroke="#c9a84c" stroke-width="1.2" stroke-opacity="0.1"/>
+
+  <!-- Horizontal cross connectors (between inner and outer oval) -->
+  <line x1="340" y1="320" x2="860" y2="320" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.07"/>
+  <line x1="340" y1="580" x2="860" y2="580" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.07"/>
+
+  <!-- ===== BUILDING BLOCKS (detailed grid inside the oval) ===== -->
+  <!-- The map has many building blocks filling the oval area - creating a city feel -->
+
+  <!-- Row 1: Upper area buildings (between top lane and mid) -->
+  <!-- Left quarter -->
+  <rect x="330" y="240" width="32" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="370" y="245" width="28" height="20" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="335" y="275" width="25" height="28" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="368" y="278" width="30" height="22" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="410" y="260" width="26" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="445" y="255" width="22" height="30" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Center-left upper -->
+  <rect x="420" y="310" width="28" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="455" y="305" width="24" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="490" y="310" width="30" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="528" y="312" width="22" height="22" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Center upper -->
+  <rect x="560" y="280" width="26" height="20" fill="#c9a84c" fill-opacity="0.03" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.12"/>
+  <rect x="595" y="275" width="28" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="560" y="310" width="24" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="592" y="315" width="28" height="20" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Center-right upper -->
+  <rect x="650" y="310" width="28" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="686" y="305" width="24" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="720" y="308" width="26" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="754" y="312" width="22" height="22" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Right quarter upper -->
+  <rect x="760" y="260" width="26" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="795" y="255" width="22" height="30" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="830" y="240" width="32" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="830" y="275" width="25" height="28" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+
+  <!-- Row 2: Mid area buildings (flanking mid lane) -->
+  <!-- Left mid -->
+  <rect x="290" y="370" width="24" height="20" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="322" y="365" width="20" height="26" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="290" y="470" width="24" height="20" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="322" y="468" width="20" height="26" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Center-left mid -->
+  <rect x="420" y="375" width="26" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="455" y="370" width="22" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="420" y="472" width="26" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="455" y="468" width="22" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Center mid -->
+  <rect x="555" y="370" width="26" height="26" fill="#c9a84c" fill-opacity="0.03" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.12"/>
+  <rect x="620" y="370" width="26" height="26" fill="#c9a84c" fill-opacity="0.03" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.12"/>
+  <rect x="555" y="472" width="26" height="26" fill="#c9a84c" fill-opacity="0.03" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.12"/>
+  <rect x="620" y="472" width="26" height="26" fill="#c9a84c" fill-opacity="0.03" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.12"/>
+
+  <!-- Center-right mid -->
+  <rect x="720" y="375" width="26" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="754" y="370" width="22" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="720" y="472" width="26" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="754" y="468" width="22" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Right mid -->
+  <rect x="855" y="370" width="24" height="20" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="885" y="365" width="20" height="26" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="855" y="470" width="24" height="20" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="885" y="468" width="20" height="26" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Row 3: Lower area buildings (between mid and bot lane) -->
+  <!-- Left quarter lower -->
+  <rect x="335" y="540" width="25" height="28" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="368" y="545" width="30" height="22" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="330" y="580" width="32" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="370" y="578" width="28" height="20" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="410" y="555" width="26" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+
+  <!-- Center-left lower -->
+  <rect x="420" y="540" width="28" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="455" y="535" width="24" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="490" y="540" width="30" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="528" y="538" width="22" height="22" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- Center lower -->
+  <rect x="560" y="540" width="24" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="592" y="535" width="28" height="20" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="560" y="575" width="26" height="20" fill="#c9a84c" fill-opacity="0.03" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.12"/>
+  <rect x="595" y="570" width="28" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+
+  <!-- Center-right lower -->
+  <rect x="650" y="540" width="28" height="22" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="686" y="535" width="24" height="28" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+  <rect x="720" y="538" width="26" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+
+  <!-- Right quarter lower -->
+  <rect x="760" y="555" width="26" height="26" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="830" y="580" width="32" height="24" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="830" y="540" width="25" height="28" fill="#c9a84c" fill-opacity="0.025" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.1"/>
+  <rect x="795" y="578" width="28" height="20" fill="#c9a84c" fill-opacity="0.02" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.08"/>
+
+  <!-- ===== WATER/HARBOR AREAS (top-left and bottom-right, matching screenshot) ===== -->
+  <!-- Top-left harbor (dark area with water feel) -->
+  <path d="M 100 100 Q 200 80, 280 110 Q 240 150, 160 160 Q 100 150, 100 100 Z"
+        fill="#0a0a12" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.1"/>
+  <text x="180" y="135" text-anchor="middle" fill="#c9a84c" fill-opacity="0.15" font-size="10" font-family="serif">码头</text>
+  <!-- Bottom-right harbor -->
+  <path d="M 1100 800 Q 1000 820, 920 790 Q 960 750, 1040 740 Q 1100 750, 1100 800 Z"
+        fill="#0a0a12" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.1"/>
+  <text x="1020" y="775" text-anchor="middle" fill="#c9a84c" fill-opacity="0.15" font-size="10" font-family="serif">码头</text>
+
+  <!-- ===== RED BASE (Far Left) ===== -->
+  <g id="zone-red-base">
+    <ellipse cx="130" cy="450" rx="65" ry="85" fill="url(#redGlow)"/>
+    <!-- Base platform -->
+    <rect x="82" y="385" width="96" height="130" rx="3" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="1.8" stroke-opacity="0.45"/>
+    <rect x="90" y="393" width="80" height="114" rx="2" fill="none" stroke="#c05050" stroke-width="0.6" stroke-opacity="0.2"/>
+
+    <!-- Red Phoenix (大鹅/凤凰) - stylized -->
+    <g transform="translate(130, 425)" filter="url(#softGlow)">
+      <!-- Body -->
+      <ellipse cx="0" cy="5" rx="18" ry="12" fill="#c05050" fill-opacity="0.2" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.55"/>
+      <!-- Head + Crest -->
+      <circle cx="-14" cy="-10" r="6" fill="#c05050" fill-opacity="0.15" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+      <path d="M -16 -16 L -12 -26 L -9 -14" fill="#c05050" fill-opacity="0.1" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.45"/>
+      <path d="M -14 -16 L -14 -28" stroke="#c05050" stroke-width="0.6" stroke-opacity="0.4"/>
+      <path d="M -11 -16 L -8 -24" stroke="#c05050" stroke-width="0.6" stroke-opacity="0.35"/>
+      <!-- Beak -->
+      <path d="M -20 -10 L -26 -8 L -20 -7" fill="#c05050" fill-opacity="0.2"/>
+      <!-- Wing -->
+      <path d="M 8 -2 Q 24 -18, 22 6 Q 16 14, 6 10" fill="#c05050" fill-opacity="0.1" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.35"/>
+      <!-- Tail feathers -->
+      <path d="M 18 2 Q 30 -6, 28 8" stroke="#c05050" stroke-width="0.7" stroke-opacity="0.35"/>
+      <path d="M 18 6 Q 32 2, 28 14" stroke="#c05050" stroke-width="0.7" stroke-opacity="0.35"/>
+      <path d="M 16 10 Q 28 10, 24 20" stroke="#c05050" stroke-width="0.7" stroke-opacity="0.3"/>
+      <!-- Legs -->
+      <line x1="-4" y1="16" x2="-6" y2="26" stroke="#c05050" stroke-width="0.6" stroke-opacity="0.3"/>
+      <line x1="4" y1="16" x2="6" y2="26" stroke="#c05050" stroke-width="0.6" stroke-opacity="0.3"/>
+    </g>
+
+    <!-- Red Tree -->
+    <g transform="translate(130, 484)">
+      <line x1="0" y1="2" x2="0" y2="18" stroke="#c05050" stroke-width="2" stroke-opacity="0.45"/>
+      <circle cx="0" cy="-4" r="10" fill="#c05050" fill-opacity="0.1" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.35"/>
+      <circle cx="-6" cy="0" r="6" fill="#c05050" fill-opacity="0.07" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.25"/>
+      <circle cx="6" cy="0" r="6" fill="#c05050" fill-opacity="0.07" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.25"/>
+    </g>
+
+    <text x="130" y="530" text-anchor="middle" fill="#c05050" fill-opacity="0.65" font-size="13" font-family="serif" letter-spacing="2">红方基地</text>
+  </g>
+
+  <!-- ===== BLUE BASE (Far Right) ===== -->
+  <g id="zone-blue-base">
+    <ellipse cx="1070" cy="450" rx="65" ry="85" fill="url(#blueGlow)"/>
+    <rect x="1022" y="385" width="96" height="130" rx="3" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="1.8" stroke-opacity="0.45"/>
+    <rect x="1030" y="393" width="80" height="114" rx="2" fill="none" stroke="#5080c0" stroke-width="0.6" stroke-opacity="0.2"/>
+
+    <!-- Blue Crane/Goose (大鹅) - stylized, mirrored -->
+    <g transform="translate(1070, 425)" filter="url(#softGlow)">
+      <ellipse cx="0" cy="5" rx="18" ry="12" fill="#5080c0" fill-opacity="0.2" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.55"/>
+      <!-- Long neck + head -->
+      <path d="M 12 -2 Q 18 -22, 14 -30" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.55"/>
+      <circle cx="14" cy="-32" r="5" fill="#5080c0" fill-opacity="0.15" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+      <!-- Beak -->
+      <path d="M 19 -33 L 26 -30 L 19 -29" fill="#5080c0" fill-opacity="0.2"/>
+      <!-- Wing -->
+      <path d="M -8 -2 Q -24 -16, -22 6 Q -16 14, -6 10" fill="#5080c0" fill-opacity="0.1" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.35"/>
+      <!-- Tail -->
+      <path d="M -18 2 Q -28 -4, -26 8" stroke="#5080c0" stroke-width="0.7" stroke-opacity="0.35"/>
+      <path d="M -18 6 Q -30 4, -24 14" stroke="#5080c0" stroke-width="0.7" stroke-opacity="0.3"/>
+      <!-- Legs -->
+      <line x1="-4" y1="16" x2="-6" y2="26" stroke="#5080c0" stroke-width="0.6" stroke-opacity="0.3"/>
+      <line x1="4" y1="16" x2="6" y2="26" stroke="#5080c0" stroke-width="0.6" stroke-opacity="0.3"/>
+    </g>
+
+    <!-- Blue Tree -->
+    <g transform="translate(1070, 484)">
+      <line x1="0" y1="2" x2="0" y2="18" stroke="#5080c0" stroke-width="2" stroke-opacity="0.45"/>
+      <circle cx="0" cy="-4" r="10" fill="#5080c0" fill-opacity="0.1" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.35"/>
+      <circle cx="-6" cy="0" r="6" fill="#5080c0" fill-opacity="0.07" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.25"/>
+      <circle cx="6" cy="0" r="6" fill="#5080c0" fill-opacity="0.07" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.25"/>
+    </g>
+
+    <text x="1070" y="530" text-anchor="middle" fill="#5080c0" fill-opacity="0.65" font-size="13" font-family="serif" letter-spacing="2">蓝方基地</text>
+  </g>
+
+  <!-- ===== RED TOWERS (3, left side) ===== -->
+  <!-- Red 上塔 -->
+  <g id="zone-red-tower-top" filter="url(#softGlow)">
+    <rect x="293" y="210" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 287 210 L 305 198 L 323 210" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 291 203 L 305 193 L 319 203" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="305" y1="193" x2="305" y2="186" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="289" y="242" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="305" y="180" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">上</text>
+  </g>
+
+  <!-- Red 中塔 -->
+  <g id="zone-red-tower-mid" filter="url(#softGlow)">
+    <rect x="222" y="434" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 216 434 L 234 422 L 252 434" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 220 427 L 234 417 L 248 427" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="234" y1="417" x2="234" y2="410" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="218" y="466" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="234" y="404" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">中</text>
+  </g>
+
+  <!-- Red 下塔 -->
+  <g id="zone-red-tower-bot" filter="url(#softGlow)">
+    <rect x="293" y="640" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 287 640 L 305 628 L 323 640" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 291 633 L 305 623 L 319 633" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="305" y1="623" x2="305" y2="616" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="289" y="672" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="305" y="610" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">下</text>
+  </g>
+
+  <!-- ===== BLUE TOWERS (3, right side) ===== -->
+  <!-- Blue 上塔 -->
+  <g id="zone-blue-tower-top" filter="url(#softGlow)">
+    <rect x="883" y="210" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 877 210 L 895 198 L 913 210" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 881 203 L 895 193 L 909 203" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="895" y1="193" x2="895" y2="186" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="879" y="242" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="895" y="180" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">上</text>
+  </g>
+
+  <!-- Blue 中塔 -->
+  <g id="zone-blue-tower-mid" filter="url(#softGlow)">
+    <rect x="954" y="434" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 948 434 L 966 422 L 984 434" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 952 427 L 966 417 L 980 427" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="966" y1="417" x2="966" y2="410" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="950" y="466" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="966" y="404" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">中</text>
+  </g>
+
+  <!-- Blue 下塔 -->
+  <g id="zone-blue-tower-bot" filter="url(#softGlow)">
+    <rect x="883" y="640" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 877 640 L 895 628 L 913 640" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 881 633 L 895 623 L 909 633" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="895" y1="623" x2="895" y2="616" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="879" y="672" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="895" y="610" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">下</text>
+  </g>
+
+  <!-- ===== WILD/JUNGLE AREAS (8 total, 4 per side) ===== -->
+  <!-- The numbers 1-4 correspond to the game screenshot positions -->
+
+  <!-- Red 野区1 (upper-left, between upper buildings) -->
+  <g id="zone-wild-red-1">
+    <rect x="370" y="330" width="50" height="32" rx="3" fill="rgba(192,80,80,0.03)" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="395" y="352" text-anchor="middle" fill="#c05050" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">1</text>
+  </g>
+
+  <!-- Red 野区2 (upper-center-left) -->
+  <g id="zone-wild-red-2">
+    <rect x="485" y="340" width="50" height="32" rx="3" fill="rgba(192,80,80,0.03)" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="510" y="362" text-anchor="middle" fill="#c05050" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">2</text>
+  </g>
+
+  <!-- Red 野区3 (lower-left) -->
+  <g id="zone-wild-red-3">
+    <rect x="370" y="508" width="50" height="32" rx="3" fill="rgba(192,80,80,0.03)" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="395" y="530" text-anchor="middle" fill="#c05050" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">3</text>
+  </g>
+
+  <!-- Red 野区4 (lower-center-left) -->
+  <g id="zone-wild-red-4">
+    <rect x="485" y="508" width="50" height="32" rx="3" fill="rgba(192,80,80,0.03)" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="510" y="530" text-anchor="middle" fill="#c05050" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">4</text>
+  </g>
+
+  <!-- Blue 野区2 (upper-center-right, mirrored from red 2) -->
+  <g id="zone-wild-blue-2">
+    <rect x="665" y="340" width="50" height="32" rx="3" fill="rgba(80,128,192,0.03)" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="690" y="362" text-anchor="middle" fill="#5080c0" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">2</text>
+  </g>
+
+  <!-- Blue 野区1 (upper-right) -->
+  <g id="zone-wild-blue-1">
+    <rect x="780" y="330" width="50" height="32" rx="3" fill="rgba(80,128,192,0.03)" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="805" y="352" text-anchor="middle" fill="#5080c0" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">1</text>
+  </g>
+
+  <!-- Blue 野区4 (lower-center-right) -->
+  <g id="zone-wild-blue-4">
+    <rect x="665" y="508" width="50" height="32" rx="3" fill="rgba(80,128,192,0.03)" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="690" y="530" text-anchor="middle" fill="#5080c0" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">4</text>
+  </g>
+
+  <!-- Blue 野区3 (lower-right) -->
+  <g id="zone-wild-blue-3">
+    <rect x="780" y="508" width="50" height="32" rx="3" fill="rgba(80,128,192,0.03)" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.22" stroke-dasharray="5 3"/>
+    <text x="805" y="530" text-anchor="middle" fill="#5080c0" fill-opacity="0.6" font-size="16" font-family="serif" font-weight="bold">3</text>
+  </g>
+
+  <!-- ===== CENTER PLAZA ===== -->
+  <circle cx="600" cy="450" r="40" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.2"/>
+  <circle cx="600" cy="450" r="20" fill="none" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.12"/>
+  <circle cx="600" cy="450" r="5" fill="#c9a84c" fill-opacity="0.15"/>
+
+  <!-- ===== BOTTOM CENTER ICONS (gate area decorations) ===== -->
+  <!-- Bottom gate structure (matching screenshot - gate + emblem) -->
+  <g transform="translate(540, 810)">
+    <rect x="0" y="0" width="30" height="24" fill="#0d0d14" stroke="#c9a84c" stroke-width="1" stroke-opacity="0.3"/>
+    <path d="M 5 0 L 15 -10 L 25 0" fill="none" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.3"/>
+  </g>
+  <g transform="translate(630, 810)">
+    <circle cx="15" cy="12" r="12" fill="none" stroke="#c9a84c" stroke-width="0.8" stroke-opacity="0.2"/>
+    <circle cx="15" cy="12" r="6" fill="#c9a84c" fill-opacity="0.05" stroke="#c9a84c" stroke-width="0.5" stroke-opacity="0.15"/>
+  </g>
+
+  <!-- ===== DECORATIVE CORNER ORNAMENTS ===== -->
+  <g opacity="0.25">
+    <path d="M 78 68 L 78 88 L 98 88" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <path d="M 78 68 Q 84 74, 98 74" fill="none" stroke="#c9a84c" stroke-width="0.7"/>
+  </g>
+  <g opacity="0.25">
+    <path d="M 1122 68 L 1122 88 L 1102 88" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <path d="M 1122 68 Q 1116 74, 1102 74" fill="none" stroke="#c9a84c" stroke-width="0.7"/>
+  </g>
+  <g opacity="0.25">
+    <path d="M 78 832 L 78 812 L 98 812" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <path d="M 78 832 Q 84 826, 98 826" fill="none" stroke="#c9a84c" stroke-width="0.7"/>
+  </g>
+  <g opacity="0.25">
+    <path d="M 1122 832 L 1122 812 L 1102 812" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <path d="M 1122 832 Q 1116 826, 1102 826" fill="none" stroke="#c9a84c" stroke-width="0.7"/>
+  </g>
+
+  <!-- ===== TITLE ===== -->
+  <text x="600" y="98" text-anchor="middle" fill="#c9a84c" fill-opacity="0.25" font-size="12" font-family="serif" letter-spacing="10">百 业 战 场</text>
+</svg>
