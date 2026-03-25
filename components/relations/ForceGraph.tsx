@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Profile, MemberRelation } from '@/lib/types';
 import { RELATION_TYPES } from '@/lib/constants';
@@ -21,7 +21,6 @@ interface GraphNode {
   color: string;
   size: number;
   val: number;
-  isSelected?: boolean;
   x?: number;
   y?: number;
 }
@@ -38,7 +37,7 @@ interface GraphLink {
 const sizeMap = { small: 8, medium: 12, large: 16 };
 
 export default function ForceGraph({ profiles, relations, selectedProfileId, viewMode: _viewMode, onNodeClick }: ForceGraphProps) {
-  void _viewMode; // available for future use
+  void _viewMode;
   const graphRef = useRef<any>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -58,39 +57,39 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     return () => ro.disconnect();
   }, []);
 
-  // Use profile.id as node identifier (works for all profiles, including admin-created ones)
-  const nodes: GraphNode[] = profiles.map(p => ({
-    id: p.id,
-    name: p.nickname,
-    color: p.node_color || '#9a8a6a',
-    size: sizeMap[p.node_size] || 6,
-    val: sizeMap[p.node_size] || 6,
-    isSelected: p.id === selectedProfileId,
-    x: p.graph_x ? (p.graph_x / 100) * dimensions.width : undefined,
-    y: p.graph_y ? (p.graph_y / 100) * dimensions.height : undefined,
-  }));
+  // Memoize graph data so the force simulation doesn't restart on every render
+  const graphData = useMemo(() => {
+    const nodes: GraphNode[] = profiles.map(p => ({
+      id: p.id,
+      name: p.nickname,
+      color: p.node_color || '#9a8a6a',
+      size: sizeMap[p.node_size] || 12,
+      val: sizeMap[p.node_size] || 12,
+    }));
 
-  // Build a set of valid node IDs for filtering links
-  const nodeIds = new Set(nodes.map(n => n.id));
+    const nodeIds = new Set(nodes.map(n => n.id));
 
-  const links: GraphLink[] = relations
-    .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
-    .map(r => {
-      const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
-      return {
-        source: r.from_user_id,
-        target: r.to_user_id,
-        type: r.relation_type,
-        color: r.line_color || relType?.color || '#5a5a6a',
-        label: relType?.label || r.label || undefined,
-        dashes: relType?.style === 'dashed',
-      };
-    });
+    const links: GraphLink[] = relations
+      .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
+      .map(r => {
+        const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
+        return {
+          source: r.from_user_id,
+          target: r.to_user_id,
+          type: r.relation_type,
+          color: r.line_color || relType?.color || '#5a5a6a',
+          label: relType?.label || r.label || undefined,
+          dashes: relType?.style === 'dashed',
+        };
+      });
+
+    return { nodes, links };
+  }, [profiles, relations]);
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const r = node.size || 12;
     const fontSize = Math.max(11 / globalScale, 2.5);
-    const isSelected = node.isSelected;
+    const isSelected = node.id === selectedProfileId;
 
     // Glow effect for selected node
     if (isSelected) {
@@ -126,7 +125,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     ctx.textBaseline = 'top';
     ctx.fillStyle = isSelected ? '#f0e6d0' : '#e8e0d0';
     ctx.fillText(node.name, node.x, node.y + r + 3);
-  }, []);
+  }, [selectedProfileId]);
 
   const paintLink = useCallback((link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const sx = link.source.x;
@@ -138,7 +137,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     ctx.moveTo(sx, sy);
     ctx.lineTo(tx, ty);
     ctx.strokeStyle = link.color || '#5a5a6a';
-    ctx.lineWidth = (link.dashes ? 0.8 : 1.2) / globalScale;
+    ctx.lineWidth = (link.dashes ? 1 : 1.5) / globalScale;
     if (link.dashes) {
       ctx.setLineDash([4 / globalScale, 4 / globalScale]);
     } else {
@@ -151,7 +150,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     if (link.label) {
       const mx = (sx + tx) / 2;
       const my = (sy + ty) / 2;
-      const labelFontSize = Math.max(8 / globalScale, 1.5);
+      const labelFontSize = Math.max(9 / globalScale, 1.5);
       ctx.font = `${labelFontSize}px "Noto Sans SC", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -167,9 +166,22 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     }
   }, []);
 
+  // Handle node click — use a ref callback to avoid stale closure issues
+  const onNodeClickRef = useRef(onNodeClick);
+  onNodeClickRef.current = onNodeClick;
+
+  const handleNodeClick = useCallback((node: any) => {
+    console.log('Node clicked:', node.id, node.name);
+    onNodeClickRef.current?.(node.id);
+  }, []);
+
+  const handleNodeHover = useCallback((node: any) => {
+    setHoveredNode(node || null);
+  }, []);
+
   return (
     <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
-      {/* Legend — pointer-events-none so it doesn't block canvas clicks */}
+      {/* Legend */}
       <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap pointer-events-none">
         {RELATION_TYPES.map(t => (
           <div key={t.id} className="flex items-center gap-1.5 px-2 py-1 bg-bg-primary/80 border border-gold/10 rounded-sm">
@@ -186,7 +198,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
         ))}
       </div>
 
-      {/* Hover tooltip — pointer-events-none so it doesn't block canvas clicks */}
+      {/* Hover tooltip */}
       {hoveredNode && (
         <div className="absolute top-4 right-4 z-10 p-3 bg-bg-panel border border-gold/20 rounded-sm shadow-lg pointer-events-none">
           <div className="flex items-center gap-2 mb-1">
@@ -203,23 +215,26 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
         ref={graphRef}
         width={dimensions.width}
         height={600}
-        graphData={{ nodes, links }}
+        graphData={graphData}
         nodeCanvasObject={paintNode}
         linkCanvasObject={paintLink}
         nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
           ctx.beginPath();
-          ctx.arc(node.x, node.y, (node.size || 12) + 8, 0, 2 * Math.PI);
+          ctx.arc(node.x, node.y, (node.size || 12) + 10, 0, 2 * Math.PI);
           ctx.fillStyle = color;
           ctx.fill();
         }}
-        onNodeHover={(node: any) => setHoveredNode(node)}
-        onNodeClick={(node: any) => onNodeClick?.(node.id)}
+        onNodeHover={handleNodeHover}
+        onNodeClick={handleNodeClick}
         backgroundColor="#0d0d14"
         linkDirectionalParticles={0}
-        cooldownTicks={100}
-        d3AlphaDecay={0.02}
-        d3VelocityDecay={0.3}
+        warmupTicks={50}
+        cooldownTicks={30}
+        d3AlphaDecay={0.05}
+        d3VelocityDecay={0.4}
         enableNodeDrag={true}
+        minZoom={0.5}
+        maxZoom={5}
       />
     </div>
   );
