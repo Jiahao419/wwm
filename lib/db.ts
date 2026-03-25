@@ -160,12 +160,36 @@ export function deleteSignup(id: string) {
 
 // ─── Battle Assignments ──────────────────────────────────────────────
 
-export function getAssignments(eventId: string) {
-  return getAnonSupabase()
+export async function getAssignments(eventId: string) {
+  // Fetch assignments
+  const { data: assigns, error: assignErr } = await getAnonSupabase()
     .from('battle_assignments')
     .select('*')
     .eq('event_id', eventId)
     .returns<BattleAssignment[]>();
+
+  if (assignErr || !assigns) return { data: assigns, error: assignErr };
+
+  // Fetch all profiles and join manually (user_id in assignments may be profile.id or auth user_id)
+  const { data: profiles } = await getAnonSupabase()
+    .from('profiles')
+    .select('*')
+    .returns<Profile[]>();
+
+  const profileMap = new Map<string, Profile>();
+  if (profiles) {
+    for (const p of profiles) {
+      profileMap.set(p.id, p);
+      if (p.user_id) profileMap.set(p.user_id, p);
+    }
+  }
+
+  const enriched = assigns.map(a => ({
+    ...a,
+    profile: a.user_id ? profileMap.get(a.user_id) || null : null,
+  }));
+
+  return { data: enriched, error: null };
 }
 
 export async function upsertAssignment(data: Omit<BattleAssignment, 'profile' | 'signup'>) {

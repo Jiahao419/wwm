@@ -87,17 +87,30 @@ export default function BattlePage() {
 
   // Save all assignment changes
   const handleSaveAll = async () => {
-    if (usingMock || !event) return;
+    if (!event) return;
+    if (usingMock) {
+      alert('当前使用的是演示数据，无法保存');
+      return;
+    }
+    console.log('Saving all assignments:', assignments.length);
     let hasError = false;
+    let savedCount = 0;
     for (const a of assignments) {
-      const { error } = await upsertAssignment(stripJoined(a));
+      const stripped = stripJoined(a);
+      console.log('Saving:', stripped.id, stripped);
+      const { data, error } = await upsertAssignment(stripped);
       if (error) {
-        console.error('保存分配失败:', a.id, error);
+        console.error('保存分配失败:', a.id, a.profile?.nickname, error);
         hasError = true;
+      } else {
+        console.log('Saved OK:', data?.id);
+        savedCount++;
       }
     }
     if (hasError) {
-      alert('部分保存失败，请查看控制台日志');
+      alert(`保存完成：${savedCount}/${assignments.length} 成功，部分失败请查看控制台(F12)`);
+    } else {
+      alert(`保存成功：${savedCount} 条记录`);
     }
     await fetchData();
   };
@@ -193,11 +206,15 @@ export default function BattlePage() {
   };
 
   const handleAddMember = async (profile: Profile) => {
-    if (!event || usingMock) return;
-    // Use profile.id as the effective user identifier (profile.user_id may be null for admin-created profiles)
-    const effectiveUserId = profile.user_id || profile.id;
-    // Check if already added
-    if (assignments.some(a => a.user_id === effectiveUserId)) {
+    if (!event) return;
+    if (usingMock) {
+      alert('当前使用的是演示数据，请先创建真实战务活动');
+      return;
+    }
+    // Use profile.id as the identifier (works for all profiles regardless of auth status)
+    const memberId = profile.id;
+    // Check if already added (check both profile.id and user_id)
+    if (assignments.some(a => a.user_id === memberId || a.user_id === profile.user_id)) {
       alert('该成员已在列表中');
       return;
     }
@@ -207,7 +224,7 @@ export default function BattlePage() {
     const defaultY = 45 + Math.floor(idx / 5) * 3;
     const insertData = {
       event_id: event.id,
-      user_id: effectiveUserId,
+      user_id: memberId,
       team_number: null,
       assigned_role: null,
       map_zone: null,
@@ -215,10 +232,12 @@ export default function BattlePage() {
       map_y: defaultY,
       is_substitute: false,
       admin_note: null,
-      updated_by: user?.id || '',
+      updated_by: user?.id || null,
       updated_at: new Date().toISOString(),
     };
+    console.log('Adding member:', profile.nickname, 'with data:', insertData);
     const { data: inserted, error } = await upsertAssignment({ id: '', ...insertData });
+    console.log('Insert result:', { inserted, error });
     if (!error && inserted) {
       // Use the DB-generated id, not a client-side UUID
       setAssignments(prev => [...prev, { ...inserted, profile }]);
@@ -259,7 +278,7 @@ export default function BattlePage() {
         map_y: null,
         is_substitute: false,
         admin_note: null,
-        updated_by: user?.id || '',
+        updated_by: user?.id || null,
         updated_at: new Date().toISOString(),
       };
       const { data: inserted, error } = await upsertAssignment(insertData);
@@ -481,7 +500,7 @@ export default function BattlePage() {
               ) : (
                 <div className="space-y-1">
                   {filteredRoster.map(p => {
-                    const alreadyAdded = assignments.some(a => a.user_id === p.user_id);
+                    const alreadyAdded = assignments.some(a => a.user_id === p.id || a.user_id === p.user_id);
                     return (
                       <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded hover:bg-bg-card/50 transition-colors">
                         <div className="flex items-center gap-3">

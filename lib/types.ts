@@ -64,7 +64,7 @@ export interface BattleAssignment {
   map_y: number | null;
   is_substitute: boolean;
   admin_note: string | null;
-  updated_by: string;
+  updated_by: string | null;
   updated_at: string;
   // joined data
   profile?: Profile;
