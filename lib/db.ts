@@ -9,11 +9,15 @@ import type {
   ActivityRecord,
 } from './types';
 
-const supabase = createClient();
+// Helper: get a fresh supabase client per call (avoids stale module-level singleton)
+function getSupabase() {
+  return createClient();
+}
 
 // ─── Auth / Role helpers ─────────────────────────────────────────────
 
 export async function getCurrentUserProfile() {
+  const supabase = getSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: new Error('Not authenticated') };
 
@@ -38,19 +42,19 @@ export async function isAdminOrOwner() {
 // ─── Profiles ────────────────────────────────────────────────────────
 
 export function getProfiles() {
-  return supabase.from('profiles').select('*').returns<Profile[]>();
+  return getSupabase().from('profiles').select('*').returns<Profile[]>();
 }
 
 export function updateProfile(id: string, data: Partial<Profile>) {
-  return supabase.from('profiles').update(data).eq('id', id).select().single<Profile>();
+  return getSupabase().from('profiles').update(data).eq('id', id).select().single<Profile>();
 }
 
 export function deleteProfile(id: string) {
-  return supabase.from('profiles').delete().eq('id', id);
+  return getSupabase().from('profiles').delete().eq('id', id);
 }
 
 export function setUserRole(userId: string, role: Profile['role']) {
-  return supabase
+  return getSupabase()
     .from('profiles')
     .update({ role })
     .eq('user_id', userId)
@@ -61,7 +65,7 @@ export function setUserRole(userId: string, role: Profile['role']) {
 // ─── Notices ─────────────────────────────────────────────────────────
 
 export function getNotices() {
-  return supabase
+  return getSupabase()
     .from('notices')
     .select('*')
     .order('is_pinned', { ascending: false })
@@ -70,25 +74,25 @@ export function getNotices() {
 }
 
 export function createNotice(data: Omit<Notice, 'id' | 'created_at' | 'updated_at'>) {
-  return supabase.from('notices').insert(data).select().single<Notice>();
+  return getSupabase().from('notices').insert(data).select().single<Notice>();
 }
 
 export function updateNotice(id: string, data: Partial<Notice>) {
-  return supabase.from('notices').update(data).eq('id', id).select().single<Notice>();
+  return getSupabase().from('notices').update(data).eq('id', id).select().single<Notice>();
 }
 
 export function deleteNotice(id: string) {
-  return supabase.from('notices').delete().eq('id', id);
+  return getSupabase().from('notices').delete().eq('id', id);
 }
 
 // ─── Battle Events ───────────────────────────────────────────────────
 
 export function getBattleEvents() {
-  return supabase.from('battle_events').select('*').returns<BattleEvent[]>();
+  return getSupabase().from('battle_events').select('*').returns<BattleEvent[]>();
 }
 
 export function getBattleEvent(id: string) {
-  return supabase
+  return getSupabase()
     .from('battle_events')
     .select('*, battle_signups(*), battle_assignments(*)')
     .eq('id', id)
@@ -96,21 +100,21 @@ export function getBattleEvent(id: string) {
 }
 
 export function createBattleEvent(data: Omit<BattleEvent, 'id' | 'created_at' | 'updated_at'>) {
-  return supabase.from('battle_events').insert(data).select().single<BattleEvent>();
+  return getSupabase().from('battle_events').insert(data).select().single<BattleEvent>();
 }
 
 export function updateBattleEvent(id: string, data: Partial<BattleEvent>) {
-  return supabase.from('battle_events').update(data).eq('id', id).select().single<BattleEvent>();
+  return getSupabase().from('battle_events').update(data).eq('id', id).select().single<BattleEvent>();
 }
 
 export function deleteBattleEvent(id: string) {
-  return supabase.from('battle_events').delete().eq('id', id);
+  return getSupabase().from('battle_events').delete().eq('id', id);
 }
 
 // ─── Battle Signups ──────────────────────────────────────────────────
 
 export function getSignups(eventId: string) {
-  return supabase
+  return getSupabase()
     .from('battle_signups')
     .select('*')
     .eq('event_id', eventId)
@@ -118,17 +122,17 @@ export function getSignups(eventId: string) {
 }
 
 export function createSignup(data: Omit<BattleSignup, 'id' | 'created_at' | 'updated_at'>) {
-  return supabase.from('battle_signups').insert(data).select().single<BattleSignup>();
+  return getSupabase().from('battle_signups').insert(data).select().single<BattleSignup>();
 }
 
 export function deleteSignup(id: string) {
-  return supabase.from('battle_signups').delete().eq('id', id);
+  return getSupabase().from('battle_signups').delete().eq('id', id);
 }
 
 // ─── Battle Assignments ──────────────────────────────────────────────
 
 export function getAssignments(eventId: string) {
-  return supabase
+  return getSupabase()
     .from('battle_assignments')
     .select('*')
     .eq('event_id', eventId)
@@ -136,7 +140,7 @@ export function getAssignments(eventId: string) {
 }
 
 export function upsertAssignment(data: Omit<BattleAssignment, 'profile' | 'signup'>) {
-  return supabase
+  return getSupabase()
     .from('battle_assignments')
     .upsert(data, { onConflict: 'id' })
     .select()
@@ -144,37 +148,37 @@ export function upsertAssignment(data: Omit<BattleAssignment, 'profile' | 'signu
 }
 
 export function deleteAssignment(id: string) {
-  return supabase.from('battle_assignments').delete().eq('id', id);
+  return getSupabase().from('battle_assignments').delete().eq('id', id);
 }
 
 // ─── Activity Records ────────────────────────────────────────────────
 
 export function getActivityRecords() {
-  return supabase.from('activity_records').select('*').returns<ActivityRecord[]>();
+  return getSupabase().from('activity_records').select('*').returns<ActivityRecord[]>();
 }
 
 export function createActivityRecord(data: Omit<ActivityRecord, 'id' | 'created_at'>) {
-  return supabase.from('activity_records').insert(data).select().single<ActivityRecord>();
+  return getSupabase().from('activity_records').insert(data).select().single<ActivityRecord>();
 }
 
 export function updateActivityRecord(id: string, data: Partial<ActivityRecord>) {
-  return supabase.from('activity_records').update(data).eq('id', id).select().single<ActivityRecord>();
+  return getSupabase().from('activity_records').update(data).eq('id', id).select().single<ActivityRecord>();
 }
 
 export function deleteActivityRecord(id: string) {
-  return supabase.from('activity_records').delete().eq('id', id);
+  return getSupabase().from('activity_records').delete().eq('id', id);
 }
 
 // ─── Member Relations ────────────────────────────────────────────────
 
 export function getRelations() {
-  return supabase.from('member_relations').select('*').returns<MemberRelation[]>();
+  return getSupabase().from('member_relations').select('*').returns<MemberRelation[]>();
 }
 
 export function createRelation(data: Omit<MemberRelation, 'id' | 'created_at'>) {
-  return supabase.from('member_relations').insert(data).select().single<MemberRelation>();
+  return getSupabase().from('member_relations').insert(data).select().single<MemberRelation>();
 }
 
 export function deleteRelation(id: string) {
-  return supabase.from('member_relations').delete().eq('id', id);
+  return getSupabase().from('member_relations').delete().eq('id', id);
 }

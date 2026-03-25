@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/types';
@@ -31,20 +31,37 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single<Profile>();
-    setProfile(data);
-  }, [supabase]);
+  // Use ref to keep a stable supabase client across renders
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   useEffect(() => {
+    let mounted = true;
+
+    const fetchProfile = async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', userId)
+          .single<Profile>();
+        if (mounted) {
+          if (error) {
+            console.error('fetchProfile error:', error);
+            setProfile(null);
+          } else {
+            setProfile(data);
+          }
+        }
+      } catch (err) {
+        console.error('fetchProfile exception:', err);
+        if (mounted) setProfile(null);
+      }
+    };
+
     // Get initial session
     supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!mounted) return;
       setUser(user);
       if (user) {
         await fetchProfile(user.id);
@@ -55,6 +72,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!mounted) return;
         const currentUser = session?.user ?? null;
         setUser(currentUser);
         if (currentUser) {
@@ -66,8 +84,11 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, [supabase, fetchProfile]);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const signInWithDiscord = async () => {
     await supabase.auth.signInWithOAuth({
