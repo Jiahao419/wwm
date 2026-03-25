@@ -168,10 +168,26 @@ export function getAssignments(eventId: string) {
     .returns<BattleAssignment[]>();
 }
 
-export function upsertAssignment(data: Omit<BattleAssignment, 'profile' | 'signup'>) {
+export async function upsertAssignment(data: Omit<BattleAssignment, 'profile' | 'signup'>) {
+  const { id, ...rest } = data;
+
+  // If we have a real DB id (not empty), try update first
+  if (id && id.length > 0) {
+    const { data: updated, error: updateErr } = await getSupabase()
+      .from('battle_assignments')
+      .update(rest)
+      .eq('id', id)
+      .select()
+      .single<BattleAssignment>();
+
+    if (!updateErr && updated) return { data: updated, error: null };
+    // If update found no matching row (PGRST116), fall through to insert
+  }
+
+  // Insert new — let DB generate the id
   return getSupabase()
     .from('battle_assignments')
-    .upsert(data, { onConflict: 'id' })
+    .insert(rest)
     .select()
     .single<BattleAssignment>();
 }

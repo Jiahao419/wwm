@@ -68,7 +68,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                     )}
                     <th className="px-4 py-2 text-left font-normal">分配职责</th>
                     <th className="px-4 py-2 text-left font-normal">地图位置</th>
-                    <th className="px-4 py-2 text-left font-normal w-[60px]">替补</th>
                     <th className="px-4 py-2 text-left font-normal">备注</th>
                     {isAdmin && onRemoveAssignment && (
                       <th className="px-4 py-2 text-center font-normal w-[50px]">操作</th>
@@ -155,21 +154,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                               {a.map_zone
                                 ? MAP_ZONES.find(z => z.id === a.map_zone)?.name || a.map_zone
                                 : <span className="text-text-secondary/40">未指定</span>}
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="px-4 py-2.5 text-center">
-                          {isAdmin ? (
-                            <input
-                              type="checkbox"
-                              checked={a.is_substitute}
-                              onChange={e => onAssignmentChange(a.id, 'is_substitute', e.target.checked)}
-                              className="accent-gold"
-                            />
-                          ) : (
-                            <span className="text-text-secondary text-xs">
-                              {a.is_substitute ? '是' : '-'}
                             </span>
                           )}
                         </td>

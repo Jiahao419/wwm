@@ -88,8 +88,16 @@ export default function BattlePage() {
   // Save all assignment changes
   const handleSaveAll = async () => {
     if (usingMock || !event) return;
+    let hasError = false;
     for (const a of assignments) {
-      await upsertAssignment(stripJoined(a));
+      const { error } = await upsertAssignment(stripJoined(a));
+      if (error) {
+        console.error('保存分配失败:', a.id, error);
+        hasError = true;
+      }
+    }
+    if (hasError) {
+      alert('部分保存失败，请查看控制台日志');
     }
     await fetchData();
   };
@@ -186,8 +194,10 @@ export default function BattlePage() {
 
   const handleAddMember = async (profile: Profile) => {
     if (!event || usingMock) return;
+    // Use profile.id as the effective user identifier (profile.user_id may be null for admin-created profiles)
+    const effectiveUserId = profile.user_id || profile.id;
     // Check if already added
-    if (assignments.some(a => a.user_id === profile.user_id)) {
+    if (assignments.some(a => a.user_id === effectiveUserId)) {
       alert('该成员已在列表中');
       return;
     }
@@ -195,10 +205,9 @@ export default function BattlePage() {
     const idx = assignments.length;
     const defaultX = 48 + (idx % 5) * 2;
     const defaultY = 45 + Math.floor(idx / 5) * 3;
-    const newAssignment = {
-      id: crypto.randomUUID(),
+    const insertData = {
       event_id: event.id,
-      user_id: profile.user_id || profile.id,
+      user_id: effectiveUserId,
       team_number: null,
       assigned_role: null,
       map_zone: null,
@@ -209,11 +218,13 @@ export default function BattlePage() {
       updated_by: user?.id || '',
       updated_at: new Date().toISOString(),
     };
-    const { error } = await upsertAssignment(newAssignment);
-    if (!error) {
-      setAssignments(prev => [...prev, { ...newAssignment, profile }]);
+    const { data: inserted, error } = await upsertAssignment({ id: '', ...insertData });
+    if (!error && inserted) {
+      // Use the DB-generated id, not a client-side UUID
+      setAssignments(prev => [...prev, { ...inserted, profile }]);
     } else {
-      alert('添加失败：' + error.message);
+      console.error('添加成员失败:', error);
+      alert('添加失败：' + (error?.message || '未知错误'));
     }
   };
 
@@ -237,8 +248,8 @@ export default function BattlePage() {
     const profileMap = new Map((allProfiles || []).map(p => [p.user_id, p]));
 
     for (const s of newSignups) {
-      const newAssignment = {
-        id: crypto.randomUUID(),
+      const insertData = {
+        id: '',
         event_id: event.id,
         user_id: s.user_id,
         team_number: null,
@@ -251,12 +262,14 @@ export default function BattlePage() {
         updated_by: user?.id || '',
         updated_at: new Date().toISOString(),
       };
-      await upsertAssignment(newAssignment);
-      setAssignments(prev => [...prev, {
-        ...newAssignment,
-        profile: profileMap.get(s.user_id) || { nickname: s.nickname_snapshot } as any,
-        signup: s,
-      }]);
+      const { data: inserted, error } = await upsertAssignment(insertData);
+      if (!error && inserted) {
+        setAssignments(prev => [...prev, {
+          ...inserted,
+          profile: profileMap.get(s.user_id) || { nickname: s.nickname_snapshot } as any,
+          signup: s,
+        }]);
+      }
     }
     alert(`成功导入 ${newSignups.length} 名成员`);
   };
