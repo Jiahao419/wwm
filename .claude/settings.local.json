@@ -19,7 +19,9 @@
       "Bash(git push:*)",
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "mcp__Claude_in_Chrome__navigate",
-      "mcp__Claude_in_Chrome__tabs_create_mcp"
+      "mcp__Claude_in_Chrome__tabs_create_mcp",
+      "mcp__Desktop_Commander__list_directory",
+      "mcp__Desktop_Commander__read_file"
     ]
   }
 }

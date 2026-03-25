@@ -8,9 +8,10 @@ interface AssignmentTableProps {
   assignments: (BattleAssignment & { profile?: any; signup?: any })[];
   isAdmin: boolean;
   onAssignmentChange: (id: string, field: string, value: any) => void;
+  onRemoveAssignment?: (id: string) => void;
 }
 
-export default function AssignmentTable({ assignments, isAdmin, onAssignmentChange }: AssignmentTableProps) {
+export default function AssignmentTable({ assignments, isAdmin, onAssignmentChange, onRemoveAssignment }: AssignmentTableProps) {
   const [collapsed, setCollapsed] = useState<Record<number, boolean>>({});
 
   const teams: Record<number, typeof assignments> = {};
@@ -69,6 +70,9 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                     <th className="px-4 py-2 text-left font-normal">地图位置</th>
                     <th className="px-4 py-2 text-left font-normal w-[60px]">替补</th>
                     <th className="px-4 py-2 text-left font-normal">备注</th>
+                    {isAdmin && onRemoveAssignment && (
+                      <th className="px-4 py-2 text-center font-normal w-[50px]">操作</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -87,7 +91,7 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                             >
                               {a.profile?.nickname?.charAt(0)}
                             </span>
-                            <span className="text-text-primary">{a.profile?.nickname}</span>
+                            <span className="text-text-primary">{a.profile?.nickname || '未知'}</span>
                           </div>
                         </td>
                         <td className="px-4 py-2.5 text-text-secondary/50 text-xs">
@@ -95,7 +99,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                           {a.signup?.preferred_roles?.join(', ')}
                         </td>
 
-                        {/* Team number dropdown - admin only column */}
                         {isAdmin && (
                           <td className="px-4 py-2.5">
                             <select
@@ -116,7 +119,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                           </td>
                         )}
 
-                        {/* Assigned role */}
                         <td className="px-4 py-2.5">
                           {isAdmin ? (
                             <select
@@ -136,7 +138,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                           )}
                         </td>
 
-                        {/* Map zone */}
                         <td className="px-4 py-2.5">
                           {isAdmin ? (
                             <select
@@ -158,7 +159,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                           )}
                         </td>
 
-                        {/* Substitute checkbox */}
                         <td className="px-4 py-2.5 text-center">
                           {isAdmin ? (
                             <input
@@ -174,7 +174,6 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                           )}
                         </td>
 
-                        {/* Admin note */}
                         <td className="px-4 py-2.5">
                           {isAdmin ? (
                             <input
@@ -189,6 +188,18 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
                             </span>
                           )}
                         </td>
+
+                        {isAdmin && onRemoveAssignment && (
+                          <td className="px-4 py-2.5 text-center">
+                            <button
+                              onClick={() => onRemoveAssignment(a.id)}
+                              className="text-cinnabar-light/50 hover:text-cinnabar-light text-xs transition-colors"
+                              title="移除成员"
+                            >
+                              ✕
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}

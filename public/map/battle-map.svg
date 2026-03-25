@@ -304,65 +304,65 @@
   </g>
 
   <!-- ===== RED TOWERS (3, left side) ===== -->
-  <!-- Red 上塔 -->
+  <!-- Red 上塔 (moved towards center) -->
   <g id="zone-red-tower-top" filter="url(#softGlow)">
-    <rect x="293" y="210" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
-    <path d="M 287 210 L 305 198 L 323 210" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
-    <path d="M 291 203 L 305 193 L 319 203" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
-    <line x1="305" y1="193" x2="305" y2="186" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
-    <rect x="289" y="242" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
-    <text x="305" y="180" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">上</text>
+    <rect x="428" y="210" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 422 210 L 440 198 L 458 210" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 426 203 L 440 193 L 454 203" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="440" y1="193" x2="440" y2="186" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="424" y="242" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="440" y="180" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">上</text>
   </g>
 
-  <!-- Red 中塔 -->
+  <!-- Red 中塔 (moved towards center) -->
   <g id="zone-red-tower-mid" filter="url(#softGlow)">
-    <rect x="222" y="434" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
-    <path d="M 216 434 L 234 422 L 252 434" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
-    <path d="M 220 427 L 234 417 L 248 427" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
-    <line x1="234" y1="417" x2="234" y2="410" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
-    <rect x="218" y="466" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
-    <text x="234" y="404" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">中</text>
+    <rect x="368" y="434" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 362 434 L 380 422 L 398 434" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 366 427 L 380 417 L 394 427" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="380" y1="417" x2="380" y2="410" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="364" y="466" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="380" y="404" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">中</text>
   </g>
 
-  <!-- Red 下塔 -->
+  <!-- Red 下塔 (moved towards center) -->
   <g id="zone-red-tower-bot" filter="url(#softGlow)">
-    <rect x="293" y="640" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
-    <path d="M 287 640 L 305 628 L 323 640" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
-    <path d="M 291 633 L 305 623 L 319 633" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
-    <line x1="305" y1="623" x2="305" y2="616" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
-    <rect x="289" y="672" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
-    <text x="305" y="610" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">下</text>
+    <rect x="428" y="640" width="24" height="32" rx="1" fill="rgba(192,80,80,0.08)" stroke="#c05050" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 422 640 L 440 628 L 458 640" fill="none" stroke="#c05050" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 426 633 L 440 623 L 454 633" fill="none" stroke="#c05050" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="440" y1="623" x2="440" y2="616" stroke="#c05050" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="424" y="672" width="32" height="5" rx="1" fill="rgba(192,80,80,0.06)" stroke="#c05050" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="440" y="610" text-anchor="middle" fill="#c05050" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">下</text>
   </g>
 
   <!-- ===== BLUE TOWERS (3, right side) ===== -->
-  <!-- Blue 上塔 -->
+  <!-- Blue 上塔 (moved towards center) -->
   <g id="zone-blue-tower-top" filter="url(#softGlow)">
-    <rect x="883" y="210" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
-    <path d="M 877 210 L 895 198 L 913 210" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
-    <path d="M 881 203 L 895 193 L 909 203" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
-    <line x1="895" y1="193" x2="895" y2="186" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
-    <rect x="879" y="242" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
-    <text x="895" y="180" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">上</text>
+    <rect x="748" y="210" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 742 210 L 760 198 L 778 210" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 746 203 L 760 193 L 774 203" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="760" y1="193" x2="760" y2="186" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="744" y="242" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="760" y="180" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">上</text>
   </g>
 
-  <!-- Blue 中塔 -->
+  <!-- Blue 中塔 (moved towards center) -->
   <g id="zone-blue-tower-mid" filter="url(#softGlow)">
-    <rect x="954" y="434" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
-    <path d="M 948 434 L 966 422 L 984 434" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
-    <path d="M 952 427 L 966 417 L 980 427" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
-    <line x1="966" y1="417" x2="966" y2="410" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
-    <rect x="950" y="466" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
-    <text x="966" y="404" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">中</text>
+    <rect x="808" y="434" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 802 434 L 820 422 L 838 434" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 806 427 L 820 417 L 834 427" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="820" y1="417" x2="820" y2="410" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="804" y="466" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="820" y="404" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">中</text>
   </g>
 
-  <!-- Blue 下塔 -->
+  <!-- Blue 下塔 (moved towards center) -->
   <g id="zone-blue-tower-bot" filter="url(#softGlow)">
-    <rect x="883" y="640" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
-    <path d="M 877 640 L 895 628 L 913 640" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
-    <path d="M 881 633 L 895 623 L 909 633" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
-    <line x1="895" y1="623" x2="895" y2="616" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
-    <rect x="879" y="672" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
-    <text x="895" y="610" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">下</text>
+    <rect x="748" y="640" width="24" height="32" rx="1" fill="rgba(80,128,192,0.08)" stroke="#5080c0" stroke-width="1.5" stroke-opacity="0.55"/>
+    <path d="M 742 640 L 760 628 L 778 640" fill="none" stroke="#5080c0" stroke-width="1.2" stroke-opacity="0.5"/>
+    <path d="M 746 633 L 760 623 L 774 633" fill="none" stroke="#5080c0" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="760" y1="623" x2="760" y2="616" stroke="#5080c0" stroke-width="1" stroke-opacity="0.5"/>
+    <rect x="744" y="672" width="32" height="5" rx="1" fill="rgba(80,128,192,0.06)" stroke="#5080c0" stroke-width="0.5" stroke-opacity="0.35"/>
+    <text x="760" y="610" text-anchor="middle" fill="#5080c0" fill-opacity="0.7" font-size="13" font-family="serif" font-weight="bold">下</text>
   </g>
 
   <!-- ===== WILD/JUNGLE AREAS (8 total, 4 per side) ===== -->
