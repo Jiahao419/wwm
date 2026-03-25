@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/types';
@@ -31,9 +31,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  // Use ref to keep a stable supabase client across renders
-  const supabaseRef = useRef(createClient());
-  const supabase = supabaseRef.current;
+  // Singleton client — same instance across all renders and components
+  const supabase = createClient();
 
   useEffect(() => {
     let mounted = true;
@@ -122,7 +121,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const signInWithDiscord = async () => {
     await supabase.auth.signInWithOAuth({
