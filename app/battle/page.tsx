@@ -113,11 +113,39 @@ export default function BattlePage() {
     }
   };
 
-  // Update single assignment
+  // Default map positions by team number (spread out across the map)
+  const getDefaultPosition = (teamNum: number | null, index: number) => {
+    const positions: Record<number, { x: number; y: number }> = {
+      1: { x: 38, y: 25 },  // 上路进攻
+      2: { x: 42, y: 50 },  // 中路进攻
+      3: { x: 38, y: 75 },  // 下路进攻
+      4: { x: 62, y: 25 },  // 上路防守
+      5: { x: 58, y: 50 },  // 中路防守
+      6: { x: 62, y: 75 },  // 下路防守
+    };
+    const base = positions[teamNum || 0] || { x: 50, y: 50 };
+    // Spread members within the same team slightly
+    const offset = (index % 5) * 3;
+    return { x: base.x + offset - 6, y: base.y + (Math.floor(index / 5)) * 4 };
+  };
+
+  // Update single assignment — auto-assign map position when team changes
   const handleAssignmentChange = (id: string, field: string, value: any) => {
-    setAssignments(prev =>
-      prev.map(a => (a.id === id ? { ...a, [field]: value } : a))
-    );
+    setAssignments(prev => {
+      const updated = prev.map(a => {
+        if (a.id !== id) return a;
+        const newA = { ...a, [field]: value };
+        // When team is assigned and no position yet, give a default position
+        if (field === 'team_number' && value != null && (a.map_x == null || a.map_y == null)) {
+          const teamMembers = prev.filter(x => x.team_number === value);
+          const pos = getDefaultPosition(value, teamMembers.length);
+          newA.map_x = pos.x;
+          newA.map_y = pos.y;
+        }
+        return newA;
+      });
+      return updated;
+    });
   };
 
   // Update member position from map drag
@@ -163,6 +191,10 @@ export default function BattlePage() {
       alert('该成员已在列表中');
       return;
     }
+    // Give new member a default position in center area so they're visible on map
+    const idx = assignments.length;
+    const defaultX = 48 + (idx % 5) * 2;
+    const defaultY = 45 + Math.floor(idx / 5) * 3;
     const newAssignment = {
       id: crypto.randomUUID(),
       event_id: event.id,
@@ -170,8 +202,8 @@ export default function BattlePage() {
       team_number: null,
       assigned_role: null,
       map_zone: null,
-      map_x: null,
-      map_y: null,
+      map_x: defaultX,
+      map_y: defaultY,
       is_substitute: false,
       admin_note: null,
       updated_by: user?.id || '',
