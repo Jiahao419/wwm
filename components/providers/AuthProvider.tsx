@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, createAnonClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/types';
 
@@ -32,14 +32,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const supabaseRef = useRef(createClient());
+  const anonRef = useRef(createAnonClient());
   const supabase = supabaseRef.current;
+  const anonSupabase = anonRef.current;
 
   useEffect(() => {
     let mounted = true;
 
+    // Use anonymous client to fetch profile (never blocked by token refresh)
     const fetchProfile = async (authUser: User) => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await anonSupabase
           .from('profiles')
           .select('*')
           .eq('user_id', authUser.id)
@@ -48,6 +51,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         if (!mounted) return;
 
         if (error && error.code === 'PGRST116') {
+          // Profile doesn't exist — auto-create (needs auth client for INSERT)
           const meta = authUser.user_metadata || {};
           const nickname = meta.full_name || meta.name || meta.custom_claims?.global_name || '新成员';
           const avatar_url = meta.avatar_url || meta.picture || null;
@@ -91,7 +95,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       }
     };
 
-    // Use getSession() first (local, fast) instead of getUser() (network call that can hang)
+    // Use getSession() (reads from localStorage, no network call)
     const init = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -153,9 +157,25 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear state immediately (don't wait for network)
     setUser(null);
     setProfile(null);
+
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('signOut error:', err);
+    }
+
+    // Force clear localStorage as fallback
+    try {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const projectRef = url.replace('https://', '').split('.')[0];
+      localStorage.removeItem(`sb-${projectRef}-auth-token`);
+    } catch {}
+
+    // Full page reload to reset all state
+    window.location.href = '/';
   };
 
   const isAdminOrOwner = profile?.role === 'admin' || profile?.role === 'owner';
