@@ -1,4 +1,4 @@
-import { createClient } from './supabase/client';
+import { createClient, createAnonClient } from './supabase/client';
 import type {
   Profile,
   BattleEvent,
@@ -10,9 +10,14 @@ import type {
   SiteStat,
 } from './types';
 
-// Helper: get a fresh supabase client per call (avoids stale module-level singleton)
+// Authenticated client — for INSERT / UPDATE / DELETE (needs auth token)
 function getSupabase() {
   return createClient();
+}
+
+// Anonymous client — for SELECT queries (never waits for token refresh)
+function getAnonSupabase() {
+  return createAnonClient();
 }
 
 // ─── Auth / Role helpers ─────────────────────────────────────────────
@@ -22,7 +27,7 @@ export async function getCurrentUserProfile() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: new Error('Not authenticated') };
 
-  return supabase
+  return getAnonSupabase()
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)
@@ -43,7 +48,7 @@ export async function isAdminOrOwner() {
 // ─── Profiles ────────────────────────────────────────────────────────
 
 export function getProfiles() {
-  return getSupabase().from('profiles').select('*').returns<Profile[]>();
+  return getAnonSupabase().from('profiles').select('*').returns<Profile[]>();
 }
 
 export function updateProfile(id: string, data: Partial<Profile>) {
@@ -66,7 +71,7 @@ export function setUserRole(userId: string, role: Profile['role']) {
 // ─── Notices ─────────────────────────────────────────────────────────
 
 export function getNotices() {
-  return getSupabase()
+  return getAnonSupabase()
     .from('notices')
     .select('*')
     .order('is_pinned', { ascending: false })
@@ -89,11 +94,11 @@ export function deleteNotice(id: string) {
 // ─── Battle Events ───────────────────────────────────────────────────
 
 export function getBattleEvents() {
-  return getSupabase().from('battle_events').select('*').returns<BattleEvent[]>();
+  return getAnonSupabase().from('battle_events').select('*').returns<BattleEvent[]>();
 }
 
 export function getBattleEvent(id: string) {
-  return getSupabase()
+  return getAnonSupabase()
     .from('battle_events')
     .select('*, battle_signups(*), battle_assignments(*)')
     .eq('id', id)
@@ -115,7 +120,7 @@ export function deleteBattleEvent(id: string) {
 // ─── Battle Signups ──────────────────────────────────────────────────
 
 export function getSignups(eventId: string) {
-  return getSupabase()
+  return getAnonSupabase()
     .from('battle_signups')
     .select('*')
     .eq('event_id', eventId)
@@ -133,7 +138,7 @@ export function deleteSignup(id: string) {
 // ─── Battle Assignments ──────────────────────────────────────────────
 
 export function getAssignments(eventId: string) {
-  return getSupabase()
+  return getAnonSupabase()
     .from('battle_assignments')
     .select('*')
     .eq('event_id', eventId)
@@ -155,7 +160,7 @@ export function deleteAssignment(id: string) {
 // ─── Activity Records ────────────────────────────────────────────────
 
 export function getActivityRecords() {
-  return getSupabase().from('activity_records').select('*').returns<ActivityRecord[]>();
+  return getAnonSupabase().from('activity_records').select('*').returns<ActivityRecord[]>();
 }
 
 export function createActivityRecord(data: Omit<ActivityRecord, 'id' | 'created_at'>) {
@@ -173,7 +178,7 @@ export function deleteActivityRecord(id: string) {
 // ─── Member Relations ────────────────────────────────────────────────
 
 export function getRelations() {
-  return getSupabase().from('member_relations').select('*').returns<MemberRelation[]>();
+  return getAnonSupabase().from('member_relations').select('*').returns<MemberRelation[]>();
 }
 
 export function createRelation(data: Omit<MemberRelation, 'id' | 'created_at'>) {
@@ -187,7 +192,7 @@ export function deleteRelation(id: string) {
 // ─── Site Stats ─────────────────────────────────────────────────────
 
 export function getSiteStats() {
-  return getSupabase()
+  return getAnonSupabase()
     .from('site_stats')
     .select('*')
     .order('sort_order', { ascending: true })
