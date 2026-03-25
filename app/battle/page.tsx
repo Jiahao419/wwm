@@ -222,7 +222,7 @@ export default function BattlePage() {
       await upsertAssignment(newAssignment);
       setAssignments(prev => [...prev, {
         ...newAssignment,
-        profile: profileMap.get(s.user_id) || { nickname: s.nickname_snapshot },
+        profile: profileMap.get(s.user_id) || { nickname: s.nickname_snapshot } as any,
         signup: s,
       }]);
     }
