@@ -7,8 +7,10 @@ import GoldButton from '@/components/ui/GoldButton';
 
 interface ProfileDetailModalProps {
   profile: Profile;
-  isAdminOrOwner: boolean;
-  isOwner: boolean;
+  canEdit: boolean;         // true if admin/owner OR viewing own profile
+  isAdminOrOwner: boolean;  // true if current user is admin/owner
+  isOwner: boolean;         // true if current user is owner
+  isSelf: boolean;          // true if viewing own profile
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -18,8 +20,10 @@ interface ProfileDetailModalProps {
 
 export default function ProfileDetailModal({
   profile,
+  canEdit,
   isAdminOrOwner,
   isOwner,
+  isSelf,
   onClose,
   onEdit,
   onDelete,
@@ -106,6 +110,11 @@ export default function ProfileDetailModal({
                   管理员
                 </span>
               )}
+              {isSelf && (
+                <span className="px-2.5 py-0.5 text-xs bg-green-900/30 text-green-300 rounded border border-green-500/30">
+                  我
+                </span>
+              )}
             </div>
 
             {/* Intro */}
@@ -139,20 +148,29 @@ export default function ProfileDetailModal({
               </div>
             )}
 
-            {/* Admin Actions */}
-            {isAdminOrOwner && (
+            {/* Action Buttons */}
+            {(canEdit || isAdminOrOwner) && (
               <div className="flex gap-3 pt-4 border-t border-gold/10">
-                <GoldButton variant="secondary" size="sm" onClick={onEdit}>
-                  编辑档案
-                </GoldButton>
-                <GoldButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={onDelete}
-                  className="text-cinnabar-light/70 hover:text-cinnabar-light"
-                >
-                  删除
-                </GoldButton>
+                {/* Edit: self can edit own, admin can edit all */}
+                {canEdit && (
+                  <GoldButton variant="secondary" size="sm" onClick={onEdit}>
+                    {isSelf ? '编辑我的档案' : '编辑档案'}
+                  </GoldButton>
+                )}
+
+                {/* Delete: admin/owner only */}
+                {isAdminOrOwner && (
+                  <GoldButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={onDelete}
+                    className="text-cinnabar-light/70 hover:text-cinnabar-light"
+                  >
+                    删除
+                  </GoldButton>
+                )}
+
+                {/* Set/remove admin: owner only */}
                 {isOwner && profile.role === 'member' && onSetAdmin && (
                   <GoldButton variant="ghost" size="sm" onClick={onSetAdmin} className="text-blue-300/70 hover:text-blue-300">
                     设为管理

@@ -51,6 +51,29 @@ export function getProfiles() {
   return getAnonSupabase().from('profiles').select('*').returns<Profile[]>();
 }
 
+export function createProfile(data: {
+  nickname: string;
+  identity?: string | null;
+  intro?: string | null;
+  description?: string | null;
+  tags?: string[];
+  avatar_url?: string | null;
+}) {
+  return getSupabase().from('profiles').insert({
+    nickname: data.nickname,
+    identity: data.identity || null,
+    intro: data.intro || null,
+    description: data.description || null,
+    tags: data.tags || [],
+    avatar_url: data.avatar_url || null,
+    user_id: null,
+    node_color: '#9a8a6a',
+    node_size: 'medium',
+    is_public: true,
+    role: 'member',
+  }).select().single<Profile>();
+}
+
 export function updateProfile(id: string, data: Partial<Profile>) {
   return getSupabase().from('profiles').update(data).eq('id', id).select().single<Profile>();
 }

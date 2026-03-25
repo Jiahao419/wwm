@@ -7,9 +7,8 @@ import MemberCard from '@/components/roster/MemberCard';
 import EditModal from '@/components/roster/EditModal';
 import ProfileDetailModal from '@/components/roster/ProfileDetailModal';
 import { Profile } from '@/lib/types';
-import { getProfiles, updateProfile, deleteProfile, setUserRole } from '@/lib/db';
+import { getProfiles, updateProfile, deleteProfile, setUserRole, createProfile } from '@/lib/db';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { createClient } from '@/lib/supabase/client';
 import GoldButton from '@/components/ui/GoldButton';
 
 export default function RosterPage() {
@@ -19,7 +18,7 @@ export default function RosterPage() {
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [viewingProfile, setViewingProfile] = useState<Profile | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const { isAdminOrOwner, profile: currentProfile } = useAuth();
+  const { isAdminOrOwner, profile: currentProfile, user } = useAuth();
 
   const fetchData = useCallback(async () => {
     try {
@@ -52,28 +51,28 @@ export default function RosterPage() {
   const handleSave = async (data: Partial<Profile>) => {
     if (!editingProfile) return;
     const { error } = await updateProfile(editingProfile.id, data);
-    if (!error) {
+    if (error) {
+      console.error('updateProfile error:', error);
+      alert('保存失败：' + error.message);
+    } else {
       await fetchData();
     }
     setEditingProfile(null);
   };
 
   const handleAddSave = async (data: Partial<Profile>) => {
-    const supabase = createClient();
-    const { error } = await supabase.from('profiles').insert({
+    const { error } = await createProfile({
       nickname: data.nickname || '新成员',
       identity: data.identity || null,
       intro: data.intro || null,
       description: data.description || null,
       tags: data.tags || [],
       avatar_url: data.avatar_url || null,
-      user_id: crypto.randomUUID(),
-      node_color: '#9a8a6a',
-      node_size: 'medium',
-      is_public: true,
-      role: 'member',
     });
-    if (!error) {
+    if (error) {
+      console.error('createProfile error:', error);
+      alert('添加失败：' + error.message);
+    } else {
       await fetchData();
     }
     setShowAddModal(false);
@@ -100,6 +99,13 @@ export default function RosterPage() {
     if (!confirm('确定取消该成员的管理员身份？')) return;
     const { error } = await setUserRole(userId, 'member');
     if (!error) await fetchData();
+  };
+
+  // Check if user can edit a specific profile
+  const canEdit = (profile: Profile) => {
+    if (isAdminOrOwner) return true;
+    if (user && profile.user_id === user.id) return true;
+    return false;
   };
 
   // Dummy profile for the add modal
@@ -194,8 +200,10 @@ export default function RosterPage() {
       {viewingProfile && (
         <ProfileDetailModal
           profile={viewingProfile}
+          canEdit={canEdit(viewingProfile)}
           isAdminOrOwner={isAdminOrOwner}
           isOwner={isOwner}
+          isSelf={!!user && viewingProfile.user_id === user.id}
           onClose={() => setViewingProfile(null)}
           onEdit={() => {
             setEditingProfile(viewingProfile);
