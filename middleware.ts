@@ -37,7 +37,11 @@ export async function middleware(request: NextRequest) {
 
   // This refreshes the session token and writes updated cookies
   // IMPORTANT: Do NOT use getSession() — only getUser() is safe server-side
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Silently ignore auth errors — don't block page rendering
+  }
 
   return supabaseResponse;
 }
@@ -45,8 +49,13 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all paths except static files
+     * Match all paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico
+     * - static assets (images, etc.)
+     * - /auth/callback (must be excluded — session doesn't exist yet during OAuth exchange)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|auth/callback|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };
