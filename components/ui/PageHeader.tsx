@@ -10,7 +10,8 @@ interface PageHeaderProps {
   subtitle?: string;
 }
 
-export default function PageHeader({ englishTitle, chineseTitle, subtitle }: PageHeaderProps) {
+export default function PageHeader({ englishTitle: _eng, chineseTitle, subtitle }: PageHeaderProps) {
+  void _eng; // kept for interface compatibility
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -18,14 +19,10 @@ export default function PageHeader({ englishTitle, chineseTitle, subtitle }: Pag
       transition={{ duration: 0.6 }}
       className="text-center pt-32 pb-12 relative"
     >
-      {/* Small WWM mark */}
-      <div className="flex justify-center mb-4">
-        <WwmLogo size={36} className="opacity-40" />
+      {/* WWM Logo */}
+      <div className="flex justify-center mb-6">
+        <WwmLogo size={72} className="opacity-50" />
       </div>
-
-      <p className="font-display text-sm tracking-[0.3em] text-text-secondary/40 uppercase mb-3">
-        {englishTitle}
-      </p>
       <h1 className="font-brush text-5xl text-text-primary mb-4"
           style={{ textShadow: '0 0 30px rgba(201,168,76,0.1)' }}
       >
