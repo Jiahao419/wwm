@@ -35,7 +35,7 @@ interface GraphLink {
   dashes?: boolean;
 }
 
-const sizeMap = { small: 4, medium: 6, large: 8 };
+const sizeMap = { small: 8, medium: 12, large: 16 };
 
 export default function ForceGraph({ profiles, relations, selectedProfileId, viewMode: _viewMode, onNodeClick }: ForceGraphProps) {
   void _viewMode; // available for future use
@@ -88,19 +88,19 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     });
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    const r = node.size || 6;
-    const fontSize = Math.max(10 / globalScale, 2);
+    const r = node.size || 12;
+    const fontSize = Math.max(11 / globalScale, 2.5);
     const isSelected = node.isSelected;
 
     // Glow effect for selected node
     if (isSelected) {
       ctx.beginPath();
-      ctx.arc(node.x, node.y, r + 4, 0, 2 * Math.PI);
-      ctx.fillStyle = node.color + '15';
+      ctx.arc(node.x, node.y, r + 6, 0, 2 * Math.PI);
+      ctx.fillStyle = node.color + '18';
       ctx.fill();
-      ctx.strokeStyle = node.color + '60';
-      ctx.lineWidth = 2 / globalScale;
-      ctx.setLineDash([3 / globalScale, 3 / globalScale]);
+      ctx.strokeStyle = node.color + '70';
+      ctx.lineWidth = 2.5 / globalScale;
+      ctx.setLineDash([4 / globalScale, 4 / globalScale]);
       ctx.stroke();
       ctx.setLineDash([]);
     }
@@ -111,12 +111,12 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     ctx.fillStyle = node.color + '30';
     ctx.fill();
     ctx.strokeStyle = node.color;
-    ctx.lineWidth = (isSelected ? 2 : 1.5) / globalScale;
+    ctx.lineWidth = (isSelected ? 2.5 : 1.8) / globalScale;
     ctx.stroke();
 
     // Inner dot
     ctx.beginPath();
-    ctx.arc(node.x, node.y, r * 0.4, 0, 2 * Math.PI);
+    ctx.arc(node.x, node.y, r * 0.35, 0, 2 * Math.PI);
     ctx.fillStyle = node.color;
     ctx.fill();
 
@@ -125,7 +125,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillStyle = isSelected ? '#f0e6d0' : '#e8e0d0';
-    ctx.fillText(node.name, node.x, node.y + r + 2);
+    ctx.fillText(node.name, node.x, node.y + r + 3);
   }, []);
 
   const paintLink = useCallback((link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
@@ -169,8 +169,8 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
 
   return (
     <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
-      {/* Legend */}
-      <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
+      {/* Legend — pointer-events-none so it doesn't block canvas clicks */}
+      <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap pointer-events-none">
         {RELATION_TYPES.map(t => (
           <div key={t.id} className="flex items-center gap-1.5 px-2 py-1 bg-bg-primary/80 border border-gold/10 rounded-sm">
             <span
@@ -186,9 +186,9 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
         ))}
       </div>
 
-      {/* Hover tooltip */}
+      {/* Hover tooltip — pointer-events-none so it doesn't block canvas clicks */}
       {hoveredNode && (
-        <div className="absolute top-4 right-4 z-10 p-3 bg-bg-panel border border-gold/20 rounded-sm shadow-lg">
+        <div className="absolute top-4 right-4 z-10 p-3 bg-bg-panel border border-gold/20 rounded-sm shadow-lg pointer-events-none">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: hoveredNode.color }} />
             <span className="text-text-primary text-sm font-title">{hoveredNode.name}</span>
@@ -208,7 +208,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
         linkCanvasObject={paintLink}
         nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
           ctx.beginPath();
-          ctx.arc(node.x, node.y, node.size + 4, 0, 2 * Math.PI);
+          ctx.arc(node.x, node.y, (node.size || 12) + 8, 0, 2 * Math.PI);
           ctx.fillStyle = color;
           ctx.fill();
         }}
