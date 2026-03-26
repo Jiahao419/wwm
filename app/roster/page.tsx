@@ -142,6 +142,7 @@ export default function RosterPage() {
           currentUserId={user?.id || null}
           isAdminOrOwner={isAdminOrOwner}
           onRefresh={fetchData}
+          onEditProfile={(p) => setEditingProfile(p)}
         />
       )}
 

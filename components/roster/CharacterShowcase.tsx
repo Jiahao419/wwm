@@ -15,12 +15,13 @@ interface CharacterShowcaseProps {
   currentUserId: string | null;
   isAdminOrOwner: boolean;
   onRefresh: () => void;
+  onEditProfile: (profile: Profile) => void;
 }
 
 const ARROW_PREV = 'https://www.yysls.cn/pc/fab/20250723194326/img/feature_prev_d3634779.png?image_process=format,png';
 const ARROW_NEXT = 'https://www.yysls.cn/pc/fab/20250723194326/img/feature_next_6f404b40.png?image_process=format,png';
 
-export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOwner, onRefresh }: CharacterShowcaseProps) {
+export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOwner, onRefresh, onEditProfile }: CharacterShowcaseProps) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [imgIdx, setImgIdx] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -229,6 +230,12 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
           >
             <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
             <button
+              onClick={(e) => { e.stopPropagation(); onEditProfile(profile); }}
+              className="px-4 py-2 text-xs bg-black/50 backdrop-blur-md text-gold/80 hover:text-gold border border-gold/20 hover:border-gold/50 rounded-full transition-all"
+            >
+              编辑档案
+            </button>
+            <button
               onClick={(e) => { e.stopPropagation(); fileRef.current?.click(); }}
               disabled={uploading}
               className="px-4 py-2 text-xs bg-black/50 backdrop-blur-md text-gold/80 hover:text-gold border border-gold/20 hover:border-gold/50 rounded-full transition-all"
@@ -265,7 +272,7 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
             {thumbProfiles.map((p, i) => {
               const realIdx = thumbStart + i;
               const isActive = realIdx === selectedIdx;
-              const thumbImg = p.profile_images?.[0]?.image_url || p.avatar_url;
+              const thumbImg = p.avatar_url;
               return (
                 <button
                   key={p.id}
