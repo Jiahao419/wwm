@@ -35,22 +35,15 @@ export default function HeroSection() {
           src="/images/swordsman-left.png"
           alt=""
           className="h-[90vh] w-auto object-contain"
-          style={{ mixBlendMode: 'lighten', filter: 'brightness(1.8)' }}
+          style={{
+            mixBlendMode: 'lighten',
+            filter: 'brightness(1.8)',
+            WebkitMaskImage: 'linear-gradient(to right, black 40%, transparent 85%), linear-gradient(to bottom, transparent 0%, black 10%, black 80%, transparent 100%)',
+            WebkitMaskComposite: 'destination-in',
+            maskImage: 'linear-gradient(to right, black 40%, transparent 85%), linear-gradient(to bottom, transparent 0%, black 10%, black 80%, transparent 100%)',
+            maskComposite: 'intersect',
+          }}
           draggable={false}
-        />
-        {/* Fade ALL edges into background */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: `
-            linear-gradient(to right, transparent 30%, transparent 50%, #050508 85%, #050508 100%),
-            linear-gradient(to top, #050508 0%, transparent 25%),
-            linear-gradient(to bottom, #050508 0%, transparent 15%),
-            linear-gradient(to left, transparent 90%, #050508 100%)
-          `,
-          backgroundBlendMode: 'multiply',
-        }} />
-        {/* Extra right edge fade to fully kill the seam */}
-        <div className="absolute top-0 bottom-0 right-0 w-[40%] pointer-events-none"
-          style={{ background: 'linear-gradient(to right, transparent 0%, #050508 100%)' }}
         />
       </motion.div>
 
