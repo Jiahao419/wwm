@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getSiteConfig, upsertSiteConfig, getGalleryImages, uploadGalleryImage, deleteGalleryImage } from '@/lib/db';
 
@@ -64,104 +64,205 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
     setDeleting(false);
   };
 
-  const prev = () => setCurrent(c => (c - 1 + images.length) % images.length);
-  const next = () => setCurrent(c => (c + 1) % images.length);
+  const [direction, setDirection] = useState(0);
+
+  const goPrev = useCallback(() => {
+    setDirection(-1);
+    setCurrent(c => (c - 1 + images.length) % images.length);
+  }, [images.length]);
+
+  const goNext = useCallback(() => {
+    setDirection(1);
+    setCurrent(c => (c + 1) % images.length);
+  }, [images.length]);
+
+  // Auto-play: every 5 seconds
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const timer = setInterval(() => goNext(), 5000);
+    return () => clearInterval(timer);
+  }, [images.length, goNext]);
+
+  const slideVariants = {
+    enter: (dir: number) => ({
+      x: dir > 0 ? '100%' : '-100%',
+      opacity: 0,
+      scale: 0.95,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? '-100%' : '100%',
+      opacity: 0,
+      scale: 0.95,
+    }),
+  };
 
   // Empty state
   if (images.length === 0) {
     return (
-      <div className="aspect-[4/3] rounded-sm gold-border bg-gradient-to-br from-bg-card to-bg-panel flex flex-col items-center justify-center relative">
-        <div className="text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full border border-gold/30 flex items-center justify-center bg-gold/5">
-            <span className="font-title text-3xl text-gold/40">月</span>
+      <div className="relative p-3">
+        {/* Decorative corner frame */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-gold/40" />
+        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-gold/40" />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-gold/40" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-gold/40" />
+
+        <div className="aspect-[4/3] rounded-sm bg-gradient-to-br from-bg-card to-bg-panel flex flex-col items-center justify-center relative">
+          <div className="text-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full border border-gold/30 flex items-center justify-center bg-gold/5">
+              <span className="font-title text-3xl text-gold/40">月</span>
+            </div>
+            <p className="text-text-secondary/40 text-sm">月冕集结图</p>
           </div>
-          <p className="text-text-secondary/40 text-sm">月冕集结图</p>
+          {isAdmin && (
+            <div className="mt-4">
+              <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+              <button
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="text-xs text-gold/60 hover:text-gold border border-gold/20 hover:border-gold/40 px-3 py-1 rounded-sm transition-colors"
+              >
+                {uploading ? '上传中...' : '上传图片'}
+              </button>
+            </div>
+          )}
         </div>
-        {isAdmin && (
-          <div className="mt-4">
-            <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="text-xs text-gold/60 hover:text-gold border border-gold/20 hover:border-gold/40 px-3 py-1 rounded-sm transition-colors"
-            >
-              {uploading ? '上传中...' : '上传图片'}
-            </button>
-          </div>
-        )}
       </div>
     );
   }
 
   return (
-    <div className="aspect-[4/3] rounded-sm gold-border bg-bg-card relative overflow-hidden group">
-      {/* Current image */}
-      <img
-        src={images[current]}
-        alt={`集结图 ${current + 1}`}
-        className="w-full h-full object-cover transition-opacity duration-300"
-      />
+    <div className="relative p-3 group">
+      {/* Decorative corner frame */}
+      <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+      <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
 
-      {/* Left arrow */}
-      {images.length > 1 && (
-        <button
-          onClick={prev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-gold/80 hover:text-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-xl"
-        >
-          ‹
-        </button>
-      )}
+      {/* Inner glow border */}
+      <div className="absolute inset-3 border border-gold/10 rounded-sm pointer-events-none z-10" />
 
-      {/* Right arrow */}
-      {images.length > 1 && (
-        <button
-          onClick={next}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-gold/80 hover:text-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-xl"
-        >
-          ›
-        </button>
-      )}
+      <div className="aspect-[4/3] rounded-sm bg-bg-card relative overflow-hidden">
+        {/* Sliding images with AnimatePresence */}
+        <AnimatePresence initial={false} custom={direction} mode="popLayout">
+          <motion.img
+            key={current}
+            src={images[current]}
+            alt={`集结图 ${current + 1}`}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: 'tween', duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+              opacity: { duration: 0.4 },
+              scale: { duration: 0.4 },
+            }}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </AnimatePresence>
 
-      {/* Dots indicator */}
-      {images.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === current ? 'bg-gold w-4' : 'bg-white/40 hover:bg-white/60'
-              }`}
-            />
-          ))}
+        {/* Vignette overlay for atmosphere */}
+        <div className="absolute inset-0 pointer-events-none z-[1]"
+          style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.4)' }}
+        />
+
+        {/* Left arrow */}
+        {images.length > 1 && (
+          <button
+            onClick={goPrev}
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+          >
+            <div className="w-8 h-8 border border-gold/50 hover:border-gold rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gold/80 hover:text-gold">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </div>
+          </button>
+        )}
+
+        {/* Right arrow */}
+        {images.length > 1 && (
+          <button
+            onClick={goNext}
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+          >
+            <div className="w-8 h-8 border border-gold/50 hover:border-gold rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gold/80 hover:text-gold">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </button>
+        )}
+
+        {/* Bottom bar with progress + dots */}
+        {images.length > 1 && (
+          <div className="absolute bottom-0 left-0 right-0 z-20">
+            {/* Progress bar background */}
+            <div className="h-[2px] bg-gold/10 mx-4 mb-3 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-gold/40 via-gold to-gold/40 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 5, ease: 'linear' }}
+                key={current}
+              />
+            </div>
+            {/* Dots */}
+            <div className="flex justify-center gap-2 pb-4">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+                  className="relative"
+                >
+                  <div className={`h-1.5 rounded-full transition-all duration-500 ${
+                    i === current
+                      ? 'w-6 bg-gradient-to-r from-gold/60 via-gold to-gold/60'
+                      : 'w-1.5 bg-white/30 hover:bg-white/50'
+                  }`} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Counter badge */}
+        <div className="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-sm border border-gold/20 text-gold/80 text-xs px-2.5 py-1 rounded-full">
+          {current + 1} / {images.length}
         </div>
-      )}
 
-      {/* Counter */}
-      <div className="absolute top-3 right-3 bg-black/50 text-gold/80 text-xs px-2 py-0.5 rounded-sm">
-        {current + 1} / {images.length}
+        {/* Admin controls */}
+        {isAdmin && (
+          <div className="absolute top-3 left-3 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-gold/30 hover:border-gold/60 text-gold/80 hover:text-gold text-xs px-3 py-1.5 rounded-full transition-all"
+            >
+              {uploading ? '上传中...' : '＋ 上传'}
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-black/50 hover:bg-red-900/60 backdrop-blur-sm border border-red-500/20 hover:border-red-400/50 text-red-400/80 hover:text-red-300 text-xs px-3 py-1.5 rounded-full transition-all"
+            >
+              {deleting ? '删除中...' : '✕ 删除'}
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Admin controls */}
-      {isAdmin && (
-        <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
-          <button
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            className="bg-black/60 hover:bg-black/80 text-gold/80 hover:text-gold text-xs px-2 py-1 rounded-sm transition-colors"
-          >
-            {uploading ? '上传中...' : '＋ 上传'}
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="bg-black/60 hover:bg-red-900/80 text-red-400/80 hover:text-red-300 text-xs px-2 py-1 rounded-sm transition-colors"
-          >
-            {deleting ? '删除中...' : '✕ 删除'}
-          </button>
-        </div>
-      )}
+      {/* Caption below */}
+      <div className="text-center mt-3">
+        <p className="text-text-secondary/40 text-xs tracking-widest">月 冕 集 结 图</p>
+      </div>
     </div>
   );
 }
