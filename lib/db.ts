@@ -1,6 +1,7 @@
 import { createClient, createAnonClient } from './supabase/client';
 import type {
   Profile,
+  ProfileImage,
   BattleEvent,
   BattleSignup,
   BattleAssignment,
@@ -90,6 +91,36 @@ export function setUserRole(userId: string, role: Profile['role']) {
     .eq('user_id', userId)
     .select()
     .single<Profile>();
+}
+
+// ─── Profile Images (multi-image gallery) ───────────────────────────
+
+export function getProfilesWithImages() {
+  return getAnonSupabase()
+    .from('profiles')
+    .select('*, profile_images(id, image_url, sort_order)')
+    .order('sort_order', { referencedTable: 'profile_images', ascending: true });
+}
+
+export function getProfileImages(profileId: string) {
+  return getAnonSupabase()
+    .from('profile_images')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('sort_order', { ascending: true })
+    .returns<ProfileImage[]>();
+}
+
+export function addProfileImage(profileId: string, imageUrl: string, sortOrder: number) {
+  return getSupabase()
+    .from('profile_images')
+    .insert({ profile_id: profileId, image_url: imageUrl, sort_order: sortOrder })
+    .select()
+    .single<ProfileImage>();
+}
+
+export function deleteProfileImage(id: string) {
+  return getSupabase().from('profile_images').delete().eq('id', id);
 }
 
 // ─── Notices ─────────────────────────────────────────────────────────

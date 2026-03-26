@@ -123,6 +123,14 @@ export interface SiteConfig {
   updated_at: string;
 }
 
+export interface ProfileImage {
+  id: string;
+  profile_id: string;
+  image_url: string;
+  sort_order: number;
+  created_at: string;
+}
+
 export interface ActivityRecord {
   id: string;
   title: string;

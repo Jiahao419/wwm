@@ -2,18 +2,20 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PageHeader from '@/components/ui/PageHeader';
 import MemberCard from '@/components/roster/MemberCard';
 import EditModal from '@/components/roster/EditModal';
 import ProfileDetailModal from '@/components/roster/ProfileDetailModal';
 import CylinderCarousel from '@/components/roster/CylinderCarousel';
-import { Profile } from '@/lib/types';
-import { getProfiles, updateProfile, deleteProfile, setUserRole, createProfile } from '@/lib/db';
+import CharacterShowcase from '@/components/roster/CharacterShowcase';
+import { Profile, ProfileImage } from '@/lib/types';
+import { getProfilesWithImages, updateProfile, deleteProfile, setUserRole, createProfile } from '@/lib/db';
 import { useAuth } from '@/components/providers/AuthProvider';
 import GoldButton from '@/components/ui/GoldButton';
 
+type ProfileWithImages = Profile & { profile_images: ProfileImage[] };
+
 export default function RosterPage() {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<ProfileWithImages[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
@@ -23,9 +25,9 @@ export default function RosterPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const { data, error } = await getProfiles();
+      const { data, error } = await getProfilesWithImages();
       if (error) console.error('getProfiles error:', error);
-      if (data) setProfiles(data);
+      if (data) setProfiles(data as ProfileWithImages[]);
     } catch (err) {
       console.error('getProfiles exception:', err);
     } finally {
@@ -133,31 +135,51 @@ export default function RosterPage() {
 
   return (
     <>
-      <PageHeader
-        englishTitle="GUILD ROSTER"
-        chineseTitle="月冕名册"
-        subtitle={`当前成员 ${profiles.length} 人`}
-      />
-
-      {/* 3D Cylinder Carousel */}
+      {/* Full-screen Character Showcase */}
       {!loading && profiles.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-        >
-          <div className="max-w-[1400px] mx-auto px-8 mb-4">
-            <p className="text-center text-text-secondary/30 text-xs tracking-[0.3em]">拖 拽 旋 转 · 点 击 查 看</p>
-          </div>
-          <CylinderCarousel
-            profiles={profiles}
-            onProfileClick={(p) => setViewingProfile(p)}
-          />
-        </motion.div>
+        <CharacterShowcase
+          profiles={profiles}
+          currentUserId={user?.id || null}
+          isAdminOrOwner={isAdminOrOwner}
+          onRefresh={fetchData}
+        />
       )}
 
-      {/* Divider */}
-      <div className="max-w-[1400px] mx-auto px-8 py-8">
+      {/* Loading state */}
+      {loading && (
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-text-secondary/50">加载中...</div>
+        </div>
+      )}
+
+      {/* Divider: Cylinder section */}
+      {!loading && profiles.length > 0 && (
+        <>
+          <div className="max-w-[1400px] mx-auto px-8 py-10">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+              <span className="text-text-secondary/30 text-xs tracking-[0.3em]">月 冕 转 轮</span>
+              <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+            </div>
+            <p className="text-center text-text-secondary/20 text-xs mt-2 tracking-widest">拖拽旋转 · 点击查看详情</p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <CylinderCarousel
+              profiles={profiles}
+              onProfileClick={(p) => setViewingProfile(p)}
+            />
+          </motion.div>
+        </>
+      )}
+
+      {/* Divider: Card grid section */}
+      <div className="max-w-[1400px] mx-auto px-8 py-10">
         <div className="flex items-center gap-4">
           <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
           <span className="text-text-secondary/30 text-xs tracking-[0.3em]">成 员 名 片</span>
@@ -166,11 +188,11 @@ export default function RosterPage() {
       </div>
 
       <div className="max-w-[1400px] mx-auto px-8 pb-20">
-        {/* Search + Add button row */}
+        {/* Search + Add */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           className="mb-8 flex gap-4 items-center"
         >
           <input
@@ -192,20 +214,17 @@ export default function RosterPage() {
           )}
         </motion.div>
 
-        {/* Loading */}
-        {loading ? (
-          <div className="text-center py-16 text-text-secondary/50">加载中...</div>
-        ) : (
-          /* Members Grid */
+        {/* Members Grid */}
+        {!loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence>
               {filtered.map((profile, i) => (
                 <motion.div
                   key={profile.id}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ delay: 0.05 + i * 0.03 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.03 * i }}
                 >
                   <MemberCard
                     profile={profile}
