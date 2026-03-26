@@ -289,3 +289,58 @@ export function upsertSiteConfig(key: string, value: string) {
     .select()
     .single<SiteConfig>();
 }
+
+// ─── Gallery (Supabase Storage) ─────────────────────────────────────
+
+const GALLERY_BUCKET = 'gallery';
+
+export async function uploadGalleryImage(file: File): Promise<{ url: string | null; error: Error | null }> {
+  const supabase = getSupabase();
+  const ext = file.name.split('.').pop() || 'jpg';
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(GALLERY_BUCKET)
+    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+  if (error) return { url: null, error: error as unknown as Error };
+
+  const { data: urlData } = supabase.storage
+    .from(GALLERY_BUCKET)
+    .getPublicUrl(fileName);
+
+  return { url: urlData.publicUrl, error: null };
+}
+
+export async function getGalleryImages(): Promise<{ urls: string[]; error: Error | null }> {
+  const supabase = getAnonSupabase();
+  const { data, error } = await supabase.storage
+    .from(GALLERY_BUCKET)
+    .list('', { sortBy: { column: 'created_at', order: 'desc' } });
+
+  if (error || !data) return { urls: [], error: error as unknown as Error };
+
+  const urls = data
+    .filter(f => !f.name.startsWith('.'))
+    .map(f => {
+      const { data: urlData } = supabase.storage
+        .from(GALLERY_BUCKET)
+        .getPublicUrl(f.name);
+      return urlData.publicUrl;
+    });
+
+  return { urls, error: null };
+}
+
+export async function deleteGalleryImage(url: string): Promise<{ error: Error | null }> {
+  const supabase = getSupabase();
+  // Extract filename from URL
+  const parts = url.split('/');
+  const fileName = parts[parts.length - 1];
+
+  const { error } = await supabase.storage
+    .from(GALLERY_BUCKET)
+    .remove([fileName]);
+
+  return { error: error as unknown as Error | null };
+}
