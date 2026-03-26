@@ -35,7 +35,7 @@ export default function HeroSection() {
           src="/images/swordsman-left.png"
           alt=""
           className="h-[90vh] w-auto object-contain"
-          style={{ mixBlendMode: 'screen', filter: 'brightness(2.5) contrast(1.3)' }}
+          style={{ mixBlendMode: 'lighten', filter: 'brightness(1.8)' }}
           draggable={false}
         />
         {/* Fade edges into background */}
