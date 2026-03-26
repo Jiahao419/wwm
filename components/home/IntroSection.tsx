@@ -135,132 +135,149 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
     );
   }
 
+  const ARROW_PREV = 'https://www.yysls.cn/pc/fab/20250723194326/img/feature_prev_d3634779.png?image_process=format,png';
+  const ARROW_NEXT = 'https://www.yysls.cn/pc/fab/20250723194326/img/feature_next_6f404b40.png?image_process=format,png';
+
   return (
-    <div className="relative p-3 group">
-      {/* Decorative corner frame */}
-      <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
-      <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
-      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
-      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-gold/50 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
-
-      {/* Inner glow border */}
-      <div className="absolute inset-3 border border-gold/10 rounded-sm pointer-events-none z-10" />
-
-      <div className="aspect-[16/9] rounded-sm bg-bg-card relative overflow-hidden">
-        {/* Sliding images with AnimatePresence */}
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
-          <motion.img
-            key={current}
-            src={images[current]}
-            alt={`集结图 ${current + 1}`}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: 'tween', duration: 0.5, ease: [0.4, 0, 0.2, 1] },
-              opacity: { duration: 0.4 },
-              scale: { duration: 0.4 },
-            }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </AnimatePresence>
-
-        {/* Vignette overlay for atmosphere */}
-        <div className="absolute inset-0 pointer-events-none z-[1]"
-          style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.4)' }}
-        />
-
-        {/* Left arrow */}
+    <div className="relative group">
+      {/* Carousel with external arrows layout */}
+      <div className="flex items-center gap-4">
+        {/* Left arrow - outside the image */}
         {images.length > 1 && (
           <button
             onClick={goPrev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+            className="flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 hidden md:block"
           >
-            <div className="w-8 h-8 border border-gold/50 hover:border-gold rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gold/80 hover:text-gold">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </div>
+            <img src={ARROW_PREV} alt="上一张" className="w-[70px] drop-shadow-lg" draggable={false} />
           </button>
         )}
 
-        {/* Right arrow */}
+        {/* Main carousel area */}
+        <div className="flex-1 relative">
+          {/* Decorative corner frame */}
+          <div className="absolute -top-2 -left-2 w-10 h-10 border-t-2 border-l-2 border-gold/50 z-20 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+          <div className="absolute -top-2 -right-2 w-10 h-10 border-t-2 border-r-2 border-gold/50 z-20 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+          <div className="absolute -bottom-2 -left-2 w-10 h-10 border-b-2 border-l-2 border-gold/50 z-20 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+          <div className="absolute -bottom-2 -right-2 w-10 h-10 border-b-2 border-r-2 border-gold/50 z-20 transition-all duration-300 group-hover:w-12 group-hover:h-12 group-hover:border-gold/70" />
+
+          {/* Inner border */}
+          <div className="absolute inset-0 border border-gold/15 rounded-lg pointer-events-none z-20" />
+
+          <div className="aspect-[16/9] rounded-lg bg-bg-card relative overflow-hidden shadow-2xl" style={{ boxShadow: '0 0 60px rgba(201,168,76,0.08), 0 25px 50px rgba(0,0,0,0.5)' }}>
+            {/* Sliding images */}
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+              <motion.img
+                key={current}
+                src={images[current]}
+                alt={`集结图 ${current + 1}`}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'tween', duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+                  opacity: { duration: 0.4 },
+                  scale: { duration: 0.4 },
+                }}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </AnimatePresence>
+
+            {/* Vignette overlay */}
+            <div className="absolute inset-0 pointer-events-none z-[1]"
+              style={{ boxShadow: 'inset 0 0 80px rgba(0,0,0,0.5)' }}
+            />
+
+            {/* Mobile arrows (inside image for small screens) */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={goPrev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 md:hidden opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  <img src={ARROW_PREV} alt="上一张" className="w-[50px]" draggable={false} />
+                </button>
+                <button
+                  onClick={goNext}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 md:hidden opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  <img src={ARROW_NEXT} alt="下一张" className="w-[50px]" draggable={false} />
+                </button>
+              </>
+            )}
+
+            {/* Bottom bar with progress + dots */}
+            {images.length > 1 && (
+              <div className="absolute bottom-0 left-0 right-0 z-20">
+                <div className="h-[2px] bg-gold/10 mx-4 mb-3 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-gold/40 via-gold to-gold/40 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 5, ease: 'linear' }}
+                    key={current}
+                  />
+                </div>
+                <div className="flex justify-center gap-2 pb-4">
+                  {images.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+                      className="relative"
+                    >
+                      <div className={`h-1.5 rounded-full transition-all duration-500 ${
+                        i === current
+                          ? 'w-6 bg-gradient-to-r from-gold/60 via-gold to-gold/60'
+                          : 'w-1.5 bg-white/30 hover:bg-white/50'
+                      }`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Counter badge */}
+            <div className="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-sm border border-gold/20 text-gold/80 text-xs px-2.5 py-1 rounded-full">
+              {current + 1} / {images.length}
+            </div>
+
+            {/* Admin controls */}
+            {isAdmin && (
+              <div className="absolute top-3 left-3 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-gold/30 hover:border-gold/60 text-gold/80 hover:text-gold text-xs px-3 py-1.5 rounded-full transition-all"
+                >
+                  {uploading ? '上传中...' : '＋ 上传'}
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-black/50 hover:bg-red-900/60 backdrop-blur-sm border border-red-500/20 hover:border-red-400/50 text-red-400/80 hover:text-red-300 text-xs px-3 py-1.5 rounded-full transition-all"
+                >
+                  {deleting ? '删除中...' : '✕ 删除'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right arrow - outside the image */}
         {images.length > 1 && (
           <button
             onClick={goNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+            className="flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 hidden md:block"
           >
-            <div className="w-8 h-8 border border-gold/50 hover:border-gold rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gold/80 hover:text-gold">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </div>
+            <img src={ARROW_NEXT} alt="下一张" className="w-[70px] drop-shadow-lg" draggable={false} />
           </button>
-        )}
-
-        {/* Bottom bar with progress + dots */}
-        {images.length > 1 && (
-          <div className="absolute bottom-0 left-0 right-0 z-20">
-            {/* Progress bar background */}
-            <div className="h-[2px] bg-gold/10 mx-4 mb-3 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-gold/40 via-gold to-gold/40 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 5, ease: 'linear' }}
-                key={current}
-              />
-            </div>
-            {/* Dots */}
-            <div className="flex justify-center gap-2 pb-4">
-              {images.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-                  className="relative"
-                >
-                  <div className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === current
-                      ? 'w-6 bg-gradient-to-r from-gold/60 via-gold to-gold/60'
-                      : 'w-1.5 bg-white/30 hover:bg-white/50'
-                  }`} />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Counter badge */}
-        <div className="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-sm border border-gold/20 text-gold/80 text-xs px-2.5 py-1 rounded-full">
-          {current + 1} / {images.length}
-        </div>
-
-        {/* Admin controls */}
-        {isAdmin && (
-          <div className="absolute top-3 left-3 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-gold/30 hover:border-gold/60 text-gold/80 hover:text-gold text-xs px-3 py-1.5 rounded-full transition-all"
-            >
-              {uploading ? '上传中...' : '＋ 上传'}
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-black/50 hover:bg-red-900/60 backdrop-blur-sm border border-red-500/20 hover:border-red-400/50 text-red-400/80 hover:text-red-300 text-xs px-3 py-1.5 rounded-full transition-all"
-            >
-              {deleting ? '删除中...' : '✕ 删除'}
-            </button>
-          </div>
         )}
       </div>
 
       {/* Caption below */}
-      <div className="text-center mt-3">
+      <div className="text-center mt-4">
         <p className="text-text-secondary/40 text-xs tracking-widest">月 冕 集 结 图</p>
       </div>
     </div>
@@ -301,8 +318,21 @@ export default function IntroSection() {
   const paragraphs = intro.split('\n').filter(line => line.trim());
 
   return (
-    <section className="py-24 px-8">
-      <div className="max-w-[1400px] mx-auto">
+    <section className="relative py-24 px-8 overflow-hidden">
+      {/* Video background */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="https://s3plus.meituan.net/opapisdk/op_ticket_885190757_1757106279712_qdqqd_lf6cky.mp4"
+      />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 z-[1]" style={{
+        background: 'linear-gradient(135deg, rgba(5,5,8,0.85) 0%, rgba(30,20,10,0.7) 50%, rgba(5,5,8,0.9) 100%)',
+      }} />
+      <div className="max-w-[1400px] mx-auto relative z-[2]">
         {/* Full-width Image Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
