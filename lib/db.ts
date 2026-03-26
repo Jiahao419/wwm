@@ -350,13 +350,30 @@ export async function getGalleryImages(): Promise<{ urls: string[]; error: Error
 
 export async function deleteGalleryImage(url: string): Promise<{ error: Error | null }> {
   const supabase = getSupabase();
-  // Extract filename from URL
-  const parts = url.split('/');
-  const fileName = parts[parts.length - 1];
+  // Extract file path from URL — handle query params and nested paths
+  // URL format: .../storage/v1/object/public/gallery/[path]
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname; // e.g. /storage/v1/object/public/gallery/filename.jpg
+    const bucketPrefix = `/storage/v1/object/public/${GALLERY_BUCKET}/`;
+    let filePath: string;
+    if (pathname.includes(bucketPrefix)) {
+      filePath = pathname.split(bucketPrefix)[1];
+    } else {
+      // Fallback: just take last segment without query params
+      filePath = pathname.split('/').pop() || '';
+    }
+    filePath = decodeURIComponent(filePath);
+    console.log('[gallery] deleting file:', filePath);
 
-  const { error } = await supabase.storage
-    .from(GALLERY_BUCKET)
-    .remove([fileName]);
+    const { error } = await supabase.storage
+      .from(GALLERY_BUCKET)
+      .remove([filePath]);
 
-  return { error: error as unknown as Error | null };
+    if (error) console.error('[gallery] delete error:', error);
+    return { error: error as unknown as Error | null };
+  } catch (e) {
+    console.error('[gallery] delete parse error:', e);
+    return { error: e as Error };
+  }
 }

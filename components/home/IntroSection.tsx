@@ -53,13 +53,15 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
     if (!confirm('确定删除这张图片？')) return;
     setDeleting(true);
     const url = images[current];
+    console.log('[gallery] deleting url:', url);
     const { error } = await deleteGalleryImage(url);
+    console.log('[gallery] delete result:', { error });
     if (!error) {
       const updated = images.filter((_, i) => i !== current);
       setImages(updated);
       setCurrent(prev => Math.min(prev, Math.max(0, updated.length - 1)));
     } else {
-      alert('删除失败');
+      alert('删除失败: ' + ((error as any)?.message || JSON.stringify(error)));
     }
     setDeleting(false);
   };
