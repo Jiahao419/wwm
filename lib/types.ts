@@ -18,6 +18,7 @@ export interface Profile {
   graph_x: number | null;
   graph_y: number | null;
   showcase_url: string | null;
+  faction: string | null;
   created_at: string;
   updated_at: string;
 }

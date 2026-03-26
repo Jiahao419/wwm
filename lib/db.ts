@@ -253,6 +253,17 @@ export function deleteRelation(id: string) {
   return getSupabase().from('member_relations').delete().eq('id', id);
 }
 
+/** Get all relations involving a specific user (by user_id) */
+export async function getRelationsForUser(userId: string) {
+  const supabase = getAnonSupabase();
+  const { data, error } = await supabase
+    .from('member_relations')
+    .select('*')
+    .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
+    .returns<MemberRelation[]>();
+  return { data, error };
+}
+
 // ─── Site Stats ─────────────────────────────────────────────────────
 
 export function getSiteStats() {

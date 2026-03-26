@@ -81,6 +81,26 @@ export const NOTICE_TYPES = [
   { value: 'tactic', label: '战术部署' },
 ] as const;
 
+export const FACTIONS = [
+  '鸣金·虹', '鸣金·影',
+  '牵丝·玉', '牵丝·霖',
+  '裂石·钧', '裂石·威',
+  '破竹·风', '破竹·尘',
+] as const;
+
+export type Faction = typeof FACTIONS[number];
+
+export const FACTION_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  '鸣金·虹': { bg: 'rgba(224,85,85,0.12)', text: '#f08080', border: 'rgba(224,85,85,0.3)' },
+  '鸣金·影': { bg: 'rgba(160,70,100,0.12)', text: '#d08090', border: 'rgba(160,70,100,0.3)' },
+  '牵丝·玉': { bg: 'rgba(180,140,220,0.12)', text: '#c8a0e8', border: 'rgba(180,140,220,0.3)' },
+  '牵丝·霖': { bg: 'rgba(100,150,220,0.12)', text: '#80b0e8', border: 'rgba(100,150,220,0.3)' },
+  '裂石·钧': { bg: 'rgba(200,160,60,0.12)', text: '#d8b860', border: 'rgba(200,160,60,0.3)' },
+  '裂石·威': { bg: 'rgba(220,120,40,0.12)', text: '#e09050', border: 'rgba(220,120,40,0.3)' },
+  '破竹·风': { bg: 'rgba(80,180,120,0.12)', text: '#70c890', border: 'rgba(80,180,120,0.3)' },
+  '破竹·尘': { bg: 'rgba(140,160,100,0.12)', text: '#a8b878', border: 'rgba(140,160,100,0.3)' },
+};
+
 export const RELATION_TYPES = [
   { id: 'xiayuan', label: '侠缘', style: 'solid', color: '#e05555', max: 1 },
   { id: 'jieyi', label: '结义', style: 'solid', color: '#c9a84c', max: 9 },

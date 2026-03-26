@@ -126,6 +126,7 @@ export default function RosterPage() {
     graph_x: null,
     graph_y: null,
     showcase_url: null,
+    faction: null,
     created_at: '',
     updated_at: '',
   };

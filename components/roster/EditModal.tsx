@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Profile } from '@/lib/types';
-import { MEMBER_TAGS, MemberTag } from '@/lib/constants';
+import { MEMBER_TAGS, MemberTag, FACTIONS } from '@/lib/constants';
 import GoldButton from '@/components/ui/GoldButton';
 import TagBadge from '@/components/ui/TagBadge';
 import { createClient } from '@/lib/supabase/client';
@@ -19,6 +19,7 @@ export default function EditModal({ profile, onClose, onSave }: EditModalProps) 
   const [intro, setIntro] = useState(profile.intro || '');
   const [description, setDescription] = useState(profile.description || '');
   const [tags, setTags] = useState<MemberTag[]>(profile.tags as MemberTag[]);
+  const [faction, setFaction] = useState(profile.faction || '');
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,15 +62,16 @@ export default function EditModal({ profile, onClose, onSave }: EditModalProps) 
       intro,
       description,
       tags,
+      faction: faction || null,
       avatar_url: avatarUrl || null,
     });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-bg-panel border border-gold/20 rounded-sm p-8 w-[560px] max-h-[80vh] overflow-y-auto">
+      <div className="relative z-10 bg-bg-panel border border-gold/20 rounded-sm p-8 w-[560px] max-h-[85vh] overflow-y-auto">
         <h2 className="font-title text-2xl text-text-primary mb-6">编辑档案</h2>
 
         <div className="space-y-5">
@@ -122,6 +124,25 @@ export default function EditModal({ profile, onClose, onSave }: EditModalProps) 
               onChange={e => setIdentity(e.target.value)}
               className="w-full bg-bg-card border border-gold/10 px-4 py-2.5 text-text-primary text-sm focus:border-gold/40 focus:outline-none transition-colors"
             />
+          </div>
+
+          <div>
+            <label className="block text-text-secondary text-sm mb-1.5">流派</label>
+            <div className="flex flex-wrap gap-2">
+              {FACTIONS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFaction(faction === f ? '' : f)}
+                  className={`px-3 py-1.5 text-xs rounded-sm border transition-all ${
+                    faction === f
+                      ? 'bg-gold/15 text-gold border-gold/40'
+                      : 'bg-bg-card text-text-secondary/60 border-gold/10 hover:border-gold/25 hover:text-text-secondary'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>

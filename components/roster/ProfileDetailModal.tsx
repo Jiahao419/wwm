@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Profile } from '@/lib/types';
+import { FACTION_COLORS, RELATION_TYPES } from '@/lib/constants';
 import TagBadge from '@/components/ui/TagBadge';
 import GoldButton from '@/components/ui/GoldButton';
 import ImageCropper from '@/components/ui/ImageCropper';
 import { createClient } from '@/lib/supabase/client';
-import { updateProfile } from '@/lib/db';
+import { updateProfile, getRelationsForUser, getProfiles } from '@/lib/db';
 
 interface ProfileDetailModalProps {
   profile: Profile;
@@ -42,6 +43,53 @@ export default function ProfileDetailModal({
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Fetch relations for this profile
+  const [relations, setRelations] = useState<{ type: string; label: string; targetName: string; color: string }[]>([]);
+  useEffect(() => {
+    if (!profile.user_id) return;
+    let cancelled = false;
+    (async () => {
+      const [relRes, profRes] = await Promise.all([
+        getRelationsForUser(profile.user_id),
+        getProfiles(),
+      ]);
+      if (cancelled) return;
+      const rels = relRes.data || [];
+      const profs = profRes.data || [];
+      const profMap = new Map<string, string>();
+      for (const p of profs) {
+        if (p.user_id) profMap.set(p.user_id, p.nickname);
+        profMap.set(p.id, p.nickname);
+      }
+
+      const items: { type: string; label: string; targetName: string; color: string }[] = [];
+      for (const r of rels) {
+        const rt = RELATION_TYPES.find(t => t.id === r.relation_type);
+        if (!rt) continue;
+        const isFrom = r.from_user_id === profile.user_id;
+        const targetId = isFrom ? r.to_user_id : r.from_user_id;
+        const targetName = profMap.get(targetId) || '未知';
+
+        // Determine display label based on direction
+        let displayLabel = rt.label;
+        if (r.relation_type === 'shifu') {
+          displayLabel = isFrom ? '徒弟' : '师父';
+        } else if (r.relation_type === 'tudi') {
+          displayLabel = isFrom ? '徒弟' : '师父';
+        }
+
+        items.push({
+          type: r.relation_type,
+          label: displayLabel,
+          targetName,
+          color: rt.color,
+        });
+      }
+      setRelations(items);
+    })();
+    return () => { cancelled = true; };
+  }, [profile.user_id]);
 
   // Step 1: User selects a file → show cropper
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,7 +286,7 @@ export default function ProfileDetailModal({
             )}
 
             {/* Content */}
-            <div className={`px-7 pb-7 relative flex-1 ${hasShowcase ? 'pt-7 flex flex-col justify-center' : '-mt-8'}`}>
+            <div className={`px-7 pb-7 relative flex-1 ${hasShowcase ? 'pt-7' : '-mt-8'}`}>
               {/* Name & badges */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -282,53 +330,115 @@ export default function ProfileDetailModal({
               </motion.div>
 
               {/* Divider */}
-              <div className="h-[1px] bg-gradient-to-r from-gold/20 via-gold/10 to-transparent mb-4" />
+              <div className="h-[1px] bg-gradient-to-r from-gold/20 via-gold/10 to-transparent mb-5" />
 
-              {/* Intro */}
-              {profile.intro && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-text-primary/80 text-sm mb-3 leading-relaxed italic"
-                >
-                  「{profile.intro}」
-                </motion.p>
-              )}
-
-              {/* Description */}
-              {profile.description && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="text-text-secondary text-sm mb-4 leading-relaxed whitespace-pre-wrap"
-                >
-                  {profile.description}
-                </motion.p>
-              )}
-
-              {/* Tags */}
-              {profile.tags.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex flex-wrap gap-1.5 mb-4"
-                >
-                  {profile.tags.map(tag => (
-                    <TagBadge key={tag} tag={tag} size="sm" />
-                  ))}
+              {/* Info grid - always show structured sections */}
+              <div className="space-y-5">
+                {/* Intro */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                  <p className="text-text-secondary/40 text-[11px] tracking-wider mb-1.5">一句话介绍</p>
+                  {profile.intro ? (
+                    <p className="text-text-primary/80 text-sm leading-relaxed italic">「{profile.intro}」</p>
+                  ) : (
+                    <p className="text-text-secondary/20 text-sm italic">暂未填写</p>
+                  )}
                 </motion.div>
-              )}
+
+                {/* Faction */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
+                  <p className="text-text-secondary/40 text-[11px] tracking-wider mb-1.5">流派</p>
+                  {profile.faction ? (
+                    <span
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-sm border"
+                      style={{
+                        backgroundColor: FACTION_COLORS[profile.faction]?.bg || 'rgba(201,168,76,0.1)',
+                        color: FACTION_COLORS[profile.faction]?.text || '#c9a84c',
+                        borderColor: FACTION_COLORS[profile.faction]?.border || 'rgba(201,168,76,0.25)',
+                      }}
+                    >
+                      <span className="font-title">{profile.faction}</span>
+                    </span>
+                  ) : (
+                    <p className="text-text-secondary/20 text-sm">未选择流派</p>
+                  )}
+                </motion.div>
+
+                {/* Description */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                  <p className="text-text-secondary/40 text-[11px] tracking-wider mb-1.5">个人描述</p>
+                  {profile.description ? (
+                    <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">{profile.description}</p>
+                  ) : (
+                    <p className="text-text-secondary/20 text-sm italic">暂未填写</p>
+                  )}
+                </motion.div>
+
+                {/* Tags */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
+                  <p className="text-text-secondary/40 text-[11px] tracking-wider mb-1.5">标签</p>
+                  {profile.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {profile.tags.map(tag => (
+                        <TagBadge key={tag} tag={tag} size="sm" />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-text-secondary/20 text-sm">暂无标签</p>
+                  )}
+                </motion.div>
+
+                {/* Relations */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+                  <p className="text-text-secondary/40 text-[11px] tracking-wider mb-2">江湖关系</p>
+                  {relations.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {relations.map((rel, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-2 text-sm py-1.5 px-2.5 rounded bg-bg-card/40 border border-gold/5"
+                        >
+                          <span
+                            className="text-[11px] px-1.5 py-0.5 rounded-sm border font-title flex-shrink-0"
+                            style={{
+                              color: rel.color,
+                              borderColor: `${rel.color}40`,
+                              backgroundColor: `${rel.color}15`,
+                            }}
+                          >
+                            {rel.label}
+                          </span>
+                          <span className="text-text-primary/80">{rel.targetName}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-text-secondary/20 text-sm">暂无江湖关系</p>
+                  )}
+                </motion.div>
+
+                {/* Discord */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}>
+                  <p className="text-text-secondary/40 text-[11px] tracking-wider mb-1.5">Discord</p>
+                  {profile.discord_username ? (
+                    <div className="flex items-center gap-2 text-sm text-text-secondary py-2 px-3 bg-bg-card/50 rounded border border-gold/5 w-fit">
+                      <svg className="w-4 h-4 text-[#5865F2] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" />
+                      </svg>
+                      <span className="text-xs">{profile.discord_username}</span>
+                    </div>
+                  ) : (
+                    <p className="text-text-secondary/20 text-sm">未绑定</p>
+                  )}
+                </motion.div>
+              </div>
 
               {/* Upload showcase if none exists */}
               {!hasShowcase && canEdit && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.35 }}
-                  className="mb-4"
+                  transition={{ delay: 0.5 }}
+                  className="mt-5"
                 >
                   <input ref={fileRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
                   <button
@@ -350,7 +460,7 @@ export default function ProfileDetailModal({
 
               {/* Mobile showcase (shown below info on small screens) */}
               {hasShowcase && (
-                <div className="md:hidden mb-4">
+                <div className="md:hidden mt-5">
                   <div
                     className="relative rounded overflow-hidden border border-gold/10 cursor-pointer"
                     onClick={() => setViewingImage(showcaseUrl)}
@@ -360,28 +470,13 @@ export default function ProfileDetailModal({
                 </div>
               )}
 
-              {/* Discord */}
-              {profile.discord_username && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.35 }}
-                  className="flex items-center gap-2 text-sm text-text-secondary mb-5 py-2 px-3 bg-bg-card/50 rounded border border-gold/5"
-                >
-                  <svg className="w-4 h-4 text-[#5865F2] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" />
-                  </svg>
-                  <span className="text-xs">{profile.discord_username}</span>
-                </motion.div>
-              )}
-
               {/* Action Buttons */}
               {(canEdit || isAdminOrOwner) && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex gap-2.5 pt-4 border-t border-gold/8 flex-wrap"
+                  transition={{ delay: 0.5 }}
+                  className="flex gap-2.5 pt-4 mt-5 border-t border-gold/8 flex-wrap"
                 >
                   {canEdit && (
                     <GoldButton variant="secondary" size="sm" onClick={onEdit}>
