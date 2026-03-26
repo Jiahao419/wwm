@@ -333,23 +333,13 @@ export default function IntroSection() {
         background: 'linear-gradient(135deg, rgba(5,5,8,0.85) 0%, rgba(30,20,10,0.7) 50%, rgba(5,5,8,0.9) 100%)',
       }} />
       <div className="max-w-[1400px] mx-auto relative z-[2]">
-        {/* Full-width Image Carousel */}
+        {/* Text above carousel */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-        >
-          <ImageCarousel isAdmin={isAdminOrOwner} />
-        </motion.div>
-
-        {/* Text below carousel */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-16 max-w-[800px] mx-auto text-center"
+          className="mb-16 max-w-[800px] mx-auto text-center"
         >
           <p className="font-display text-xs tracking-[0.3em] text-text-secondary/50 uppercase mb-2">
             ABOUT YUEMIAN
@@ -398,6 +388,16 @@ export default function IntroSection() {
               ))}
             </div>
           )}
+        </motion.div>
+
+        {/* Image Carousel below text */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <ImageCarousel isAdmin={isAdminOrOwner} />
         </motion.div>
       </div>
     </section>
