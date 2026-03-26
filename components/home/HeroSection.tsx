@@ -34,8 +34,8 @@ export default function HeroSection() {
         <img
           src="/images/swordsman-left.png"
           alt=""
-          className="h-[85vh] w-auto object-contain"
-          style={{ mixBlendMode: 'lighten' }}
+          className="h-[90vh] w-auto object-contain"
+          style={{ mixBlendMode: 'screen', filter: 'brightness(2.5) contrast(1.3)' }}
           draggable={false}
         />
         {/* Fade edges into background */}
@@ -53,8 +53,8 @@ export default function HeroSection() {
         <img
           src="/images/swordsman-right.png"
           alt=""
-          className="h-[85vh] w-auto object-contain"
-          style={{ mixBlendMode: 'lighten' }}
+          className="h-[90vh] w-auto object-contain"
+          style={{ mixBlendMode: 'screen', filter: 'brightness(2.5) contrast(1.3)' }}
           draggable={false}
         />
         {/* Fade edges into background */}
