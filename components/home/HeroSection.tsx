@@ -24,79 +24,42 @@ export default function HeroSection() {
         <FloatingLeaves count={12} />
       </div>
 
-      {/* LEFT swordsman silhouette */}
+      {/* LEFT swordsman - ink painting style */}
       <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.5, delay: 1.2 }}
-        className="absolute left-[5%] bottom-[8%] z-[3] pointer-events-none select-none"
+        initial={{ opacity: 0, x: -60 }}
+        animate={{ opacity: 0.85, x: 0 }}
+        transition={{ duration: 2, delay: 1.0, ease: 'easeOut' }}
+        className="absolute left-0 bottom-0 z-[3] pointer-events-none select-none"
       >
-        <svg width="280" height="520" viewBox="0 0 280 520" fill="none" className="opacity-[0.06]">
-          {/* Swordsman with sword - left facing */}
-          <g>
-            {/* Flowing robe base */}
-            <path d="M140 60 C120 60 100 80 95 120 L80 200 C70 240 50 300 40 360 L20 480 C20 500 60 510 140 510 C220 510 260 500 260 480 L240 360 C230 300 210 240 200 200 L185 120 C180 80 160 60 140 60Z" fill="currentColor" className="text-gold"/>
-            {/* Head */}
-            <circle cx="140" cy="45" r="25" fill="currentColor" className="text-gold"/>
-            {/* Hat/crown */}
-            <path d="M110 35 L140 10 L170 35" stroke="currentColor" strokeWidth="3" fill="none" className="text-gold"/>
-            {/* Sword - held diagonally */}
-            <line x1="60" y1="100" x2="20" y2="20" stroke="currentColor" strokeWidth="3" className="text-gold"/>
-            <line x1="15" y1="22" x2="25" y2="18" stroke="currentColor" strokeWidth="4" className="text-gold"/>
-            {/* Left arm holding sword */}
-            <path d="M120 110 C100 100 80 95 60 100" stroke="currentColor" strokeWidth="3" fill="none" className="text-gold"/>
-            {/* Right arm */}
-            <path d="M160 110 C180 130 200 150 210 160" stroke="currentColor" strokeWidth="3" fill="none" className="text-gold"/>
-            {/* Robe details */}
-            <path d="M95 200 C100 250 90 320 80 400" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gold" opacity="0.5"/>
-            <path d="M185 200 C180 250 190 320 200 400" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gold" opacity="0.5"/>
-            {/* Sash/belt */}
-            <path d="M100 190 L180 190" stroke="currentColor" strokeWidth="2" className="text-gold" opacity="0.6"/>
-            <path d="M170 190 C175 220 180 260 190 300" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gold" opacity="0.4"/>
-          </g>
-        </svg>
+        <img
+          src="/images/swordsman-left.png"
+          alt=""
+          className="h-[85vh] w-auto object-contain"
+          style={{ mixBlendMode: 'lighten' }}
+          draggable={false}
+        />
+        {/* Fade edges into background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#050508] pointer-events-none" style={{ right: '-10%' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-[#050508] to-transparent pointer-events-none" />
       </motion.div>
 
-      {/* RIGHT swordsman silhouette */}
+      {/* RIGHT swordsman - ink painting style */}
       <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.5, delay: 1.4 }}
-        className="absolute right-[5%] bottom-[8%] z-[3] pointer-events-none select-none"
+        initial={{ opacity: 0, x: 60 }}
+        animate={{ opacity: 0.85, x: 0 }}
+        transition={{ duration: 2, delay: 1.2, ease: 'easeOut' }}
+        className="absolute right-0 bottom-0 z-[3] pointer-events-none select-none"
       >
-        <svg width="280" height="520" viewBox="0 0 280 520" fill="none" className="opacity-[0.06]" style={{ transform: 'scaleX(-1)' }}>
-          <g>
-            <path d="M140 60 C120 60 100 80 95 120 L80 200 C70 240 50 300 40 360 L20 480 C20 500 60 510 140 510 C220 510 260 500 260 480 L240 360 C230 300 210 240 200 200 L185 120 C180 80 160 60 140 60Z" fill="currentColor" className="text-gold"/>
-            <circle cx="140" cy="45" r="25" fill="currentColor" className="text-gold"/>
-            <path d="M110 35 L140 10 L170 35" stroke="currentColor" strokeWidth="3" fill="none" className="text-gold"/>
-            {/* Long sword held upright */}
-            <line x1="200" y1="140" x2="230" y2="10" stroke="currentColor" strokeWidth="3" className="text-gold"/>
-            <line x1="225" y1="12" x2="235" y2="8" stroke="currentColor" strokeWidth="4" className="text-gold"/>
-            <path d="M160 110 C180 120 195 130 200 140" stroke="currentColor" strokeWidth="3" fill="none" className="text-gold"/>
-            <path d="M120 110 C100 130 80 150 70 160" stroke="currentColor" strokeWidth="3" fill="none" className="text-gold"/>
-            <path d="M95 200 C100 250 90 320 80 400" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gold" opacity="0.5"/>
-            <path d="M185 200 C180 250 190 320 200 400" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gold" opacity="0.5"/>
-            <path d="M100 190 L180 190" stroke="currentColor" strokeWidth="2" className="text-gold" opacity="0.6"/>
-          </g>
-        </svg>
-      </motion.div>
-
-      {/* Decorative horizontal sword lines */}
-      <motion.div
-        initial={{ opacity: 0, scaleX: 0 }}
-        animate={{ opacity: 1, scaleX: 1 }}
-        transition={{ duration: 1.2, delay: 0.8 }}
-        className="absolute left-[10%] top-[50%] -translate-y-1/2 z-[3] pointer-events-none"
-      >
-        <div className="w-[120px] h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-gold/5" />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, scaleX: 0 }}
-        animate={{ opacity: 1, scaleX: 1 }}
-        transition={{ duration: 1.2, delay: 0.8 }}
-        className="absolute right-[10%] top-[50%] -translate-y-1/2 z-[3] pointer-events-none"
-      >
-        <div className="w-[120px] h-[1px] bg-gradient-to-l from-transparent via-gold/20 to-gold/5" />
+        <img
+          src="/images/swordsman-right.png"
+          alt=""
+          className="h-[85vh] w-auto object-contain"
+          style={{ mixBlendMode: 'lighten' }}
+          draggable={false}
+        />
+        {/* Fade edges into background */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#050508] pointer-events-none" style={{ left: '-10%' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-[#050508] to-transparent pointer-events-none" />
       </motion.div>
 
       {/* Content */}
