@@ -6,7 +6,7 @@ export const mockProfiles: Profile[] = [
     identity: '坛主', intro: '月冕总坛创始人，百业战总指挥',
     description: '执剑天涯，护我月冕', tags: ['管理', '指挥'],
     is_public: true, discord_username: 'yunzhong', discord_id: '001', role: 'owner',
-    node_color: '#c9a84c', node_size: 'large', graph_x: 50, graph_y: 20,
+    node_color: '#c9a84c', node_size: 'large', graph_x: 50, graph_y: 20, showcase_url: null,
     created_at: '2025-01-01', updated_at: '2025-03-01',
   },
   {
@@ -14,7 +14,7 @@ export const mockProfiles: Profile[] = [
     identity: '副坛主', intro: '负责百业战战术部署与人员调度',
     description: '冰霜之下，万物生长', tags: ['管理', '指挥', '主力'],
     is_public: true, discord_username: 'shuanghua', discord_id: '002', role: 'admin',
-    node_color: '#55b0e0', node_size: 'large', graph_x: 30, graph_y: 35,
+    node_color: '#55b0e0', node_size: 'large', graph_x: 30, graph_y: 35, showcase_url: null,
     created_at: '2025-01-02', updated_at: '2025-03-01',
   },
   {
@@ -22,7 +22,7 @@ export const mockProfiles: Profile[] = [
     identity: '外交使', intro: '负责对外联络与合作事务',
     description: '灯火阑珊处，总有故人来', tags: ['外交', '活跃'],
     is_public: true, discord_username: 'yelanshan', discord_id: '003', role: 'member',
-    node_color: '#9055e0', node_size: 'medium', graph_x: 70, graph_y: 35,
+    node_color: '#9055e0', node_size: 'medium', graph_x: 70, graph_y: 35, showcase_url: null,
     created_at: '2025-01-03', updated_at: '2025-03-01',
   },
   {
@@ -30,7 +30,7 @@ export const mockProfiles: Profile[] = [
     identity: '战队队长', intro: '百业战一队队长，冲锋突破手',
     description: '铁衣在身，寒风不侵', tags: ['主力', '常驻'],
     is_public: true, discord_username: 'tieyihan', discord_id: '004', role: 'member',
-    node_color: '#e05555', node_size: 'medium', graph_x: 20, graph_y: 55,
+    node_color: '#e05555', node_size: 'medium', graph_x: 20, graph_y: 55, showcase_url: null,
     created_at: '2025-01-05', updated_at: '2025-03-01',
   },
   {
@@ -38,7 +38,7 @@ export const mockProfiles: Profile[] = [
     identity: '后勤总管', intro: '物资调配与活动组织',
     description: '竹影清风，万事从容', tags: ['后勤', '活跃', '常驻'],
     is_public: true, discord_username: 'zhuqing', discord_id: '005', role: 'member',
-    node_color: '#4caf50', node_size: 'medium', graph_x: 50, graph_y: 50,
+    node_color: '#4caf50', node_size: 'medium', graph_x: 50, graph_y: 50, showcase_url: null,
     created_at: '2025-01-06', updated_at: '2025-03-01',
   },
   {
@@ -46,7 +46,7 @@ export const mockProfiles: Profile[] = [
     identity: '成员', intro: '百业战主力输出',
     description: '醉里乾坤大，壶中日月长', tags: ['主力', '活跃', '夜间在线'],
     is_public: true, discord_username: 'zuiwo', discord_id: '006', role: 'member',
-    node_color: '#9a8a6a', node_size: 'small', graph_x: 35, graph_y: 70,
+    node_color: '#9a8a6a', node_size: 'small', graph_x: 35, graph_y: 70, showcase_url: null,
     created_at: '2025-02-01', updated_at: '2025-03-01',
   },
   {
@@ -54,7 +54,7 @@ export const mockProfiles: Profile[] = [
     identity: '成员', intro: '擅长守塔与防御',
     description: '但愿人长久，千里共婵娟', tags: ['常驻', '活跃'],
     is_public: true, discord_username: 'mingyue', discord_id: '007', role: 'member',
-    node_color: '#9a8a6a', node_size: 'small', graph_x: 65, graph_y: 70,
+    node_color: '#9a8a6a', node_size: 'small', graph_x: 65, graph_y: 70, showcase_url: null,
     created_at: '2025-02-05', updated_at: '2025-03-01',
   },
   {
@@ -62,7 +62,7 @@ export const mockProfiles: Profile[] = [
     identity: '成员', intro: '打野专精，快速支援',
     description: '风起云涌，一击必杀', tags: ['主力', '夜间在线'],
     is_public: true, discord_username: 'fengj', discord_id: '008', role: 'member',
-    node_color: '#9a8a6a', node_size: 'small', graph_x: 80, graph_y: 55,
+    node_color: '#9a8a6a', node_size: 'small', graph_x: 80, graph_y: 55, showcase_url: null,
     created_at: '2025-02-10', updated_at: '2025-03-01',
   },
   {
@@ -70,7 +70,7 @@ export const mockProfiles: Profile[] = [
     identity: '成员', intro: '刚加入月冕，正在学习中',
     description: '虽然是萌新但会努力的！', tags: ['萌新', '活跃'],
     is_public: true, discord_username: 'xiaoyu', discord_id: '009', role: 'member',
-    node_color: '#9a8a6a', node_size: 'small', graph_x: 50, graph_y: 85,
+    node_color: '#9a8a6a', node_size: 'small', graph_x: 50, graph_y: 85, showcase_url: null,
     created_at: '2025-03-01', updated_at: '2025-03-01',
   },
   {
@@ -78,7 +78,7 @@ export const mockProfiles: Profile[] = [
     identity: '活动策划', intro: '百业好声音策划人，整活达人',
     description: '浪里个浪～', tags: ['整活', '活跃', '后勤'],
     is_public: true, discord_username: 'zhulang', discord_id: '010', role: 'member',
-    node_color: '#e0c055', node_size: 'small', graph_x: 15, graph_y: 80,
+    node_color: '#e0c055', node_size: 'small', graph_x: 15, graph_y: 80, showcase_url: null,
     created_at: '2025-02-15', updated_at: '2025-03-01',
   },
 ];

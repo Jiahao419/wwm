@@ -1,21 +1,25 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Profile } from '@/lib/types';
 import TagBadge from '@/components/ui/TagBadge';
 import GoldButton from '@/components/ui/GoldButton';
+import { createClient } from '@/lib/supabase/client';
+import { updateProfile } from '@/lib/db';
 
 interface ProfileDetailModalProps {
   profile: Profile;
-  canEdit: boolean;         // true if admin/owner OR viewing own profile
-  isAdminOrOwner: boolean;  // true if current user is admin/owner
-  isOwner: boolean;         // true if current user is owner
-  isSelf: boolean;          // true if viewing own profile
+  canEdit: boolean;
+  isAdminOrOwner: boolean;
+  isOwner: boolean;
+  isSelf: boolean;
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onSetAdmin?: () => void;
   onRemoveAdmin?: () => void;
+  onRefresh?: () => void;
 }
 
 export default function ProfileDetailModal({
@@ -29,8 +33,43 @@ export default function ProfileDetailModal({
   onDelete,
   onSetAdmin,
   onRemoveAdmin,
+  onRefresh,
 }: ProfileDetailModalProps) {
   const firstChar = profile.nickname.charAt(0);
+  const [showcaseUrl, setShowcaseUrl] = useState(profile.showcase_url || '');
+  const [uploading, setUploading] = useState(false);
+  const [viewingShowcase, setViewingShowcase] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleShowcaseUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split('.').pop();
+      const path = `showcase/${profile.id}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+      if (error) {
+        // try gallery bucket
+        const { error: err2 } = await supabase.storage.from('gallery').upload(path, file, { upsert: true });
+        if (err2) { alert('上传失败: ' + err2.message); setUploading(false); return; }
+        const { data: d2 } = supabase.storage.from('gallery').getPublicUrl(path);
+        setShowcaseUrl(d2.publicUrl);
+        await updateProfile(profile.id, { showcase_url: d2.publicUrl } as any);
+      } else {
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+        setShowcaseUrl(urlData.publicUrl);
+        await updateProfile(profile.id, { showcase_url: urlData.publicUrl } as any);
+      }
+      onRefresh?.();
+    } catch (err) {
+      console.error(err);
+      alert('上传失败');
+    }
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = '';
+  };
 
   return (
     <AnimatePresence>
@@ -44,13 +83,27 @@ export default function ProfileDetailModal({
           onClick={onClose}
         />
 
+        {/* Showcase fullscreen viewer */}
+        {viewingShowcase && showcaseUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-[60] bg-black/90 flex items-center justify-center cursor-pointer"
+            onClick={() => setViewingShowcase(false)}
+          >
+            <img src={showcaseUrl} alt={profile.nickname} className="max-w-[90vw] max-h-[90vh] object-contain" />
+            <div className="absolute top-6 right-6 text-white/50 text-sm">点击任意处关闭</div>
+          </motion.div>
+        )}
+
         {/* Modal */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="relative bg-bg-panel border border-gold/20 rounded-sm w-[520px] max-h-[85vh] overflow-y-auto"
+          className="relative bg-bg-panel border border-gold/20 rounded-sm w-[600px] max-h-[90vh] overflow-y-auto"
         >
           {/* Close button */}
           <button
@@ -138,6 +191,47 @@ export default function ProfileDetailModal({
               </div>
             )}
 
+            {/* Showcase Image */}
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-text-secondary text-xs">展示大图</span>
+                {(canEdit) && (
+                  <>
+                    <input ref={fileRef} type="file" accept="image/*" onChange={handleShowcaseUpload} className="hidden" />
+                    <button
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                      className="text-[10px] text-gold/50 hover:text-gold border border-gold/15 hover:border-gold/40 px-2 py-0.5 rounded-sm transition-colors"
+                    >
+                      {uploading ? '上传中...' : showcaseUrl ? '更换' : '上传'}
+                    </button>
+                  </>
+                )}
+              </div>
+              {showcaseUrl ? (
+                <motion.div
+                  className="relative rounded-sm overflow-hidden border border-gold/10 cursor-pointer group/showcase"
+                  whileHover={{ scale: 1.01 }}
+                  onClick={() => setViewingShowcase(true)}
+                >
+                  <img
+                    src={showcaseUrl}
+                    alt={`${profile.nickname} 展示图`}
+                    className="w-full max-h-[400px] object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover/showcase:bg-black/20 transition-colors flex items-center justify-center">
+                    <span className="text-white/0 group-hover/showcase:text-white/80 transition-colors text-sm">
+                      点击查看大图
+                    </span>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="h-24 rounded-sm border border-dashed border-gold/10 flex items-center justify-center">
+                  <span className="text-text-secondary/20 text-xs">暂无展示图</span>
+                </div>
+              )}
+            </div>
+
             {/* Discord */}
             {profile.discord_username && (
               <div className="flex items-center gap-2 text-sm text-text-secondary mb-6 py-2 px-3 bg-bg-card rounded border border-gold/5">
@@ -151,14 +245,11 @@ export default function ProfileDetailModal({
             {/* Action Buttons */}
             {(canEdit || isAdminOrOwner) && (
               <div className="flex gap-3 pt-4 border-t border-gold/10">
-                {/* Edit: self can edit own, admin can edit all */}
                 {canEdit && (
                   <GoldButton variant="secondary" size="sm" onClick={onEdit}>
                     {isSelf ? '编辑我的档案' : '编辑档案'}
                   </GoldButton>
                 )}
-
-                {/* Delete: admin/owner only */}
                 {isAdminOrOwner && (
                   <GoldButton
                     variant="ghost"
@@ -169,8 +260,6 @@ export default function ProfileDetailModal({
                     删除
                   </GoldButton>
                 )}
-
-                {/* Set/remove admin: owner only */}
                 {isOwner && profile.role === 'member' && onSetAdmin && (
                   <GoldButton variant="ghost" size="sm" onClick={onSetAdmin} className="text-blue-300/70 hover:text-blue-300">
                     设为管理

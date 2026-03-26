@@ -6,6 +6,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import MemberCard from '@/components/roster/MemberCard';
 import EditModal from '@/components/roster/EditModal';
 import ProfileDetailModal from '@/components/roster/ProfileDetailModal';
+import CylinderCarousel from '@/components/roster/CylinderCarousel';
 import { Profile } from '@/lib/types';
 import { getProfiles, updateProfile, deleteProfile, setUserRole, createProfile } from '@/lib/db';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -101,14 +102,12 @@ export default function RosterPage() {
     if (!error) await fetchData();
   };
 
-  // Check if user can edit a specific profile
   const canEdit = (profile: Profile) => {
     if (isAdminOrOwner) return true;
     if (user && profile.user_id === user.id) return true;
     return false;
   };
 
-  // Dummy profile for the add modal
   const newProfileTemplate: Profile = {
     id: '',
     user_id: '',
@@ -126,6 +125,7 @@ export default function RosterPage() {
     node_size: 'medium',
     graph_x: null,
     graph_y: null,
+    showcase_url: null,
     created_at: '',
     updated_at: '',
   };
@@ -137,6 +137,32 @@ export default function RosterPage() {
         chineseTitle="月冕名册"
         subtitle={`当前成员 ${profiles.length} 人`}
       />
+
+      {/* 3D Cylinder Carousel */}
+      {!loading && profiles.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        >
+          <div className="max-w-[1400px] mx-auto px-8 mb-4">
+            <p className="text-center text-text-secondary/30 text-xs tracking-[0.3em]">拖 拽 旋 转 · 点 击 查 看</p>
+          </div>
+          <CylinderCarousel
+            profiles={profiles}
+            onProfileClick={(p) => setViewingProfile(p)}
+          />
+        </motion.div>
+      )}
+
+      {/* Divider */}
+      <div className="max-w-[1400px] mx-auto px-8 py-8">
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+          <span className="text-text-secondary/30 text-xs tracking-[0.3em]">成 员 名 片</span>
+          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+        </div>
+      </div>
 
       <div className="max-w-[1400px] mx-auto px-8 pb-20">
         {/* Search + Add button row */}
@@ -212,6 +238,7 @@ export default function RosterPage() {
           onDelete={() => handleDelete(viewingProfile.id)}
           onSetAdmin={() => handleSetAdmin(viewingProfile.user_id)}
           onRemoveAdmin={() => handleRemoveAdmin(viewingProfile.user_id)}
+          onRefresh={fetchData}
         />
       )}
 

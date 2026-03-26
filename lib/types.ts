@@ -17,6 +17,7 @@ export interface Profile {
   node_size: 'small' | 'medium' | 'large';
   graph_x: number | null;
   graph_y: number | null;
+  showcase_url: string | null;
   created_at: string;
   updated_at: string;
 }
