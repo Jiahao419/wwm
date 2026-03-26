@@ -61,8 +61,7 @@ export default function HeroSection() {
           <img
             src="/images/wwm-logo.png"
             alt="燕云十六声"
-            className="w-[140px] h-[140px] object-contain opacity-80"
-            style={{ mixBlendMode: 'lighten' }}
+            className="w-[140px] h-[140px] object-contain opacity-90"
           />
         </motion.div>
 
