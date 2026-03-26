@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Profile } from '@/lib/types';
 import TagBadge from '@/components/ui/TagBadge';
 import GoldButton from '@/components/ui/GoldButton';
+import ImageCropper from '@/components/ui/ImageCropper';
 import { createClient } from '@/lib/supabase/client';
 import { updateProfile } from '@/lib/db';
 
@@ -39,24 +40,33 @@ export default function ProfileDetailModal({
   const [showcaseUrl, setShowcaseUrl] = useState(profile.showcase_url || '');
   const [uploading, setUploading] = useState(false);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleShowcaseUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Step 1: User selects a file → show cropper
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  // Step 2: After cropping → upload the cropped blob
+  const handleCroppedUpload = async (blob: Blob) => {
+    setCropSrc(null);
     setUploading(true);
     try {
       const supabase = createClient();
-      const ext = file.name.split('.').pop();
-      const path = `showcase/${profile.id}-${Date.now()}.${ext}`;
-      // Try gallery bucket first, then avatars
+      const path = `showcase/${profile.id}-${Date.now()}.jpg`;
       let publicUrl = '';
-      const { error: err1 } = await supabase.storage.from('gallery').upload(path, file, { upsert: true });
+      const { error: err1 } = await supabase.storage.from('gallery').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
       if (!err1) {
         const { data } = supabase.storage.from('gallery').getPublicUrl(path);
         publicUrl = data.publicUrl;
       } else {
-        const { error: err2 } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+        const { error: err2 } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
         if (err2) { alert('上传失败: ' + err2.message); setUploading(false); return; }
         const { data } = supabase.storage.from('avatars').getPublicUrl(path);
         publicUrl = data.publicUrl;
@@ -69,7 +79,6 @@ export default function ProfileDetailModal({
       alert('上传失败');
     }
     setUploading(false);
-    if (fileRef.current) fileRef.current.value = '';
   };
 
   const handleRemoveShowcase = async () => {
@@ -116,6 +125,16 @@ export default function ProfileDetailModal({
           )}
         </AnimatePresence>
 
+        {/* Image Cropper */}
+        {cropSrc && (
+          <ImageCropper
+            imageSrc={cropSrc}
+            aspectRatio={220 / 580}
+            onCrop={handleCroppedUpload}
+            onCancel={() => setCropSrc(null)}
+          />
+        )}
+
         {/* Modal - wide layout */}
         <motion.div
           initial={{ opacity: 0, scale: 0.92, y: 30 }}
@@ -157,7 +176,7 @@ export default function ProfileDetailModal({
               {/* Admin actions on showcase */}
               {canEdit && (
                 <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                  <input ref={fileRef} type="file" accept="image/*" onChange={handleShowcaseUpload} className="hidden" />
+                  <input ref={fileRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
                   <button
                     onClick={(e) => { e.stopPropagation(); fileRef.current?.click(); }}
                     disabled={uploading}
@@ -190,34 +209,36 @@ export default function ProfileDetailModal({
               ✕
             </button>
 
-            {/* Avatar header area */}
-            <div className="relative h-[200px] overflow-hidden flex-shrink-0">
-              {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.nickname}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-full h-full flex items-center justify-center"
-                  style={{
-                    background: `linear-gradient(135deg, ${profile.node_color || '#9a8a6a'}15, ${profile.node_color || '#9a8a6a'}35)`,
-                  }}
-                >
-                  <span
-                    className="font-brush text-7xl opacity-40 select-none"
-                    style={{ color: profile.node_color || '#9a8a6a' }}
+            {/* Avatar header - only show when NO showcase on the left */}
+            {!hasShowcase && (
+              <div className="relative h-[200px] overflow-hidden flex-shrink-0">
+                {profile.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.nickname}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{
+                      background: `linear-gradient(135deg, ${profile.node_color || '#9a8a6a'}15, ${profile.node_color || '#9a8a6a'}35)`,
+                    }}
                   >
-                    {firstChar}
-                  </span>
-                </div>
-              )}
-              <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-bg-panel to-transparent" />
-            </div>
+                    <span
+                      className="font-brush text-7xl opacity-40 select-none"
+                      style={{ color: profile.node_color || '#9a8a6a' }}
+                    >
+                      {firstChar}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-bg-panel to-transparent" />
+              </div>
+            )}
 
             {/* Content */}
-            <div className="px-7 pb-7 -mt-8 relative flex-1">
+            <div className={`px-7 pb-7 relative flex-1 ${hasShowcase ? 'pt-7 flex flex-col justify-center' : '-mt-8'}`}>
               {/* Name & badges */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -225,6 +246,18 @@ export default function ProfileDetailModal({
                 transition={{ delay: 0.15 }}
                 className="flex items-center gap-2.5 mb-3 flex-wrap"
               >
+                {/* Small avatar when showcase is shown on left */}
+                {hasShowcase && (
+                  <div className="w-12 h-12 rounded-full border-2 border-gold/20 overflow-hidden flex-shrink-0">
+                    {profile.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-bg-card">
+                        <span className="font-brush text-lg" style={{ color: profile.node_color || '#9a8a6a' }}>{firstChar}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <h2 className="font-title text-2xl text-text-primary">{profile.nickname}</h2>
                 {profile.identity && (
                   <span className="px-2 py-0.5 text-[11px] bg-gold/12 text-gold/90 rounded-sm border border-gold/15">
@@ -297,7 +330,7 @@ export default function ProfileDetailModal({
                   transition={{ delay: 0.35 }}
                   className="mb-4"
                 >
-                  <input ref={fileRef} type="file" accept="image/*" onChange={handleShowcaseUpload} className="hidden" />
+                  <input ref={fileRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
                   <button
                     onClick={() => fileRef.current?.click()}
                     disabled={uploading}
