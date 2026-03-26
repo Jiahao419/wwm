@@ -29,14 +29,20 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
     if (!files || files.length === 0) return;
     setUploading(true);
     const newUrls: string[] = [];
+    const errors: string[] = [];
     for (let i = 0; i < files.length; i++) {
+      console.log('上传文件:', files[i].name, files[i].size, files[i].type);
       const { url, error } = await uploadGalleryImage(files[i]);
+      console.log('上传结果:', { url, error });
       if (url) newUrls.push(url);
-      else if (error) console.error('上传失败:', error);
+      if (error) errors.push(`${files[i].name}: ${(error as any)?.message || JSON.stringify(error)}`);
     }
     if (newUrls.length > 0) {
       setImages(prev => [...newUrls, ...prev]);
       setCurrent(0);
+    }
+    if (errors.length > 0) {
+      alert('上传失败:\n' + errors.join('\n'));
     }
     setUploading(false);
     if (fileRef.current) fileRef.current.value = '';

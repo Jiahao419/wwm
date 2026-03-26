@@ -299,9 +299,13 @@ export async function uploadGalleryImage(file: File): Promise<{ url: string | nu
   const ext = file.name.split('.').pop() || 'jpg';
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
 
-  const { error } = await supabase.storage
+  console.log('[gallery] uploading to bucket:', GALLERY_BUCKET, 'file:', fileName);
+
+  const { data: uploadData, error } = await supabase.storage
     .from(GALLERY_BUCKET)
     .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+  console.log('[gallery] upload result:', { uploadData, error });
 
   if (error) return { url: null, error: error as unknown as Error };
 
@@ -309,6 +313,7 @@ export async function uploadGalleryImage(file: File): Promise<{ url: string | nu
     .from(GALLERY_BUCKET)
     .getPublicUrl(fileName);
 
+  console.log('[gallery] public url:', urlData.publicUrl);
   return { url: urlData.publicUrl, error: null };
 }
 
