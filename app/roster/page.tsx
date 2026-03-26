@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import MemberCard from '@/components/roster/MemberCard';
+import { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import EditModal from '@/components/roster/EditModal';
 import ProfileDetailModal from '@/components/roster/ProfileDetailModal';
 import CylinderCarousel from '@/components/roster/CylinderCarousel';
@@ -17,7 +16,6 @@ type ProfileWithImages = Profile & { profile_images: ProfileImage[] };
 export default function RosterPage() {
   const [profiles, setProfiles] = useState<ProfileWithImages[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [viewingProfile, setViewingProfile] = useState<Profile | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -38,18 +36,6 @@ export default function RosterPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  const filtered = useMemo(() => {
-    return profiles.filter(p => {
-      const matchesSearch = !search ||
-        p.nickname.includes(search) ||
-        p.identity?.includes(search) ||
-        p.intro?.includes(search) ||
-        p.description?.includes(search) ||
-        p.tags.some(t => t.includes(search));
-      return matchesSearch;
-    });
-  }, [search, profiles]);
 
   const handleSave = async (data: Partial<Profile>) => {
     if (!editingProfile) return;
@@ -179,69 +165,18 @@ export default function RosterPage() {
         </>
       )}
 
-      {/* Divider: Card grid section */}
-      <div className="max-w-[1400px] mx-auto px-8 py-10">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-          <span className="text-text-secondary/30 text-xs tracking-[0.3em]">成 员 名 片</span>
-          <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+      {/* Admin: Add member button */}
+      {isAdminOrOwner && (
+        <div className="max-w-[1400px] mx-auto px-8 py-6 flex justify-end">
+          <GoldButton
+            variant="secondary"
+            size="md"
+            onClick={() => setShowAddModal(true)}
+          >
+            添加成员
+          </GoldButton>
         </div>
-      </div>
-
-      <div className="max-w-[1400px] mx-auto px-8 pb-20">
-        {/* Search + Add */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8 flex gap-4 items-center"
-        >
-          <input
-            type="text"
-            placeholder="搜索昵称、身份、标签、描述..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="flex-1 bg-bg-card border border-gold/10 px-5 py-3 text-text-primary placeholder:text-text-secondary/40 focus:border-gold/30 focus:outline-none transition-colors text-sm"
-          />
-          {isAdminOrOwner && (
-            <GoldButton
-              variant="secondary"
-              size="md"
-              onClick={() => setShowAddModal(true)}
-              className="flex-shrink-0"
-            >
-              添加成员
-            </GoldButton>
-          )}
-        </motion.div>
-
-        {/* Members Grid */}
-        {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <AnimatePresence>
-              {filtered.map((profile, i) => (
-                <motion.div
-                  key={profile.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.03 * i }}
-                >
-                  <MemberCard
-                    profile={profile}
-                    onClick={() => setViewingProfile(profile)}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            {filtered.length === 0 && (
-              <div className="col-span-full text-center py-16 text-text-secondary/50">
-                未找到匹配的成员
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Profile Detail Modal */}
       {viewingProfile && (
