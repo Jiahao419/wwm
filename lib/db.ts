@@ -337,7 +337,7 @@ export async function getGalleryImages(): Promise<{ urls: string[]; error: Error
   if (error || !data) return { urls: [], error: error as unknown as Error };
 
   const urls = data
-    .filter(f => !f.name.startsWith('.'))
+    .filter(f => !f.name.startsWith('.') && f.metadata && f.id)
     .map(f => {
       const { data: urlData } = supabase.storage
         .from(GALLERY_BUCKET)
