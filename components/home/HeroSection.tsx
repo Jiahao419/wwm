@@ -43,24 +43,7 @@ export default function HeroSection() {
         <div className="absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-[#050508] to-transparent pointer-events-none" />
       </motion.div>
 
-      {/* RIGHT swordsman - ink painting style */}
-      <motion.div
-        initial={{ opacity: 0, x: 60 }}
-        animate={{ opacity: 0.85, x: 0 }}
-        transition={{ duration: 2, delay: 1.2, ease: 'easeOut' }}
-        className="absolute right-0 bottom-0 z-[3] pointer-events-none select-none"
-      >
-        <img
-          src="/images/swordsman-right.png"
-          alt=""
-          className="h-[90vh] w-auto object-contain"
-          style={{ mixBlendMode: 'screen', filter: 'brightness(2.5) contrast(1.3)' }}
-          draggable={false}
-        />
-        {/* Fade edges into background */}
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#050508] pointer-events-none" style={{ left: '-10%' }} />
-        <div className="absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-[#050508] to-transparent pointer-events-none" />
-      </motion.div>
+      {/* Right side intentionally empty for clean layout */}
 
       {/* Content */}
       <div className="relative z-10 text-center">
