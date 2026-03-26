@@ -1,8 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import GoldButton from '@/components/ui/GoldButton';
 import ParticleBackground from '@/components/ui/ParticleBackground';
 import FloatingLeaves from '@/components/ui/FloatingLeaves';
 import WwmLogo from '@/components/ui/WwmLogo';
@@ -56,22 +54,11 @@ export default function HeroSection() {
           </h1>
         </motion.div>
 
-        {/* English subtitle - matching WWM's "WHERE WINDS MEET" style */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
-          className="font-display text-sm tracking-[0.5em] text-[#c9a84c] uppercase mb-2"
-          style={{ fontWeight: 400 }}
-        >
-          GUILD OF THE ETERNAL MOON
-        </motion.p>
-
         {/* Game reference line */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.0 }}
+          transition={{ duration: 1, delay: 0.8 }}
           className="font-display text-[11px] tracking-[0.3em] text-text-secondary/30 uppercase mb-12"
         >
           WHERE WINDS MEET · 燕云十六声
@@ -81,30 +68,11 @@ export default function HeroSection() {
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="text-text-secondary/60 text-base max-w-md mx-auto mb-10 leading-relaxed tracking-wider"
+          transition={{ duration: 0.8, delay: 1.0 }}
+          className="text-text-secondary/60 text-base max-w-md mx-auto leading-relaxed tracking-wider"
         >
           执剑天涯，护我月冕
         </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.4 }}
-          className="flex items-center gap-5 justify-center"
-        >
-          <Link href="/battle">
-            <GoldButton variant="primary" size="lg">
-              查看百业战务
-            </GoldButton>
-          </Link>
-          <Link href="/signup">
-            <GoldButton variant="secondary" size="lg">
-              立即加入报名
-            </GoldButton>
-          </Link>
-        </motion.div>
       </div>
 
       {/* Scroll indicator */}
