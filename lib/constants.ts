@@ -105,7 +105,7 @@ export const RELATION_TYPES = [
   { id: 'xiayuan', label: '侠缘', style: 'solid', color: '#e05555', max: 1 },
   { id: 'jieyi', label: '结义', style: 'solid', color: '#c9a84c', max: 9 },
   { id: 'shifu', label: '师父', style: 'dashed', color: '#55b0e0', max: 1 },
-  { id: 'tudi', label: '徒弟', style: 'dashed', color: '#4caf50', max: 5 },
+  { id: 'tudi', label: '徒弟', style: 'dashed', color: '#55b0e0', max: 5 },
 ] as const;
 
 export const NAV_ITEMS = [

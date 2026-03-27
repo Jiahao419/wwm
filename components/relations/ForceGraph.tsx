@@ -73,17 +73,15 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
       .map(r => {
         const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
-        // 师父和徒弟是同一师徒关系的两面，统一用师父（蓝色）的样式
-        const displayType = r.relation_type === 'tudi'
-          ? RELATION_TYPES.find(t => t.id === 'shifu') || relType
-          : relType;
+        // 师父和徒弟是同一师徒关系，标签统一显示"师徒"
+        const isMasterApprentice = r.relation_type === 'shifu' || r.relation_type === 'tudi';
         return {
           source: r.from_user_id,
           target: r.to_user_id,
           type: r.relation_type,
-          color: r.line_color || displayType?.color || '#5a5a6a',
-          label: displayType?.label || r.label || undefined,
-          dashes: displayType?.style === 'dashed',
+          color: r.line_color || relType?.color || '#5a5a6a',
+          label: isMasterApprentice ? '师徒' : (relType?.label || r.label || undefined),
+          dashes: relType?.style === 'dashed',
         };
       });
 
@@ -185,10 +183,14 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
 
   return (
     <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
-      {/* Legend */}
+      {/* Legend — 师父和徒弟合并为"师徒" */}
       <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap pointer-events-none">
-        {RELATION_TYPES.map(t => (
-          <div key={t.id} className="flex items-center gap-1.5 px-2 py-1 bg-bg-primary/80 border border-gold/10 rounded-sm">
+        {[
+          { label: '侠缘', color: '#e05555', style: 'solid' },
+          { label: '结义', color: '#c9a84c', style: 'solid' },
+          { label: '师徒', color: '#55b0e0', style: 'dashed' },
+        ].map(t => (
+          <div key={t.label} className="flex items-center gap-1.5 px-2 py-1 bg-bg-primary/80 border border-gold/10 rounded-sm">
             <span
               className="w-4 h-[2px]"
               style={{
