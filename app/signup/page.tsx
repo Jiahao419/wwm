@@ -218,7 +218,6 @@ export default function SignupPage() {
             className="p-6 bg-bg-card gold-border rounded-sm mb-6"
           >
             <div className="flex items-center gap-3 mb-3">
-              <span className={`px-2 py-0.5 text-xs rounded ${status.cls}`}>{status.text}</span>
               <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">{typeLabel}</span>
             </div>
             {editingHeader ? (
