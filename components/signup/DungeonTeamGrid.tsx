@@ -80,8 +80,8 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
     );
   };
 
-  // Find which slot the current user occupies
-  const myAssignment = assignments.find(a => {
+  // Find all slots the current user occupies
+  const myAssignments = assignments.filter(a => {
     if (!user) return false;
     return a.user_id === user.id || a.user_id === currentProfile?.id;
   });
@@ -89,10 +89,6 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   // User clicks empty slot to sign up
   const handleSignup = async (teamNum: number, slotIdx: number) => {
     if (!user || !currentProfile) return;
-    if (myAssignment) {
-      if (!confirm('你已报名其他位置，确定要换到这个位置吗？（将自动退出原位置）')) return;
-      await deleteAssignment(myAssignment.id);
-    }
     setSavingSlot(`${teamNum}-${slotIdx}`);
     const slotDef = SLOT_DEFS[slotIdx];
     try {
@@ -142,11 +138,6 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
   // Admin: assign a profile to a slot
   const handleAdminAssign = async (profile: Profile, teamNum: number, slotIdx: number) => {
-    // Check if profile already has a slot, remove it
-    const existing = assignments.find(a => a.user_id === profile.id || a.user_id === profile.user_id);
-    if (existing) {
-      await deleteAssignment(existing.id);
-    }
     const slotDef = SLOT_DEFS[slotIdx];
     await upsertAssignment({
       id: '',
@@ -235,8 +226,8 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
       {/* Hint */}
       {user && (
         <p className="text-text-secondary/40 text-xs mb-4">
-          {myAssignment
-            ? `你已报名 ${myAssignment.team_number}车 · 点击你的名字可退出`
+          {myAssignments.length > 0
+            ? `你已报名 ${myAssignments.map(a => `${a.team_number}车`).join('、')} · 点击你的名字可退出`
             : '点击空位即可报名'}
         </p>
       )}
@@ -407,7 +398,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {filteredProfiles.map(p => {
-                const alreadyIn = assignments.find(a => a.user_id === p.id || a.user_id === p.user_id);
+                const alreadyInSlots = assignments.filter(a => a.user_id === p.id || a.user_id === p.user_id);
                 return (
                   <button
                     key={p.id}
@@ -422,9 +413,9 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                       )}
                     </div>
                     <span className="text-text-primary text-sm flex-1 truncate">{p.nickname}</span>
-                    {alreadyIn && (
+                    {alreadyInSlots.length > 0 && (
                       <span className="text-text-secondary/40 text-[10px] flex-shrink-0">
-                        {alreadyIn.team_number}车
+                        {alreadyInSlots.map(a => `${a.team_number}车`).join('、')}
                       </span>
                     )}
                   </button>
