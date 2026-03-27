@@ -42,6 +42,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   const graphRef = useRef<any>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [hideJieyi, setHideJieyi] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
   const avatarCacheRef = useRef<Map<string, HTMLImageElement | null>>(new Map());
@@ -236,23 +237,38 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     setHoveredNode(node || null);
   }, []);
 
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
   // Adjust force simulation for better spacing
   const nodeCount = graphData.nodes.length;
   const linkCount = graphData.links.length;
   useEffect(() => {
     if (!graphRef.current) return;
     const fg = graphRef.current;
-    // 大幅拉开距离
-    const dist = Math.max(250, nodeCount * 20 + linkCount * 8);
+    // 有关系的人之间拉开距离
+    const dist = Math.max(300, 200 + linkCount * 12);
     fg.d3Force('link')?.distance(() => dist);
-    // 强排斥力
-    const charge = -(500 + nodeCount * 30);
-    fg.d3Force('charge')?.strength(charge);
+    // 适中的排斥力，避免无关系的人被推太远
+    fg.d3Force('charge')?.strength(-250);
     fg.d3ReheatSimulation();
   }, [nodeCount, linkCount]);
 
   return (
-    <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
+    <div ref={containerRef} className={`w-full bg-bg-secondary gold-border rounded-sm overflow-hidden relative ${isFullscreen ? 'h-screen' : 'h-[600px]'}`}>
       {/* Legend */}
       <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
         {[
@@ -282,9 +298,24 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
         ))}
       </div>
 
+      {/* Fullscreen button */}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute top-4 right-4 z-10 px-3 py-1.5 bg-bg-primary/80 border border-gold/10 hover:border-gold/30 rounded-sm text-text-secondary text-[10px] transition-all hover:text-gold flex items-center gap-1.5"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          {isFullscreen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+          )}
+        </svg>
+        {isFullscreen ? '退出全屏' : '全屏'}
+      </button>
+
       {/* Hover tooltip */}
       {hoveredNode && (
-        <div className="absolute top-4 right-4 z-10 p-3 bg-bg-panel border border-gold/20 rounded-sm shadow-lg pointer-events-none">
+        <div className="absolute top-14 right-4 z-10 p-3 bg-bg-panel border border-gold/20 rounded-sm shadow-lg pointer-events-none">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: hoveredNode.color }} />
             <span className="text-text-primary text-sm font-title">{hoveredNode.name}</span>
@@ -298,7 +329,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       <ForceGraph2D
         ref={graphRef}
         width={dimensions.width}
-        height={600}
+        height={dimensions.height}
         graphData={graphData}
         nodeCanvasObject={paintNode}
         linkCanvasObject={paintLink}
