@@ -95,21 +95,30 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
     }
     setSavingSlot(`${teamNum}-${slotIdx}`);
     const slotDef = SLOT_DEFS[slotIdx];
-    await upsertAssignment({
-      id: '',
-      event_id: event.id,
-      user_id: currentProfile.id,
-      team_number: teamNum,
-      assigned_role: slotDef.role,
-      map_zone: null,
-      map_x: null,
-      map_y: null,
-      is_substitute: false,
-      admin_note: `slot_${slotIdx}`,
-      updated_by: user.id,
-      updated_at: new Date().toISOString(),
-    });
-    await fetchAssignments();
+    try {
+      const { error } = await upsertAssignment({
+        id: '',
+        event_id: event.id,
+        user_id: currentProfile.id,
+        team_number: teamNum,
+        assigned_role: slotDef.role,
+        map_zone: null,
+        map_x: null,
+        map_y: null,
+        is_substitute: false,
+        admin_note: `slot_${slotIdx}`,
+        updated_by: user.id,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) {
+        console.error('Signup error:', error);
+        alert(`报名失败：${error.message}`);
+      }
+      await fetchAssignments();
+    } catch (err) {
+      console.error('Signup exception:', err);
+      alert('报名失败，请重试');
+    }
     setSavingSlot(null);
   };
 
@@ -317,10 +326,12 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                         // Empty slot
                         <button
                           onClick={() => {
+                            if (!user) { alert('请先登录'); return; }
+                            if (!currentProfile) { alert('登录信息加载中，请稍后再试'); return; }
                             if (isAdminOrOwner) openPicker(team.number, slotDef.index);
-                            else if (user) handleSignup(team.number, slotDef.index);
+                            else handleSignup(team.number, slotDef.index);
                           }}
-                          disabled={!user || isSaving}
+                          disabled={isSaving}
                           className="w-full px-2 py-1 text-xs rounded-sm border border-dashed border-gold/10 text-text-secondary/20 hover:border-gold/30 hover:text-gold/40 hover:bg-gold/[0.03] transition-all disabled:cursor-not-allowed"
                           style={{ borderColor: isSaving ? TEAM_COLORS[team.number] : undefined }}
                         >
