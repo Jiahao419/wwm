@@ -125,6 +125,14 @@ export interface SiteConfig {
   updated_at: string;
 }
 
+export interface DungeonTeamConfig {
+  teams: {
+    number: number;
+    time: string;
+    target: string;
+  }[];
+}
+
 export interface ProfileImage {
   id: string;
   profile_id: string;

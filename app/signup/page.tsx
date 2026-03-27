@@ -7,6 +7,7 @@ import GoldButton from '@/components/ui/GoldButton';
 import SignupForm from '@/components/signup/SignupForm';
 import SignupList from '@/components/signup/SignupList';
 import CreateEventModal from '@/components/signup/CreateEventModal';
+import DungeonTeamGrid from '@/components/signup/DungeonTeamGrid';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getBattleEvents, getSignups, updateBattleEvent } from '@/lib/db';
 import { mockBattleEvent, mockSignups } from '@/lib/mockData';
@@ -225,33 +226,39 @@ export default function SignupPage() {
           </motion.div>
         )}
 
-        {/* Two-column: Form + List — only for active/upcoming events */}
+        {/* Content area — different views based on event type */}
         {current && (current.status === 'upcoming' || current.status === 'active') && (
-          <div className="grid grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h3 className="font-title text-lg text-text-primary mb-4">报名表单</h3>
-              <SignupForm
-                event={current}
-                onSignupCreated={() => fetchSignups(current.id)}
-              />
-            </motion.div>
+          current.event_type === 'dungeon_10' ? (
+            /* 10人本排班表 */
+            <DungeonTeamGrid event={current} onRefresh={fetchEvents} />
+          ) : (
+            /* 其他类型：常规报名表单 + 名单 */
+            <div className="grid grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <h3 className="font-title text-lg text-text-primary mb-4">报名表单</h3>
+                <SignupForm
+                  event={current}
+                  onSignupCreated={() => fetchSignups(current.id)}
+                />
+              </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h3 className="font-title text-lg text-text-primary mb-4">已报名</h3>
-              <SignupList
-                signups={signups}
-                maxParticipants={current.max_participants}
-              />
-            </motion.div>
-          </div>
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h3 className="font-title text-lg text-text-primary mb-4">已报名</h3>
+                <SignupList
+                  signups={signups}
+                  maxParticipants={current.max_participants}
+                />
+              </motion.div>
+            </div>
+          )
         )}
 
         {/* Past events section */}
