@@ -73,13 +73,17 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
       .map(r => {
         const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
+        // 师父和徒弟是同一师徒关系的两面，统一用师父（蓝色）的样式
+        const displayType = r.relation_type === 'tudi'
+          ? RELATION_TYPES.find(t => t.id === 'shifu') || relType
+          : relType;
         return {
           source: r.from_user_id,
           target: r.to_user_id,
           type: r.relation_type,
-          color: r.line_color || relType?.color || '#5a5a6a',
-          label: relType?.label || r.label || undefined,
-          dashes: relType?.style === 'dashed',
+          color: r.line_color || displayType?.color || '#5a5a6a',
+          label: displayType?.label || r.label || undefined,
+          dashes: displayType?.style === 'dashed',
         };
       });
 
