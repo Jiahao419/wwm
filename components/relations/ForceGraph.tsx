@@ -41,6 +41,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   void _viewMode;
   const graphRef = useRef<any>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [hideJieyi, setHideJieyi] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
   const avatarCacheRef = useRef<Map<string, HTMLImageElement | null>>(new Map());
@@ -120,8 +121,9 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       };
     });
 
-    return { nodes, links };
-  }, [profiles, relations]);
+    const filteredLinks = hideJieyi ? links.filter(l => l.type !== 'jieyi') : links;
+    return { nodes, links: filteredLinks };
+  }, [profiles, relations, hideJieyi]);
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const r = node.size || 12;
@@ -252,13 +254,19 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   return (
     <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
       {/* Legend */}
-      <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap pointer-events-none">
+      <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
         {[
-          { label: '侠缘', color: '#e05555', style: 'solid' },
-          { label: '结义', color: '#c9a84c', style: 'solid' },
-          { label: '师徒', color: '#55b0e0', style: 'dashed' },
+          { label: '侠缘', color: '#e05555', style: 'solid', key: 'xiayuan' },
+          { label: '结义', color: '#c9a84c', style: 'solid', key: 'jieyi' },
+          { label: '师徒', color: '#55b0e0', style: 'dashed', key: 'shitu' },
         ].map(t => (
-          <div key={t.label} className="flex items-center gap-1.5 px-2 py-1 bg-bg-primary/80 border border-gold/10 rounded-sm">
+          <button
+            key={t.label}
+            onClick={t.key === 'jieyi' ? () => setHideJieyi(h => !h) : undefined}
+            className={`flex items-center gap-1.5 px-2 py-1 bg-bg-primary/80 border rounded-sm transition-all ${
+              t.key === 'jieyi' ? 'cursor-pointer hover:border-gold/30' : 'pointer-events-none'
+            } ${t.key === 'jieyi' && hideJieyi ? 'border-gold/5 opacity-40' : 'border-gold/10'}`}
+          >
             <span
               className="w-4 h-[2px]"
               style={{
@@ -267,8 +275,10 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
                 display: 'inline-block',
               }}
             />
-            <span className="text-text-secondary text-[10px]">{t.label}</span>
-          </div>
+            <span className="text-text-secondary text-[10px]">
+              {t.label}{t.key === 'jieyi' ? (hideJieyi ? ' (已隐藏)' : ' (点击隐藏)') : ''}
+            </span>
+          </button>
         ))}
       </div>
 
