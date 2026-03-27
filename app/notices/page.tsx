@@ -56,10 +56,16 @@ export default function NoticesPage() {
   const handleDelete = async (notice: Notice) => {
     if (!confirm(`确认删除公告「${notice.title}」？此操作不可撤销。`)) return;
     try {
-      await deleteNotice(notice.id);
+      const { error } = await deleteNotice(notice.id);
+      if (error) {
+        console.error('Delete notice error:', error);
+        alert(`删除失败：${error.message}`);
+        return;
+      }
       fetchNotices();
     } catch (err) {
       console.error('Failed to delete notice:', err);
+      alert('删除失败，请检查权限。');
     }
   };
 
