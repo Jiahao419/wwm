@@ -125,7 +125,18 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   // User withdraws from their slot
   const handleWithdraw = async (assignmentId: string) => {
     if (!confirm('确定退出该位置？')) return;
-    await deleteAssignment(assignmentId);
+    try {
+      const { error } = await deleteAssignment(assignmentId);
+      if (error) {
+        console.error('Withdraw error:', error);
+        alert(`退出失败：${error.message}`);
+        return;
+      }
+    } catch (err) {
+      console.error('Withdraw exception:', err);
+      alert('退出失败，请重试');
+      return;
+    }
     await fetchAssignments();
   };
 
@@ -175,10 +186,20 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   // Save team metadata (times, targets)
   const handleSaveMeta = async () => {
     const json = JSON.stringify(metaDraft);
-    await updateBattleEvent(event.id, { tactic_notes: json });
-    setConfig(metaDraft);
-    setEditingMeta(false);
-    onRefresh?.();
+    try {
+      const { error } = await updateBattleEvent(event.id, { tactic_notes: json });
+      if (error) {
+        console.error('Save meta error:', error);
+        alert(`保存失败：${error.message}`);
+        return;
+      }
+      setConfig(metaDraft);
+      setEditingMeta(false);
+      onRefresh?.();
+    } catch (err) {
+      console.error('Save meta exception:', err);
+      alert('保存失败，请重试');
+    }
   };
 
   const filteredProfiles = profiles.filter(p => {
