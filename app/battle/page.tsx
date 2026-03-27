@@ -471,8 +471,9 @@ export default function BattlePage() {
         </motion.div>
         )}
 
-        {/* Two-column layout: Map + Table */}
-        {event && (<>
+        {/* Event content — different layout based on event type */}
+        {event && event.event_type === 'baiye_war' && (<>
+        {/* === 百业战专属内容 === */}
         <div className="grid grid-cols-[55%_45%] gap-6 mb-12">
           {/* Left: Map */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
@@ -593,6 +594,26 @@ export default function BattlePage() {
           )}
         </motion.div>
         </>)}
+
+        {/* === 非百业战活动 — 占位内容 === */}
+        {event && event.event_type !== 'baiye_war' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="py-20 text-center"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/5 border border-gold/10 mb-6">
+              <span className="text-gold/30 text-2xl">🏗</span>
+            </div>
+            <p className="text-text-secondary/60 font-title text-lg mb-2">
+              {EVENT_TYPES[event.event_type]?.label || '活动'}功能开发中
+            </p>
+            <p className="text-text-secondary/30 text-sm">
+              该类型活动的详细战务页面即将上线，敬请期待。
+            </p>
+          </motion.div>
+        )}
 
         {/* Past events section */}
         {pastEvents.length > 0 && (
