@@ -31,7 +31,7 @@ export const EVENT_TYPES = {
 
 export type EventType = keyof typeof EVENT_TYPES;
 
-export const BATTLE_ROUTES = ['刀', '枪', '剑', '拳', '伞', '笔'] as const;
+export const BATTLE_ROUTES = ['裂石威', '牵丝霖', '鸣金虹', '鸣金影', '牵丝玉', '破竹风', '破竹尘'] as const;
 
 export const BATTLE_ROLES_BAIYE = [
   '人墙防守', '守塔', '打野', '冲锋突破', '搬运', '机动支援',
