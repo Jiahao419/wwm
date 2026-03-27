@@ -375,64 +375,6 @@ export default function BattlePage() {
     return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  if (!event && activeEvents.length === 0) {
-    return (
-      <>
-        <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
-        <div className="max-w-[1600px] mx-auto px-8 pb-20">
-          <div className="text-center text-text-secondary py-20">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <p className="text-lg font-title">暂无进行中的战务</p>
-              <p className="text-sm mt-2">目前没有进行中或即将开始的战务活动。</p>
-            </motion.div>
-          </div>
-
-          {/* Past events even when no active events */}
-          {pastEvents.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <div className="section-divider my-8" />
-              <h3 className="font-title text-lg text-text-primary mb-4 flex items-center gap-2">
-                <span className="w-1 h-5 bg-gold/40 rounded-full" />
-                以往战务
-              </h3>
-              <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gold/10 text-text-secondary text-xs">
-                      <th className="py-3 px-4 text-left font-normal">日期</th>
-                      <th className="py-3 px-4 text-left font-normal">战务名称</th>
-                      <th className="py-3 px-4 text-left font-normal">类型</th>
-                      <th className="py-3 px-4 text-left font-normal">状态</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pastEvents.map(evt => {
-                      const st = statusLabels[evt.status];
-                      return (
-                        <tr key={evt.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
-                          <td className="py-3 px-4 text-text-secondary">{formatDate(evt.battle_time)}</td>
-                          <td className="py-3 px-4 text-text-primary">{evt.title}</td>
-                          <td className="py-3 px-4">
-                            <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">
-                              {EVENT_TYPES[evt.event_type]?.label || evt.event_type}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-0.5 text-xs rounded ${st.cls}`}>{st.text}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
@@ -470,6 +412,16 @@ export default function BattlePage() {
               );
             })}
           </motion.div>
+        )}
+
+        {/* No active events message */}
+        {!event && (
+          <div className="text-center text-text-secondary py-20">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <p className="text-lg font-title">暂无进行中的战务</p>
+              <p className="text-sm mt-2">目前没有进行中或即将开始的战务活动。</p>
+            </motion.div>
+          </div>
         )}
 
         {/* Event Overview */}
