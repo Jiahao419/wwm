@@ -186,7 +186,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-title text-lg text-text-primary">排班时间表</h3>
-        {isAdminOrOwner && (
+        {user && (
           <div className="flex gap-2">
             {!editingMeta ? (
               <GoldButton variant="ghost" size="sm" onClick={() => { setMetaDraft({ ...config }); setEditingMeta(true); }}>
