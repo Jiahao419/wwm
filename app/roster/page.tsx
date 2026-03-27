@@ -10,6 +10,7 @@ import { Profile, ProfileImage } from '@/lib/types';
 import { getProfilesWithImages, updateProfile, deleteProfile, setUserRole, createProfile } from '@/lib/db';
 import { useAuth } from '@/components/providers/AuthProvider';
 import GoldButton from '@/components/ui/GoldButton';
+import PageHeader from '@/components/ui/PageHeader';
 
 type ProfileWithImages = Profile & { profile_images: ProfileImage[] };
 
@@ -131,7 +132,8 @@ export default function RosterPage() {
       {/* Cylinder Carousel section (top) */}
       {!loading && profiles.length > 0 && (
         <>
-          <div className="max-w-[1400px] mx-auto px-8 pt-28 pb-6">
+          <PageHeader englishTitle="GUILD ROSTER" chineseTitle="月冕名册" />
+          <div className="max-w-[1400px] mx-auto px-8 pb-6">
             <div className="flex items-center gap-4">
               <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
               <span className="text-text-secondary/30 text-xs tracking-[0.3em]">月 冕 转 轮</span>
