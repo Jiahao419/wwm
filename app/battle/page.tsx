@@ -597,51 +597,78 @@ export default function BattlePage() {
         </motion.div>
         </>)}
 
-        {/* Past events section */}
-        {pastEvents.length > 0 && (
-          <>
-            <div className="section-divider my-12" />
-            <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <h3 className="font-title text-lg text-text-primary mb-4 flex items-center gap-2">
-                <span className="w-1 h-5 bg-gold/40 rounded-full" />
-                以往战务
-              </h3>
-              <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gold/10 text-text-secondary text-xs">
-                      <th className="py-3 px-4 text-left font-normal">日期</th>
-                      <th className="py-3 px-4 text-left font-normal">战务名称</th>
-                      <th className="py-3 px-4 text-left font-normal">类型</th>
-                      <th className="py-3 px-4 text-left font-normal">对手</th>
-                      <th className="py-3 px-4 text-left font-normal">状态</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pastEvents.map(evt => {
-                      const st = statusLabels[evt.status];
-                      return (
-                        <tr key={evt.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
-                          <td className="py-3 px-4 text-text-secondary">{formatDate(evt.battle_time)}</td>
-                          <td className="py-3 px-4 text-text-primary">{evt.title}</td>
-                          <td className="py-3 px-4">
-                            <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">
-                              {EVENT_TYPES[evt.event_type]?.label || evt.event_type}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-text-secondary">{evt.opponent || '-'}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-0.5 text-xs rounded ${st.cls}`}>{st.text}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
-          </>
+        {/* 结束赛事按钮 */}
+        {event && isAdminOrOwner && !usingMock && (
+          <div className="flex justify-end mt-8">
+            <button
+              onClick={async () => {
+                if (!confirm(`确定将「${event.title}」标记为已结束？该赛事将移入以往战务。`)) return;
+                await updateBattleEvent(event.id, { status: 'finished' });
+                await fetchData();
+              }}
+              className="px-4 py-2 text-xs text-red-300/70 hover:text-red-300 border border-red-500/20 hover:border-red-400/40 rounded-sm transition-all"
+            >
+              结束该赛事
+            </button>
+          </div>
         )}
+
+        {/* Past events section — always show */}
+        <div className="section-divider my-12" />
+        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <h3 className="font-title text-lg text-text-primary mb-4 flex items-center gap-2">
+            <span className="w-1 h-5 bg-gold/40 rounded-full" />
+            以往战务
+          </h3>
+          {pastEvents.length > 0 ? (
+            <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gold/10 text-text-secondary text-xs">
+                    <th className="py-3 px-4 text-left font-normal">日期</th>
+                    <th className="py-3 px-4 text-left font-normal">战务名称</th>
+                    <th className="py-3 px-4 text-left font-normal">对手</th>
+                    <th className="py-3 px-4 text-left font-normal">状态</th>
+                    {isAdminOrOwner && <th className="py-3 px-4 text-right font-normal">操作</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pastEvents.map(evt => {
+                    const st = statusLabels[evt.status];
+                    return (
+                      <tr key={evt.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
+                        <td className="py-3 px-4 text-text-secondary">{formatDate(evt.battle_time)}</td>
+                        <td className="py-3 px-4 text-text-primary">{evt.title}</td>
+                        <td className="py-3 px-4 text-text-secondary">{evt.opponent || '-'}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-0.5 text-xs rounded ${st.cls}`}>{st.text}</span>
+                        </td>
+                        {isAdminOrOwner && (
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              onClick={async () => {
+                                if (!confirm(`确定将「${evt.title}」恢复为进行中？`)) return;
+                                await updateBattleEvent(evt.id, { status: 'active' });
+                                await fetchData();
+                              }}
+                              className="text-xs text-gold/50 hover:text-gold transition-colors"
+                            >
+                              恢复
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="bg-bg-card/50 gold-border rounded-sm py-10 text-center">
+              <p className="text-text-secondary/40 text-sm">暂无以往战务记录</p>
+            </div>
+          )}
+        </motion.div>
       </div>
 
       {/* Add Member Modal */}
