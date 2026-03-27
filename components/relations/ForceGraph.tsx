@@ -125,7 +125,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const r = node.size || 12;
-    const avatarR = r + 4; // slightly bigger for avatar
+    const avatarR = r; // avatar same size as node
     const fontSize = Math.max(11 / globalScale, 2.5);
     const isSelected = node.id === selectedProfileId;
     const avatarImg = node.avatarUrl ? avatarCacheRef.current.get(node.avatarUrl) : null;
@@ -236,16 +236,18 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
 
   // Adjust force simulation for better spacing
   const nodeCount = graphData.nodes.length;
+  const linkCount = graphData.links.length;
   useEffect(() => {
     if (!graphRef.current) return;
     const fg = graphRef.current;
-    // Increase link distance based on node count
-    const dist = Math.max(100, Math.min(250, nodeCount * 10));
+    // 关系越多、人越多，距离越大
+    const dist = Math.max(150, Math.min(400, nodeCount * 12 + linkCount * 5));
     fg.d3Force('link')?.distance(() => dist);
-    // Stronger repulsion to spread nodes apart
-    fg.d3Force('charge')?.strength(-400);
+    // 更强的排斥力，人越多推得越开
+    const charge = Math.min(-300, -(200 + nodeCount * 15));
+    fg.d3Force('charge')?.strength(charge);
     fg.d3ReheatSimulation();
-  }, [nodeCount]);
+  }, [nodeCount, linkCount]);
 
   return (
     <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
