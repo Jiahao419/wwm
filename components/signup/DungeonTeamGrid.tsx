@@ -83,7 +83,10 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   // Find all slots the current user occupies
   const myAssignments = assignments.filter(a => {
     if (!user) return false;
-    return a.user_id === user.id || a.user_id === currentProfile?.id;
+    return a.user_id === user.id ||
+      a.user_id === currentProfile?.id ||
+      a.user_id === currentProfile?.user_id ||
+      a.profile?.user_id === user.id;
   });
 
   // User clicks empty slot to sign up
@@ -309,7 +312,12 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                 </td>
                 {config.teams.map(team => {
                   const assignment = getSlotAssignment(team.number, slotDef.index);
-                  const isMine = assignment && (assignment.user_id === user?.id || assignment.user_id === currentProfile?.id);
+                  const isMine = assignment && user && (
+                    assignment.user_id === user.id ||
+                    assignment.user_id === currentProfile?.id ||
+                    assignment.user_id === currentProfile?.user_id ||
+                    assignment.profile?.user_id === user.id
+                  );
                   const isSaving = savingSlot === `${team.number}-${slotDef.index}`;
                   const displayName = assignment?.profile?.nickname || (assignment ? '已占位' : null);
 
