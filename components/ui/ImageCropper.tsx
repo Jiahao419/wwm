@@ -22,9 +22,9 @@ export default function ImageCropper({ imageSrc, aspectRatio: _ar, onCrop, onCan
   const [dragging, setDragging] = useState(false);
   const lastPos = useRef({ x: 0, y: 0 });
 
-  // Crop frame dimensions (display size)
-  const FRAME_W = 220;
-  const FRAME_H = 580;
+  // Crop frame dimensions (display size) — matches cylinder card ratio
+  const FRAME_W = 200;
+  const FRAME_H = 500;
 
   const onImgLoad = useCallback(() => {
     const img = imgRef.current;
@@ -107,7 +107,7 @@ export default function ImageCropper({ imageSrc, aspectRatio: _ar, onCrop, onCan
     if (!img) return;
 
     const canvas = document.createElement('canvas');
-    // Output at 2x for quality (440×1160)
+    // Output at 2x for quality (400×1000)
     const outputW = FRAME_W * 2;
     const outputH = FRAME_H * 2;
     canvas.width = outputW;

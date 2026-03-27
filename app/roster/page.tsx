@@ -148,7 +148,7 @@ export default function RosterPage() {
               <span className="text-text-secondary/30 text-xs tracking-[0.3em]">月 冕 转 轮</span>
               <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
             </div>
-            <p className="text-center text-text-secondary/20 text-xs mt-2 tracking-widest">拖拽旋转 · 点击查看详情</p>
+            <p className="text-center text-text-secondary/20 text-xs mt-2 tracking-widest">拖拽旋转 · 点击查看详情 · 悬停上传转轮图</p>
           </div>
 
           <motion.div
@@ -160,6 +160,9 @@ export default function RosterPage() {
             <CylinderCarousel
               profiles={profiles}
               onProfileClick={(p) => setViewingProfile(p)}
+              currentUserId={user?.id || null}
+              isAdminOrOwner={isAdminOrOwner}
+              onRefresh={fetchData}
             />
           </motion.div>
         </>
