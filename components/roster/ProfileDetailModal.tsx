@@ -74,9 +74,9 @@ export default function ProfileDetailModal({
         // Determine display label based on direction
         let displayLabel = rt.label;
         if (r.relation_type === 'shifu') {
-          displayLabel = isFrom ? '徒弟' : '师父';
+          displayLabel = isFrom ? '师徒' : '师父';
         } else if (r.relation_type === 'tudi') {
-          displayLabel = isFrom ? '徒弟' : '师父';
+          displayLabel = isFrom ? '师徒' : '师父';
         }
 
         items.push({
