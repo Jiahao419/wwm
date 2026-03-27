@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '@/lib/constants';
-import WwmLogo from '@/components/ui/WwmLogo';
 import { useAuth } from '@/components/providers/AuthProvider';
 
 export default function Navbar() {
@@ -46,7 +45,7 @@ export default function Navbar() {
       <div className="max-w-[1600px] mx-auto px-8 h-16 flex items-center justify-between">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <WwmLogo size={28} className="opacity-70 group-hover:opacity-100 transition-opacity" />
+          <img src="/images/wwm-icon.ico" alt="月冕" width={28} height={28} className="opacity-70 group-hover:opacity-100 transition-opacity" />
           <span className="font-title text-xl text-text-primary group-hover:text-gold transition-colors tracking-wider">
             月冕总坛
           </span>
