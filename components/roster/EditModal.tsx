@@ -52,6 +52,7 @@ export default function EditModal({ profile, onClose, onSave }: EditModalProps) 
       alert('上传失败，请重试');
     } finally {
       setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
