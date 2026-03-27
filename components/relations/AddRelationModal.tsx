@@ -23,6 +23,7 @@ export default function AddRelationModal({
 }: AddRelationModalProps) {
   const [selectedType, setSelectedType] = useState<string>(defaultType || RELATION_TYPES[0].id);
   const [selectedTarget, setSelectedTarget] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const currentProfile = profiles.find(p => p.id === currentProfileId);
@@ -144,7 +145,7 @@ export default function AddRelationModal({
             </div>
           </div>
 
-          {/* Target member selector */}
+          {/* Target member selector with search */}
           <div>
             <label className="block text-text-secondary text-xs mb-1.5">目标成员</label>
             {isMaxed ? (
@@ -156,21 +157,48 @@ export default function AddRelationModal({
                 没有可添加的成员
               </p>
             ) : (
-              <select
-                value={selectedTarget}
-                onChange={e => {
-                  setSelectedTarget(e.target.value);
-                  setError(null);
-                }}
-                className="w-full px-3 py-2 text-sm bg-bg-panel border border-gold/10 rounded-sm text-text-primary focus:border-gold/40 focus:outline-none"
-              >
-                <option value="">请选择成员...</option>
-                {availableTargets.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nickname}{p.identity ? ` (${p.identity})` : ''}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <input
+                  type="text"
+                  placeholder="搜索成员名字..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-bg-panel border border-gold/10 rounded-sm text-text-primary focus:border-gold/40 focus:outline-none mb-2"
+                />
+                <div className="max-h-[200px] overflow-y-auto border border-gold/10 rounded-sm bg-bg-panel">
+                  {availableTargets
+                    .filter(p => !searchQuery || p.nickname.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          setSelectedTarget(p.id);
+                          setError(null);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-all ${
+                          selectedTarget === p.id
+                            ? 'bg-gold/15 text-gold'
+                            : 'text-text-primary hover:bg-gold/5'
+                        }`}
+                      >
+                        <span className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-gold/20">
+                          {p.avatar_url ? (
+                            <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="w-full h-full flex items-center justify-center text-[9px] bg-bg-card text-gold/40">
+                              {p.nickname.charAt(0)}
+                            </span>
+                          )}
+                        </span>
+                        <span>{p.nickname}</span>
+                        {p.identity && <span className="text-text-secondary/50 text-xs">({p.identity})</span>}
+                      </button>
+                    ))}
+                  {availableTargets.filter(p => !searchQuery || p.nickname.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                    <p className="text-text-secondary/50 text-xs py-3 text-center">未找到匹配成员</p>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 
