@@ -14,16 +14,6 @@ import { mockBattleEvent, mockSignups } from '@/lib/mockData';
 import { EVENT_TYPES } from '@/lib/constants';
 import { BattleEvent, BattleSignup, Profile } from '@/lib/types';
 
-function getCountdown(deadline: string) {
-  const diff = new Date(deadline).getTime() - Date.now();
-  if (diff <= 0) return '已截止';
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  if (days > 0) return `${days}天${hours}小时`;
-  const mins = Math.floor((diff % 3600000) / 60000);
-  return `${hours}小时${mins}分`;
-}
-
 const statusLabels: Record<string, { text: string; cls: string }> = {
   upcoming: { text: '即将开始', cls: 'bg-blue-900/30 text-blue-400' },
   active: { text: '报名中', cls: 'bg-gold/20 text-gold' },
@@ -67,6 +57,10 @@ export default function SignupPage() {
   const [editingPastEvent, setEditingPastEvent] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState<string>('');
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const [editingHeader, setEditingHeader] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [savingHeader, setSavingHeader] = useState(false);
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -121,6 +115,23 @@ export default function SignupPage() {
   const current = events.find(e => e.id === selectedEvent) || activeEvents[0] || events[0];
   const typeLabel = current ? (EVENT_TYPES[current.event_type]?.label || current.event_type) : '';
   const status = current ? statusLabels[current.status] : null;
+
+  const handleSaveHeader = async () => {
+    if (!current || !editTitle.trim()) return;
+    setSavingHeader(true);
+    try {
+      await updateBattleEvent(current.id, {
+        title: editTitle.trim(),
+        description: editDescription.trim() || null,
+      });
+      setEditingHeader(false);
+      fetchEvents();
+    } catch (err) {
+      console.error('Failed to update event:', err);
+    } finally {
+      setSavingHeader(false);
+    }
+  };
 
   const handleSavePastEvent = async (eventId: string) => {
     if (!editStatus) return;
@@ -210,18 +221,62 @@ export default function SignupPage() {
               <span className={`px-2 py-0.5 text-xs rounded ${status.cls}`}>{status.text}</span>
               <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">{typeLabel}</span>
             </div>
-            <h2 className="font-title text-2xl text-text-primary mb-2">{current.title}</h2>
-            <div className="flex gap-6 text-sm text-text-secondary">
-              {current.battle_time && (
-                <span>时间：{new Date(current.battle_time).toLocaleString('zh-CN')}</span>
-              )}
-              {current.signup_deadline && (
-                <span>截止倒计时：<span className="text-gold">{getCountdown(current.signup_deadline)}</span></span>
-              )}
-              <span>人数上限：{current.max_participants}人</span>
-            </div>
-            {current.description && (
-              <p className="text-text-secondary text-sm mt-3">{current.description}</p>
+            {editingHeader ? (
+              <div className="space-y-3">
+                <input
+                  value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)}
+                  className="w-full bg-bg-card border border-gold/10 px-4 py-2.5 text-text-primary text-lg font-title focus:border-gold/40 focus:outline-none transition-colors rounded-sm"
+                  placeholder="赛事标题"
+                />
+                <textarea
+                  value={editDescription}
+                  onChange={e => setEditDescription(e.target.value)}
+                  className="w-full bg-bg-card border border-gold/10 px-4 py-2.5 text-text-primary text-sm focus:border-gold/40 focus:outline-none transition-colors rounded-sm resize-none"
+                  rows={3}
+                  placeholder="赛事描述（可留空）"
+                />
+                <div className="flex gap-2">
+                  <GoldButton
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSaveHeader}
+                    disabled={savingHeader || !editTitle.trim()}
+                  >
+                    {savingHeader ? '保存中...' : '保存'}
+                  </GoldButton>
+                  <GoldButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setEditingHeader(false)}
+                    disabled={savingHeader}
+                  >
+                    取消
+                  </GoldButton>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <h2 className="font-title text-2xl text-text-primary">{current.title}</h2>
+                  {isAdminOrOwner && (
+                    <button
+                      onClick={() => {
+                        setEditTitle(current.title);
+                        setEditDescription(current.description || '');
+                        setEditingHeader(true);
+                      }}
+                      className="text-gold/40 hover:text-gold transition-colors text-sm"
+                      title="编辑赛事信息"
+                    >
+                      ✎
+                    </button>
+                  )}
+                </div>
+                {current.description && (
+                  <p className="text-text-secondary text-sm mt-2">{current.description}</p>
+                )}
+              </>
             )}
           </motion.div>
         )}
