@@ -32,8 +32,8 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
 
   const count = profiles.length;
   const angleStep = count > 0 ? 360 / count : 0;
-  // 半径随人数增长，但限制最大值防止透视放大太严重
-  const radius = Math.min(Math.max(400, count * 55), 900);
+  // 半径随人数增长，保证卡片间距舒适
+  const radius = Math.min(Math.max(400, count * 75), 1200);
   // 自动转速随人数增多而减慢，保持视觉舒适
   const autoSpeed = count > 1 ? Math.max(0.03, 0.15 / Math.sqrt(count)) : 0.12;
 
@@ -182,7 +182,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
         {/* 3D Scene */}
         <div
           className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-          style={{ perspective: '3000px', perspectiveOrigin: '50% 45%' }}
+          style={{ perspective: '4000px', perspectiveOrigin: '50% 45%' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
