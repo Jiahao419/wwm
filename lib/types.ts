@@ -34,6 +34,8 @@ export interface BattleEvent {
   team_count: number;
   team_size: number;
   status: 'upcoming' | 'active' | 'closed' | 'finished';
+  battle_mode: string | null;
+  result: string | null;
   description: string | null;
   tactic_notes: string | null;
   created_by: string;

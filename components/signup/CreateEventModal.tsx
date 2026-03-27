@@ -58,6 +58,8 @@ export default function CreateEventModal({ open, onClose, onCreated }: CreateEve
         status: 'upcoming',
         description: description.trim() || null,
         tactic_notes: null,
+        battle_mode: null,
+        result: null,
         created_by: user.id,
       });
       reset();

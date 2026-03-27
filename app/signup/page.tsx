@@ -45,7 +45,7 @@ const fallbackEvents: BattleEvent[] = [
     signup_deadline: '2026-03-26T18:00:00Z', max_participants: 10,
     team_count: 1, team_size: 10, status: 'active',
     description: '周三例行十人本，需要主T和奶妈优先报名。',
-    tactic_notes: null, created_by: 'u2', created_at: '', updated_at: '',
+    tactic_notes: null, battle_mode: null, result: null, created_by: 'u2', created_at: '', updated_at: '',
   },
   {
     id: 'e3', title: '百业好声音 第二季', event_type: 'activity',
@@ -53,7 +53,7 @@ const fallbackEvents: BattleEvent[] = [
     signup_deadline: '2026-04-05T12:00:00Z', max_participants: 50,
     team_count: 0, team_size: 0, status: 'upcoming',
     description: '月冕内部K歌赛，欢迎所有成员参加！',
-    tactic_notes: null, created_by: 'u10', created_at: '', updated_at: '',
+    tactic_notes: null, battle_mode: null, result: null, created_by: 'u10', created_at: '', updated_at: '',
   },
 ];
 

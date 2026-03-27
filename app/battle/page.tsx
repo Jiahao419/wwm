@@ -49,6 +49,12 @@ export default function BattlePage() {
   const [rosterProfiles, setRosterProfiles] = useState<Profile[]>([]);
   const [memberSearch, setMemberSearch] = useState('');
 
+  // Past event editing
+  const [editingPastId, setEditingPastId] = useState<string | null>(null);
+  const [editPastData, setEditPastData] = useState<{
+    title: string; opponent: string; battle_mode: string; result: string; battle_time: string;
+  }>({ title: '', opponent: '', battle_mode: '', result: '', battle_time: '' });
+
   // 百业战务页面只展示百业战类型的活动
   const baiyeEvents = allEvents.filter(e => e.event_type === 'baiye_war');
   const activeEvents = baiyeEvents.filter(e => e.status === 'upcoming' || e.status === 'active');
@@ -628,33 +634,122 @@ export default function BattlePage() {
                     <th className="py-3 px-4 text-left font-normal">日期</th>
                     <th className="py-3 px-4 text-left font-normal">战务名称</th>
                     <th className="py-3 px-4 text-left font-normal">对手</th>
-                    <th className="py-3 px-4 text-left font-normal">状态</th>
+                    <th className="py-3 px-4 text-left font-normal">类型</th>
+                    <th className="py-3 px-4 text-left font-normal">结果</th>
                     {isAdminOrOwner && <th className="py-3 px-4 text-right font-normal">操作</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {pastEvents.map(evt => {
-                    const st = statusLabels[evt.status];
+                    const isEditing = editingPastId === evt.id;
+                    const resultStyle: Record<string, string> = {
+                      '胜利': 'bg-green-900/30 text-green-400',
+                      '失败': 'bg-red-900/30 text-red-400',
+                      '平局': 'bg-yellow-900/30 text-yellow-400',
+                    };
                     return (
                       <tr key={evt.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
-                        <td className="py-3 px-4 text-text-secondary">{formatDate(evt.battle_time)}</td>
-                        <td className="py-3 px-4 text-text-primary">{evt.title}</td>
-                        <td className="py-3 px-4 text-text-secondary">{evt.opponent || '-'}</td>
+                        <td className="py-3 px-4 text-text-secondary">
+                          {isEditing ? (
+                            <input type="date" value={editPastData.battle_time?.split('T')[0] || ''}
+                              onChange={e => setEditPastData(p => ({ ...p, battle_time: e.target.value ? e.target.value + 'T20:00:00Z' : '' }))}
+                              className="bg-bg-card border border-gold/20 px-2 py-1 text-text-primary text-xs rounded-sm focus:border-gold/40 focus:outline-none w-[120px]"
+                            />
+                          ) : formatDate(evt.battle_time)}
+                        </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-0.5 text-xs rounded ${st.cls}`}>{st.text}</span>
+                          {isEditing ? (
+                            <input type="text" value={editPastData.title}
+                              onChange={e => setEditPastData(p => ({ ...p, title: e.target.value }))}
+                              className="bg-bg-card border border-gold/20 px-2 py-1 text-text-primary text-xs rounded-sm focus:border-gold/40 focus:outline-none w-full"
+                            />
+                          ) : <span className="text-text-primary">{evt.title}</span>}
+                        </td>
+                        <td className="py-3 px-4">
+                          {isEditing ? (
+                            <input type="text" value={editPastData.opponent}
+                              onChange={e => setEditPastData(p => ({ ...p, opponent: e.target.value }))}
+                              className="bg-bg-card border border-gold/20 px-2 py-1 text-text-primary text-xs rounded-sm focus:border-gold/40 focus:outline-none w-[80px]"
+                            />
+                          ) : <span className="text-text-secondary">{evt.opponent || '-'}</span>}
+                        </td>
+                        <td className="py-3 px-4">
+                          {isEditing ? (
+                            <select value={editPastData.battle_mode}
+                              onChange={e => setEditPastData(p => ({ ...p, battle_mode: e.target.value }))}
+                              className="bg-bg-card border border-gold/20 px-2 py-1 text-text-primary text-xs rounded-sm focus:border-gold/40 focus:outline-none"
+                            >
+                              <option value="">未设置</option>
+                              <option value="匹配">匹配</option>
+                              <option value="排位">排位</option>
+                            </select>
+                          ) : evt.battle_mode ? (
+                            <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">{evt.battle_mode}</span>
+                          ) : <span className="text-text-secondary/30">-</span>}
+                        </td>
+                        <td className="py-3 px-4">
+                          {isEditing ? (
+                            <select value={editPastData.result}
+                              onChange={e => setEditPastData(p => ({ ...p, result: e.target.value }))}
+                              className="bg-bg-card border border-gold/20 px-2 py-1 text-text-primary text-xs rounded-sm focus:border-gold/40 focus:outline-none"
+                            >
+                              <option value="">未设置</option>
+                              <option value="胜利">胜利</option>
+                              <option value="失败">失败</option>
+                              <option value="平局">平局</option>
+                            </select>
+                          ) : evt.result ? (
+                            <span className={`px-2 py-0.5 text-xs rounded ${resultStyle[evt.result] || 'bg-bg-panel text-text-secondary'}`}>{evt.result}</span>
+                          ) : <span className="text-text-secondary/30">-</span>}
                         </td>
                         {isAdminOrOwner && (
                           <td className="py-3 px-4 text-right">
-                            <button
-                              onClick={async () => {
-                                if (!confirm(`确定将「${evt.title}」恢复为进行中？`)) return;
-                                await updateBattleEvent(evt.id, { status: 'active' });
-                                await fetchData();
-                              }}
-                              className="text-xs text-gold/50 hover:text-gold transition-colors"
-                            >
-                              恢复
-                            </button>
+                            {isEditing ? (
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={async () => {
+                                    await updateBattleEvent(evt.id, {
+                                      title: editPastData.title,
+                                      opponent: editPastData.opponent || null,
+                                      battle_mode: editPastData.battle_mode || null,
+                                      result: editPastData.result || null,
+                                      battle_time: editPastData.battle_time || null,
+                                    });
+                                    setEditingPastId(null);
+                                    await fetchData();
+                                  }}
+                                  className="text-xs text-gold hover:text-gold-light transition-colors"
+                                >保存</button>
+                                <button
+                                  onClick={() => setEditingPastId(null)}
+                                  className="text-xs text-text-secondary hover:text-text-primary transition-colors"
+                                >取消</button>
+                              </div>
+                            ) : (
+                              <div className="flex gap-3 justify-end">
+                                <button
+                                  onClick={() => {
+                                    setEditingPastId(evt.id);
+                                    setEditPastData({
+                                      title: evt.title,
+                                      opponent: evt.opponent || '',
+                                      battle_mode: evt.battle_mode || '',
+                                      result: evt.result || '',
+                                      battle_time: evt.battle_time || '',
+                                    });
+                                  }}
+                                  className="text-xs text-gold/50 hover:text-gold transition-colors"
+                                >编辑</button>
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm(`确定将「${evt.title}」恢复为进行中？`)) return;
+                                    await updateBattleEvent(evt.id, { status: 'active' });
+                                    await fetchData();
+                                  }}
+                                  className="text-xs text-blue-400/50 hover:text-blue-400 transition-colors"
+                                >恢复</button>
+                              </div>
+                            )}
                           </td>
                         )}
                       </tr>

@@ -89,6 +89,7 @@ export const mockBattleEvent: BattleEvent = {
   battle_time: '2026-03-29T20:00:00Z', signup_deadline: '2026-03-28T18:00:00Z',
   max_participants: 30, team_count: 6, team_size: 5,
   status: 'active', description: '本周百业战对手为风雷阁，请各位按时报名。',
+  battle_mode: '匹配', result: null,
   tactic_notes: '## 战术部署\n\n### 进攻组（1-3队）\n- 1队负责上路强攻\n- 2队负责中路突破\n- 3队机动支援\n\n### 防守组（4-6队）\n- 4队守上路塔\n- 5队守下路塔\n- 6队中央防守\n\n### 注意事项\n- 开局集合中央广场\n- 听从指挥统一行动\n- 保持语音畅通',
   created_by: 'u1', created_at: '2025-03-20', updated_at: '2025-03-20',
 };
