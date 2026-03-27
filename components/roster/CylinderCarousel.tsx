@@ -32,7 +32,10 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
 
   const count = profiles.length;
   const angleStep = count > 0 ? 360 / count : 0;
-  const radius = Math.max(500, count * 65);
+  // 半径随人数增长，但限制最大值防止透视放大太严重
+  const radius = Math.min(Math.max(400, count * 55), 900);
+  // 自动转速随人数增多而减慢，保持视觉舒适
+  const autoSpeed = count > 1 ? Math.max(0.03, 0.15 / Math.sqrt(count)) : 0.12;
 
   // Card dimensions
   const CARD_W = 200;
@@ -40,6 +43,11 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
 
   // My own profile
   const myProfile = currentUserId ? profiles.find(p => p.user_id === currentUserId) : null;
+
+  // Update auto speed when count changes
+  useEffect(() => {
+    velocityRef.current = autoSpeed;
+  }, [autoSpeed]);
 
   // Animation loop
   useEffect(() => {
@@ -174,7 +182,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
         {/* 3D Scene */}
         <div
           className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-          style={{ perspective: '2000px', perspectiveOrigin: '50% 45%' }}
+          style={{ perspective: '3000px', perspectiveOrigin: '50% 45%' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
