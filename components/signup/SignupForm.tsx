@@ -87,10 +87,10 @@ export default function SignupForm({ event, onSignupCreated }: SignupFormProps) 
           />
         </div>
 
-        {/* Route preference (baiye_war only) */}
+        {/* 流派 (baiye_war only) */}
         {showRoute && (
           <div>
-            <label className="block text-text-secondary text-sm mb-2">路线偏好</label>
+            <label className="block text-text-secondary text-sm mb-2">流派</label>
             <div className="flex gap-3">
               {BATTLE_ROUTES.map(r => (
                 <label key={r} className="flex items-center gap-1.5 cursor-pointer">
