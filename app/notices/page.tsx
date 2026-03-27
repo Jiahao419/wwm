@@ -18,6 +18,7 @@ export default function NoticesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [usingMock, setUsingMock] = useState(false);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -28,11 +29,14 @@ export default function NoticesPage() {
       const { data, error } = await getNotices();
       if (error || !data || data.length === 0) {
         setNotices(mockNotices);
+        setUsingMock(true);
       } else {
         setNotices(data);
+        setUsingMock(false);
       }
     } catch {
       setNotices(mockNotices);
+      setUsingMock(true);
     } finally {
       setLoading(false);
     }
@@ -127,7 +131,7 @@ export default function NoticesPage() {
                 isPinned
                 expanded={expandedId === notice.id}
                 onToggle={() => setExpandedId(expandedId === notice.id ? null : notice.id)}
-                isAdminOrOwner={isAdminOrOwner}
+                isAdminOrOwner={isAdminOrOwner && !usingMock}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
@@ -180,7 +184,7 @@ export default function NoticesPage() {
                 notice={notice}
                 expanded={expandedId === notice.id}
                 onToggle={() => setExpandedId(expandedId === notice.id ? null : notice.id)}
-                isAdminOrOwner={isAdminOrOwner}
+                isAdminOrOwner={isAdminOrOwner && !usingMock}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
