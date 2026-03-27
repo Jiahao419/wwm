@@ -101,11 +101,28 @@ export default function RelationsPage() {
       return;
     }
     try {
+      // 师徒关系：from_user_id 是师父，to_user_id 是徒弟，统一存为 'shifu'
+      let fromId = selectedProfileId;
+      let toId = targetProfileId;
+      let storeType = relationType;
+
+      if (relationType === 'shifu') {
+        // 当前用户要添加师父 → 目标是师父(from)，当前用户是徒弟(to)
+        fromId = targetProfileId;
+        toId = selectedProfileId;
+        storeType = 'shifu';
+      } else if (relationType === 'tudi') {
+        // 当前用户要添加徒弟 → 当前用户是师父(from)，目标是徒弟(to)
+        fromId = selectedProfileId;
+        toId = targetProfileId;
+        storeType = 'shifu';
+      }
+
       const { error } = await createRelation({
-        from_user_id: selectedProfileId,
-        to_user_id: targetProfileId,
-        relation_type: relationType,
-        label: RELATION_TYPES.find(t => t.id === relationType)?.label || null,
+        from_user_id: fromId,
+        to_user_id: toId,
+        relation_type: storeType,
+        label: RELATION_TYPES.find(t => t.id === storeType)?.label || null,
         line_color: null,
         group_name: null,
         created_by: user.id,
