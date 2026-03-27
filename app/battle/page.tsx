@@ -15,6 +15,7 @@ import {
 } from '@/lib/db';
 import { mockBattleEvent, mockAssignments } from '@/lib/mockData';
 import type { BattleEvent, BattleAssignment, Profile } from '@/lib/types';
+import { EVENT_TYPES } from '@/lib/constants';
 import ReactMarkdown from 'react-markdown';
 
 type AssignmentWithProfile = BattleAssignment & { profile?: any; signup?: any };
@@ -27,6 +28,7 @@ function stripJoined(a: AssignmentWithProfile): Omit<BattleAssignment, 'profile'
 
 export default function BattlePage() {
   const { isAdminOrOwner, user } = useAuth();
+  const [allEvents, setAllEvents] = useState<BattleEvent[]>([]);
   const [event, setEvent] = useState<BattleEvent | null>(null);
   const [assignments, setAssignments] = useState<AssignmentWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +49,29 @@ export default function BattlePage() {
   const [rosterProfiles, setRosterProfiles] = useState<Profile[]>([]);
   const [memberSearch, setMemberSearch] = useState('');
 
+  const activeEvents = allEvents.filter(e => e.status === 'upcoming' || e.status === 'active');
+  const pastEvents = allEvents.filter(e => e.status === 'closed' || e.status === 'finished');
+
+  const loadAssignments = useCallback(async (targetEvent: BattleEvent) => {
+    const { data: assigns, error: assignErr } = await getAssignments(targetEvent.id);
+    if (assignErr || !assigns || assigns.length === 0) {
+      if (targetEvent.id === mockBattleEvent.id) {
+        setAssignments(mockAssignments);
+        setUsingMock(true);
+      } else {
+        setAssignments([]);
+      }
+    } else {
+      setAssignments(assigns as AssignmentWithProfile[]);
+      setUsingMock(false);
+    }
+  }, []);
+
   const fetchData = useCallback(async () => {
     try {
       const { data: events, error: evtErr } = await getBattleEvents();
       if (evtErr || !events || events.length === 0) {
+        setAllEvents([]);
         setEvent(mockBattleEvent);
         setAssignments(mockAssignments);
         setUsingMock(true);
@@ -58,32 +79,36 @@ export default function BattlePage() {
         return;
       }
 
-      const activeEvent = events.find(e => e.status === 'active') || events[0];
+      setAllEvents(events);
+      // Only pick from active/upcoming events
+      const activeEvts = events.filter(e => e.status === 'upcoming' || e.status === 'active');
+      const activeEvent = activeEvts.find(e => e.status === 'active') || activeEvts[0] || null;
       setEvent(activeEvent);
 
-      const { data: assigns, error: assignErr } = await getAssignments(activeEvent.id);
-      if (assignErr || !assigns || assigns.length === 0) {
-        if (activeEvent.id === mockBattleEvent.id) {
-          setAssignments(mockAssignments);
-          setUsingMock(true);
-        } else {
-          setAssignments([]);
-        }
+      if (activeEvent) {
+        await loadAssignments(activeEvent);
       } else {
-        setAssignments(assigns as AssignmentWithProfile[]);
-        setUsingMock(false);
+        setAssignments([]);
       }
     } catch {
+      setAllEvents([]);
       setEvent(mockBattleEvent);
       setAssignments(mockAssignments);
       setUsingMock(true);
     }
     setLoading(false);
-  }, []);
+  }, [loadAssignments]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Switch active event
+  const handleSelectEvent = async (evt: BattleEvent) => {
+    setEvent(evt);
+    setAssignments([]);
+    await loadAssignments(evt);
+  };
 
   // Save all assignment changes
   const handleSaveAll = async () => {
@@ -329,15 +354,72 @@ export default function BattlePage() {
     );
   }
 
-  if (!event) {
+  const statusLabels: Record<string, { text: string; cls: string }> = {
+    upcoming: { text: '即将开始', cls: 'bg-blue-900/30 text-blue-400' },
+    active: { text: '进行中', cls: 'bg-gold/20 text-gold' },
+    closed: { text: '已截止', cls: 'bg-orange-900/30 text-orange-400' },
+    finished: { text: '已结束', cls: 'bg-bg-panel text-text-secondary' },
+  };
+
+  function formatDate(dateStr: string | null) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  if (!event && activeEvents.length === 0) {
     return (
       <>
         <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
-        <div className="max-w-[1600px] mx-auto px-8 pb-20 text-center text-text-secondary py-20">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <p className="text-lg font-title">暂无战务</p>
-            <p className="text-sm mt-2">目前没有进行中或即将开始的战务活动。</p>
-          </motion.div>
+        <div className="max-w-[1600px] mx-auto px-8 pb-20">
+          <div className="text-center text-text-secondary py-20">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <p className="text-lg font-title">暂无进行中的战务</p>
+              <p className="text-sm mt-2">目前没有进行中或即将开始的战务活动。</p>
+            </motion.div>
+          </div>
+
+          {/* Past events even when no active events */}
+          {pastEvents.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <div className="section-divider my-8" />
+              <h3 className="font-title text-lg text-text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-gold/40 rounded-full" />
+                以往战务
+              </h3>
+              <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gold/10 text-text-secondary text-xs">
+                      <th className="py-3 px-4 text-left font-normal">日期</th>
+                      <th className="py-3 px-4 text-left font-normal">战务名称</th>
+                      <th className="py-3 px-4 text-left font-normal">类型</th>
+                      <th className="py-3 px-4 text-left font-normal">状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pastEvents.map(evt => {
+                      const st = statusLabels[evt.status];
+                      return (
+                        <tr key={evt.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
+                          <td className="py-3 px-4 text-text-secondary">{formatDate(evt.battle_time)}</td>
+                          <td className="py-3 px-4 text-text-primary">{evt.title}</td>
+                          <td className="py-3 px-4">
+                            <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">
+                              {EVENT_TYPES[evt.event_type]?.label || evt.event_type}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 text-xs rounded ${st.cls}`}>{st.text}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
         </div>
       </>
     );
@@ -348,12 +430,49 @@ export default function BattlePage() {
       <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
 
       <div className="max-w-[1600px] mx-auto px-8 pb-20">
+        {/* Active event tabs */}
+        {activeEvents.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex gap-4 mb-6"
+          >
+            {activeEvents.map(evt => {
+              const isSelected = evt.id === event?.id;
+              const st = statusLabels[evt.status];
+              return (
+                <button
+                  key={evt.id}
+                  onClick={() => handleSelectEvent(evt)}
+                  className={`flex-1 p-4 rounded-sm border transition-all text-left ${
+                    isSelected
+                      ? 'bg-bg-card border-gold/40 shadow-[0_0_20px_rgba(201,168,76,0.1)]'
+                      : 'bg-bg-card/50 border-gold/10 hover:border-gold/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`px-1.5 py-0.5 text-[10px] rounded ${st.cls}`}>{st.text}</span>
+                    <span className="text-[10px] text-text-secondary">{EVENT_TYPES[evt.event_type]?.label}</span>
+                  </div>
+                  <h4 className={`text-sm font-title ${isSelected ? 'text-gold' : 'text-text-primary'}`}>
+                    {evt.title}
+                  </h4>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+
         {/* Event Overview */}
+        {event && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <EventOverview event={event} isAdmin={isAdminOrOwner} onUpdateEvent={handleUpdateEvent} />
         </motion.div>
+        )}
 
         {/* Two-column layout: Map + Table */}
+        {event && (<>
         <div className="grid grid-cols-[55%_45%] gap-6 mb-12">
           {/* Left: Map */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
@@ -461,7 +580,7 @@ export default function BattlePage() {
                 <GoldButton variant="ghost" size="sm" onClick={() => setEditingTactics(false)}>取消</GoldButton>
               </div>
             </div>
-          ) : event.tactic_notes ? (
+          ) : event?.tactic_notes ? (
             <div className="p-6 bg-bg-card gold-border rounded-sm prose prose-invert prose-gold max-w-none
               [&_h2]:font-title [&_h2]:text-gold [&_h2]:text-lg [&_h2]:mb-3
               [&_h3]:font-title [&_h3]:text-text-primary [&_h3]:text-base [&_h3]:mb-2
@@ -473,6 +592,53 @@ export default function BattlePage() {
             <p className="text-text-secondary/50 text-sm">暂无战术说明。</p>
           )}
         </motion.div>
+        </>)}
+
+        {/* Past events section */}
+        {pastEvents.length > 0 && (
+          <>
+            <div className="section-divider my-12" />
+            <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <h3 className="font-title text-lg text-text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-gold/40 rounded-full" />
+                以往战务
+              </h3>
+              <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gold/10 text-text-secondary text-xs">
+                      <th className="py-3 px-4 text-left font-normal">日期</th>
+                      <th className="py-3 px-4 text-left font-normal">战务名称</th>
+                      <th className="py-3 px-4 text-left font-normal">类型</th>
+                      <th className="py-3 px-4 text-left font-normal">对手</th>
+                      <th className="py-3 px-4 text-left font-normal">状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pastEvents.map(evt => {
+                      const st = statusLabels[evt.status];
+                      return (
+                        <tr key={evt.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
+                          <td className="py-3 px-4 text-text-secondary">{formatDate(evt.battle_time)}</td>
+                          <td className="py-3 px-4 text-text-primary">{evt.title}</td>
+                          <td className="py-3 px-4">
+                            <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">
+                              {EVENT_TYPES[evt.event_type]?.label || evt.event_type}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-text-secondary">{evt.opponent || '-'}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 text-xs rounded ${st.cls}`}>{st.text}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          </>
+        )}
       </div>
 
       {/* Add Member Modal */}

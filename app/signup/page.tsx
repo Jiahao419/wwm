@@ -197,8 +197,8 @@ export default function SignupPage() {
           </motion.div>
         )}
 
-        {/* Event description header */}
-        {current && status && (
+        {/* Event description header — only for active/upcoming events */}
+        {current && status && (current.status === 'upcoming' || current.status === 'active') && (
           <motion.div
             key={current.id}
             initial={{ opacity: 0, y: 10 }}
@@ -225,8 +225,8 @@ export default function SignupPage() {
           </motion.div>
         )}
 
-        {/* Two-column: Form + List */}
-        {current && (
+        {/* Two-column: Form + List — only for active/upcoming events */}
+        {current && (current.status === 'upcoming' || current.status === 'active') && (
           <div className="grid grid-cols-2 gap-6">
             <motion.div
               initial={{ opacity: 0, x: -10 }}
