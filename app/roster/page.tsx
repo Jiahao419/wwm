@@ -121,17 +121,6 @@ export default function RosterPage() {
 
   return (
     <>
-      {/* Full-screen Character Showcase */}
-      {!loading && profiles.length > 0 && (
-        <CharacterShowcase
-          profiles={profiles}
-          currentUserId={user?.id || null}
-          isAdminOrOwner={isAdminOrOwner}
-          onRefresh={fetchData}
-          onEditProfile={(p) => setEditingProfile(p)}
-        />
-      )}
-
       {/* Loading state */}
       {loading && (
         <div className="h-screen flex items-center justify-center">
@@ -139,16 +128,16 @@ export default function RosterPage() {
         </div>
       )}
 
-      {/* Divider: Cylinder section */}
+      {/* Cylinder Carousel section (top) */}
       {!loading && profiles.length > 0 && (
         <>
-          <div className="max-w-[1400px] mx-auto px-8 py-10">
+          <div className="max-w-[1400px] mx-auto px-8 pt-28 pb-6">
             <div className="flex items-center gap-4">
               <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
               <span className="text-text-secondary/30 text-xs tracking-[0.3em]">月 冕 转 轮</span>
               <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
             </div>
-            <p className="text-center text-text-secondary/20 text-xs mt-2 tracking-widest">拖拽旋转 · 点击查看详情 · 悬停上传转轮图</p>
+            <p className="text-center text-text-secondary/20 text-xs mt-2 tracking-widest">拖拽旋转 · 点击查看详情</p>
           </div>
 
           <motion.div
@@ -166,6 +155,28 @@ export default function RosterPage() {
             />
           </motion.div>
         </>
+      )}
+
+      {/* Divider between sections */}
+      {!loading && profiles.length > 0 && (
+        <div className="max-w-[1400px] mx-auto px-8 py-10">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+            <span className="text-text-secondary/30 text-xs tracking-[0.3em]">成 员 风 采</span>
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+          </div>
+        </div>
+      )}
+
+      {/* Full-screen Character Showcase (below) */}
+      {!loading && profiles.length > 0 && (
+        <CharacterShowcase
+          profiles={profiles}
+          currentUserId={user?.id || null}
+          isAdminOrOwner={isAdminOrOwner}
+          onRefresh={fetchData}
+          onEditProfile={(p) => setEditingProfile(p)}
+        />
       )}
 
       {/* Admin: Add member button */}
