@@ -242,11 +242,11 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   useEffect(() => {
     if (!graphRef.current) return;
     const fg = graphRef.current;
-    // 关系越多、人越多，距离越大
-    const dist = Math.max(150, Math.min(400, nodeCount * 12 + linkCount * 5));
+    // 大幅拉开距离
+    const dist = Math.max(250, nodeCount * 20 + linkCount * 8);
     fg.d3Force('link')?.distance(() => dist);
-    // 更强的排斥力，人越多推得越开
-    const charge = Math.min(-300, -(200 + nodeCount * 15));
+    // 强排斥力
+    const charge = -(500 + nodeCount * 30);
     fg.d3Force('charge')?.strength(charge);
     fg.d3ReheatSimulation();
   }, [nodeCount, linkCount]);
