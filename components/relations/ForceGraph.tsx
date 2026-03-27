@@ -91,20 +91,34 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
 
     const nodeIds = new Set(nodes.map(n => n.id));
 
-    const links: GraphLink[] = relations
+    // 同一对人之间只保留优先级最高的关系线：侠缘 > 师徒 > 结义
+    const priorityMap: Record<string, number> = { xiayuan: 0, shifu: 1, tudi: 1, jieyi: 2 };
+    const pairBest = new Map<string, typeof relations[0]>();
+
+    relations
       .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
-      .map(r => {
-        const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
-        const isMasterApprentice = r.relation_type === 'shifu' || r.relation_type === 'tudi';
-        return {
-          source: r.from_user_id,
-          target: r.to_user_id,
-          type: r.relation_type,
-          color: r.line_color || relType?.color || '#5a5a6a',
-          label: isMasterApprentice ? '师徒' : (relType?.label || r.label || undefined),
-          dashes: relType?.style === 'dashed',
-        };
+      .forEach(r => {
+        const pairKey = [r.from_user_id, r.to_user_id].sort().join('|');
+        const existing = pairBest.get(pairKey);
+        const rPriority = priorityMap[r.relation_type] ?? 99;
+        const ePriority = existing ? (priorityMap[existing.relation_type] ?? 99) : 99;
+        if (!existing || rPriority < ePriority) {
+          pairBest.set(pairKey, r);
+        }
       });
+
+    const links: GraphLink[] = Array.from(pairBest.values()).map(r => {
+      const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
+      const isMasterApprentice = r.relation_type === 'shifu' || r.relation_type === 'tudi';
+      return {
+        source: r.from_user_id,
+        target: r.to_user_id,
+        type: r.relation_type,
+        color: r.line_color || relType?.color || '#5a5a6a',
+        label: isMasterApprentice ? '师徒' : (relType?.label || r.label || undefined),
+        dashes: relType?.style === 'dashed',
+      };
+    });
 
     return { nodes, links };
   }, [profiles, relations]);
