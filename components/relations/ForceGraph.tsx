@@ -21,6 +21,7 @@ interface GraphNode {
   color: string;
   size: number;
   val: number;
+  avatarUrl?: string;
   x?: number;
   y?: number;
 }
@@ -42,6 +43,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const avatarCacheRef = useRef<Map<string, HTMLImageElement | null>>(new Map());
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -57,6 +59,25 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     return () => ro.disconnect();
   }, []);
 
+  // Preload avatar images
+  useEffect(() => {
+    profiles.forEach(p => {
+      const url = p.avatar_url;
+      if (url && !avatarCacheRef.current.has(url)) {
+        avatarCacheRef.current.set(url, null); // mark as loading
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          avatarCacheRef.current.set(url, img);
+        };
+        img.onerror = () => {
+          avatarCacheRef.current.set(url, null);
+        };
+        img.src = url;
+      }
+    });
+  }, [profiles]);
+
   // Memoize graph data so the force simulation doesn't restart on every render
   const graphData = useMemo(() => {
     const nodes: GraphNode[] = profiles.map(p => ({
@@ -65,6 +86,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       color: p.node_color || '#9a8a6a',
       size: sizeMap[p.node_size] || 12,
       val: sizeMap[p.node_size] || 12,
+      avatarUrl: p.avatar_url || undefined,
     }));
 
     const nodeIds = new Set(nodes.map(n => n.id));
@@ -73,7 +95,6 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       .filter(r => nodeIds.has(r.from_user_id) && nodeIds.has(r.to_user_id))
       .map(r => {
         const relType = RELATION_TYPES.find(t => t.id === r.relation_type);
-        // 师父和徒弟是同一师徒关系，标签统一显示"师徒"
         const isMasterApprentice = r.relation_type === 'shifu' || r.relation_type === 'tudi';
         return {
           source: r.from_user_id,
@@ -90,13 +111,15 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const r = node.size || 12;
+    const avatarR = r + 4; // slightly bigger for avatar
     const fontSize = Math.max(11 / globalScale, 2.5);
     const isSelected = node.id === selectedProfileId;
+    const avatarImg = node.avatarUrl ? avatarCacheRef.current.get(node.avatarUrl) : null;
 
     // Glow effect for selected node
     if (isSelected) {
       ctx.beginPath();
-      ctx.arc(node.x, node.y, r + 6, 0, 2 * Math.PI);
+      ctx.arc(node.x, node.y, avatarR + 6, 0, 2 * Math.PI);
       ctx.fillStyle = node.color + '18';
       ctx.fill();
       ctx.strokeStyle = node.color + '70';
@@ -106,27 +129,44 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
       ctx.setLineDash([]);
     }
 
-    // Node circle
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
-    ctx.fillStyle = node.color + '30';
-    ctx.fill();
-    ctx.strokeStyle = node.color;
-    ctx.lineWidth = (isSelected ? 2.5 : 1.8) / globalScale;
-    ctx.stroke();
+    if (avatarImg) {
+      // Draw avatar as circular image
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, avatarR, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(avatarImg, node.x - avatarR, node.y - avatarR, avatarR * 2, avatarR * 2);
+      ctx.restore();
 
-    // Inner dot
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, r * 0.35, 0, 2 * Math.PI);
-    ctx.fillStyle = node.color;
-    ctx.fill();
+      // Border ring
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, avatarR, 0, 2 * Math.PI);
+      ctx.strokeStyle = isSelected ? '#c9a84c' : node.color;
+      ctx.lineWidth = (isSelected ? 2.5 : 1.5) / globalScale;
+      ctx.stroke();
+    } else {
+      // Fallback: original circle style
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+      ctx.fillStyle = node.color + '30';
+      ctx.fill();
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = (isSelected ? 2.5 : 1.8) / globalScale;
+      ctx.stroke();
+
+      // Inner dot
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r * 0.35, 0, 2 * Math.PI);
+      ctx.fillStyle = node.color;
+      ctx.fill();
+    }
 
     // Name label
     ctx.font = `${fontSize}px "Noto Sans SC", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillStyle = isSelected ? '#f0e6d0' : '#e8e0d0';
-    ctx.fillText(node.name, node.x, node.y + r + 3);
+    ctx.fillText(node.name, node.x, node.y + avatarR + 3);
   }, [selectedProfileId]);
 
   const paintLink = useCallback((link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
@@ -168,12 +208,11 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     }
   }, []);
 
-  // Handle node click — use a ref callback to avoid stale closure issues
+  // Handle node click
   const onNodeClickRef = useRef(onNodeClick);
   onNodeClickRef.current = onNodeClick;
 
   const handleNodeClick = useCallback((node: any) => {
-    console.log('Node clicked:', node.id, node.name);
     onNodeClickRef.current?.(node.id);
   }, []);
 
@@ -181,9 +220,22 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     setHoveredNode(node || null);
   }, []);
 
+  // Adjust force simulation for better spacing
+  const nodeCount = graphData.nodes.length;
+  useEffect(() => {
+    if (!graphRef.current) return;
+    const fg = graphRef.current;
+    // Increase link distance based on node count
+    const dist = Math.max(100, Math.min(250, nodeCount * 10));
+    fg.d3Force('link')?.distance(() => dist);
+    // Stronger repulsion to spread nodes apart
+    fg.d3Force('charge')?.strength(-400);
+    fg.d3ReheatSimulation();
+  }, [nodeCount]);
+
   return (
     <div ref={containerRef} className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm overflow-hidden relative">
-      {/* Legend — 师父和徒弟合并为"师徒" */}
+      {/* Legend */}
       <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap pointer-events-none">
         {[
           { label: '侠缘', color: '#e05555', style: 'solid' },
@@ -236,8 +288,8 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
         linkDirectionalParticles={0}
         warmupTicks={50}
         cooldownTicks={30}
-        d3AlphaDecay={0.05}
-        d3VelocityDecay={0.4}
+        d3AlphaDecay={0.04}
+        d3VelocityDecay={0.3}
         enableNodeDrag={true}
         minZoom={0.5}
         maxZoom={5}
