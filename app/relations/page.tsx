@@ -109,6 +109,63 @@ export default function RelationsPage() {
     return group;
   };
 
+  // 同步所有结义关系：找到所有结义团体，补全缺失的两两连线
+  const syncAllJieyi = async () => {
+    if (!user) return;
+    const jieyiRelations = relations.filter(r => r.relation_type === 'jieyi');
+    const existingPairs = new Set<string>();
+    jieyiRelations.forEach(r => {
+      existingPairs.add([r.from_user_id, r.to_user_id].sort().join('|'));
+    });
+
+    // 用 BFS 找到所有独立的结义团体
+    const visited = new Set<string>();
+    const groups: string[][] = [];
+    const allJieyiMembers = new Set<string>();
+    jieyiRelations.forEach(r => { allJieyiMembers.add(r.from_user_id); allJieyiMembers.add(r.to_user_id); });
+
+    for (const member of allJieyiMembers) {
+      if (visited.has(member)) continue;
+      const group = getJieyiGroup(member);
+      group.forEach(m => visited.add(m));
+      groups.push(Array.from(group));
+    }
+
+    // 对每个团体，补全缺失的pair
+    const newPairs: [string, string][] = [];
+    for (const group of groups) {
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          const pairKey = [group[i], group[j]].sort().join('|');
+          if (!existingPairs.has(pairKey)) {
+            newPairs.push([group[i], group[j]]);
+          }
+        }
+      }
+    }
+
+    if (newPairs.length === 0) {
+      alert('所有结义关系已同步，无需修复');
+      return;
+    }
+
+    let created = 0;
+    for (const [a, b] of newPairs) {
+      const { error } = await createRelation({
+        from_user_id: a,
+        to_user_id: b,
+        relation_type: 'jieyi',
+        label: RELATION_TYPES.find(t => t.id === 'jieyi')?.label || null,
+        line_color: null,
+        group_name: null,
+        created_by: user.id,
+      });
+      if (!error) created++;
+    }
+    alert(`已补全 ${created} 条结义关系`);
+    await fetchData();
+  };
+
   const handleAddRelation = async (
     targetProfileId: string,
     relationType: MemberRelation['relation_type']
@@ -293,6 +350,14 @@ export default function RelationsPage() {
           >
             全部关系
           </button>
+          {isAdminOrOwner && (
+            <button
+              onClick={syncAllJieyi}
+              className="px-4 py-1.5 text-sm border border-gold/10 text-text-secondary bg-bg-primary/80 hover:border-gold/30 hover:text-gold rounded-sm transition-all"
+            >
+              同步结义
+            </button>
+          )}
         </motion.div>
 
         {/* Main content area */}
