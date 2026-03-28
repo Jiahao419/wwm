@@ -260,10 +260,10 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
     if (!graphRef.current) return;
     const fg = graphRef.current;
     // 有关系的人之间拉开距离
-    const dist = Math.max(300, 200 + linkCount * 12);
+    const dist = Math.max(400, 300 + linkCount * 15);
     fg.d3Force('link')?.distance(() => dist);
-    // 适中的排斥力，避免无关系的人被推太远
-    fg.d3Force('charge')?.strength(-250);
+    // 强排斥力，把节点推得更开
+    fg.d3Force('charge')?.strength(-500);
     fg.d3ReheatSimulation();
   }, [nodeCount, linkCount]);
 
