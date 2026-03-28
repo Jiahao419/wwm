@@ -208,8 +208,8 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-title text-lg text-text-primary">排班时间表</h3>
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <h3 className="font-title text-base md:text-lg text-text-primary">排班时间表</h3>
         {user && (
           <div className="flex gap-2">
             {!editingMeta ? (
@@ -237,7 +237,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
       {/* Grid table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full text-xs md:text-sm border-collapse min-w-[600px]">
           <thead>
             <tr>
               <th className="py-2 px-3 text-left text-text-secondary/50 text-xs font-normal w-20 border-b border-gold/10"></th>
@@ -389,7 +389,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative z-10 bg-bg-panel border border-gold/20 rounded-sm w-[400px] max-h-[60vh] flex flex-col"
+            className="relative z-10 bg-bg-panel border border-gold/20 rounded-sm w-full max-w-[400px] max-h-[60vh] flex flex-col"
           >
             <div className="p-4 border-b border-gold/10">
               <h4 className="font-title text-sm text-gold mb-2">

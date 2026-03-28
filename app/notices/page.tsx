@@ -87,7 +87,7 @@ export default function NoticesPage() {
     return (
       <>
         <PageHeader englishTitle="GUILD NOTICES" chineseTitle="公告檄文" />
-        <div className="max-w-[1000px] mx-auto px-8 pb-20 text-center text-text-secondary">
+        <div className="max-w-[1000px] mx-auto px-4 md:px-8 pb-20 text-center text-text-secondary">
           加载中...
         </div>
       </>
@@ -101,7 +101,7 @@ export default function NoticesPage() {
         chineseTitle="公告檄文"
       />
 
-      <div className="max-w-[1000px] mx-auto px-8 pb-20">
+      <div className="max-w-[1000px] mx-auto px-4 md:px-8 pb-20">
         {/* Admin create notice button */}
         {isAdminOrOwner && (
           <motion.div
@@ -144,7 +144,7 @@ export default function NoticesPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="flex gap-2 mb-6"
+          className="flex flex-wrap gap-2 mb-6"
         >
           <button
             onClick={() => setActiveType(null)}

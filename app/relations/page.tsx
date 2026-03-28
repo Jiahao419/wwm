@@ -169,7 +169,7 @@ export default function RelationsPage() {
         chineseTitle="月冕关系谱"
       />
 
-      <div className="max-w-[1400px] mx-auto px-8 pb-20">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pb-20">
         {/* View mode toggle */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -210,12 +210,12 @@ export default function RelationsPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex gap-6"
+          className="flex flex-col lg:flex-row gap-6"
         >
           {/* Force graph */}
           <div className={viewMode === 'individual' && selectedProfileId ? 'flex-1 min-w-0' : 'w-full'}>
             {loading ? (
-              <div className="w-full h-[600px] bg-bg-secondary gold-border rounded-sm flex items-center justify-center">
+              <div className="w-full h-[400px] md:h-[600px] bg-bg-secondary gold-border rounded-sm flex items-center justify-center">
                 <span className="text-text-secondary text-sm">Loading...</span>
               </div>
             ) : (
@@ -234,7 +234,7 @@ export default function RelationsPage() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="w-[320px] flex-shrink-0"
+              className="w-full lg:w-[320px] flex-shrink-0"
             >
               <RelationPanel
                 profile={selectedProfile}

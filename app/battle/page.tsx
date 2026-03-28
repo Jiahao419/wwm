@@ -353,7 +353,7 @@ export default function BattlePage() {
     return (
       <>
         <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
-        <div className="max-w-[1600px] mx-auto px-8 pb-20 text-center text-text-secondary py-20">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 pb-20 text-center text-text-secondary py-20">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <span className="text-gold">Loading...</span>
           </motion.div>
@@ -379,14 +379,14 @@ export default function BattlePage() {
     <>
       <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
 
-      <div className="max-w-[1600px] mx-auto px-8 pb-20">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 pb-20">
         {/* Active event tabs */}
         {activeEvents.length > 1 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="flex gap-4 mb-6"
+            className="flex flex-wrap gap-3 md:gap-4 mb-6"
           >
             {activeEvents.map(evt => {
               const isSelected = evt.id === event?.id;
@@ -434,7 +434,7 @@ export default function BattlePage() {
         {/* 百业战内容 */}
         {event && (<>
         {/* === 百业战专属内容 === */}
-        <div className="grid grid-cols-[55%_45%] gap-6 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-6 mb-12">
           {/* Left: Map */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
             <div className="flex items-center justify-between mb-4">
@@ -476,7 +476,7 @@ export default function BattlePage() {
                 <span className="text-text-secondary text-xs">({assignments.length}人)</span>
               </h3>
               {isAdminOrOwner && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <GoldButton variant="secondary" size="sm" onClick={handleOpenAddMember}>
                     添加成员
                   </GoldButton>
@@ -579,8 +579,8 @@ export default function BattlePage() {
             以往战务
           </h3>
           {pastEvents.length > 0 ? (
-            <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="bg-bg-card gold-border rounded-sm overflow-x-auto">
+              <table className="w-full text-sm min-w-[600px]">
                 <thead>
                   <tr className="border-b border-gold/10 text-text-secondary text-xs">
                     <th className="py-3 px-4 text-left font-normal">日期</th>
@@ -725,7 +725,7 @@ export default function BattlePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-bg-panel border border-gold/20 rounded-sm w-[480px] max-h-[70vh] flex flex-col"
+            className="relative bg-bg-panel border border-gold/20 rounded-sm w-full max-w-[480px] mx-4 max-h-[70vh] flex flex-col"
           >
             <div className="p-5 border-b border-gold/10">
               <h3 className="font-title text-lg text-gold mb-3">添加成员到战务</h3>

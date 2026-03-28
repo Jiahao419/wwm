@@ -220,7 +220,7 @@ export default function RecentSection() {
   const displayActivities = activities.slice(0, 6);
 
   return (
-    <section className="py-20 px-8">
+    <section className="py-20 px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         {/* Two columns: Events + Notices */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">

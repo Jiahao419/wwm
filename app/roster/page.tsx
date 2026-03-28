@@ -133,7 +133,7 @@ export default function RosterPage() {
       {!loading && profiles.length > 0 && (
         <>
           <PageHeader englishTitle="GUILD ROSTER" chineseTitle="月冕名册" />
-          <div className="max-w-[1400px] mx-auto px-8 pb-6">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-8 pb-6">
             <div className="flex items-center gap-4">
               <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
               <span className="text-text-secondary/30 text-xs tracking-[0.3em]">月 冕 转 轮</span>
@@ -161,7 +161,7 @@ export default function RosterPage() {
 
       {/* Divider between sections */}
       {!loading && profiles.length > 0 && (
-        <div className="max-w-[1400px] mx-auto px-8 py-10">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-10">
           <div className="flex items-center gap-4">
             <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
             <span className="text-text-secondary/30 text-xs tracking-[0.3em]">成 员 风 采</span>
@@ -183,7 +183,7 @@ export default function RosterPage() {
 
       {/* Admin: Add member button */}
       {isAdminOrOwner && (
-        <div className="max-w-[1400px] mx-auto px-8 py-6 flex justify-end">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 flex justify-end">
           <GoldButton
             variant="secondary"
             size="md"

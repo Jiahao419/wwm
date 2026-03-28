@@ -12,7 +12,7 @@ const links = [
 
 export default function QuickLinks() {
   return (
-    <section className="py-20 px-8">
+    <section className="py-20 px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-12">
           <p className="font-display text-xs tracking-[0.3em] text-text-secondary/50 uppercase mb-2">
@@ -20,7 +20,7 @@ export default function QuickLinks() {
           </p>
           <h2 className="font-title text-3xl text-text-primary">快捷入口</h2>
         </div>
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {links.map((link, i) => (
             <motion.div
               key={link.href}
@@ -30,7 +30,7 @@ export default function QuickLinks() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <Link href={link.href}>
-                <div className="p-8 bg-bg-card gold-border-hover rounded-sm group cursor-pointer h-full">
+                <div className="p-4 sm:p-6 lg:p-8 bg-bg-card gold-border-hover rounded-sm group cursor-pointer h-full">
                   <div className="text-3xl mb-4">{link.icon}</div>
                   <h3 className="font-title text-xl text-text-primary mb-2 group-hover:text-gold transition-colors">
                     {link.title}

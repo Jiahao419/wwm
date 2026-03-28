@@ -268,7 +268,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   }, [nodeCount, linkCount]);
 
   return (
-    <div ref={containerRef} className={`w-full bg-bg-secondary gold-border rounded-sm overflow-hidden relative ${isFullscreen ? 'h-screen' : 'h-[600px]'}`}>
+    <div ref={containerRef} className={`w-full bg-bg-secondary gold-border rounded-sm overflow-hidden relative ${isFullscreen ? 'h-screen' : 'h-[400px] md:h-[600px]'}`}>
       {/* Legend */}
       <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
         {[
@@ -291,7 +291,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
                 display: 'inline-block',
               }}
             />
-            <span className="text-text-secondary text-[10px]">
+            <span className="text-text-secondary text-[9px] md:text-[10px]">
               {t.label}{t.key === 'jieyi' ? (hideJieyi ? ' (已隐藏)' : ' (点击隐藏)') : ''}
             </span>
           </button>

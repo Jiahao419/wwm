@@ -29,7 +29,7 @@ export default function HeroSection() {
         initial={{ opacity: 0, x: -60 }}
         animate={{ opacity: 0.85, x: 0 }}
         transition={{ duration: 2, delay: 1.0, ease: 'easeOut' }}
-        className="absolute left-0 bottom-0 z-[3] pointer-events-none select-none"
+        className="absolute left-0 bottom-0 z-[3] pointer-events-none select-none hidden md:block"
       >
         <img
           src="/images/swordsman-left.png"
@@ -61,7 +61,7 @@ export default function HeroSection() {
           <img
             src="/images/wwm-logo.png"
             alt="燕云十六声"
-            className="w-[140px] h-[140px] object-contain opacity-90"
+            className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] md:w-[140px] md:h-[140px] object-contain opacity-90"
           />
         </motion.div>
 
@@ -73,7 +73,7 @@ export default function HeroSection() {
           className="mb-5 relative"
         >
           <h1
-            className="font-brush text-[10rem] leading-none tracking-[0.15em] relative inline-block hero-title-glow"
+            className="font-brush text-[3rem] sm:text-[5rem] md:text-[7rem] lg:text-[10rem] leading-none tracking-[0.15em] relative inline-block hero-title-glow"
             style={{
               background: 'linear-gradient(105deg, #8a6d2f 0%, #c9a84c 25%, #f0d878 45%, #fffbe6 50%, #f0d878 55%, #c9a84c 75%, #8a6d2f 100%)',
               backgroundSize: '200% 100%',
@@ -102,7 +102,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0 }}
-          className="flex items-center justify-center gap-6"
+          className="flex items-center justify-center gap-3 sm:gap-6 px-4 md:px-8"
         >
           <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-gold/30" />
           <p className="text-gold/50 text-lg tracking-[0.4em] font-title">

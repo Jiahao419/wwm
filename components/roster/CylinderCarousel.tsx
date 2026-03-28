@@ -29,17 +29,26 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showProfilePicker, setShowProfilePicker] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const count = profiles.length;
   const angleStep = count > 0 ? 360 / count : 0;
-  // 半径随人数增长，保证卡片间距舒适
-  const radius = Math.min(Math.max(400, count * 75), 1200);
+  // 半径随人数增长，保证卡片间距舒适；移动端缩小半径
+  const baseRadius = Math.min(Math.max(400, count * 75), 1200);
+  const radius = isMobile ? Math.min(baseRadius * 0.55, 500) : baseRadius;
   // 自动转速随人数增多而减慢，保持视觉舒适
   const autoSpeed = count > 1 ? Math.max(0.03, 0.15 / Math.sqrt(count)) : 0.12;
 
-  // Card dimensions
-  const CARD_W = 200;
-  const CARD_H = 500;
+  // Card dimensions — smaller on mobile
+  const CARD_W = isMobile ? 130 : 200;
+  const CARD_H = isMobile ? 325 : 500;
 
   // My own profile
   const myProfile = currentUserId ? profiles.find(p => p.user_id === currentUserId) : null;
@@ -148,8 +157,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
   return (
     <>
       <div
-        className="relative w-full overflow-hidden select-none"
-        style={{ height: '800px' }}
+        className="relative w-full overflow-hidden select-none h-[500px] md:h-[800px]"
       >
         {/* Ambient glow */}
         <div className="absolute inset-0 pointer-events-none">
@@ -164,18 +172,18 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
 
         {/* Upload button - visible for logged in users */}
         {(myProfile || isAdminOrOwner) && (
-          <div className="absolute top-4 right-8 z-20">
+          <div className="absolute top-4 right-4 md:right-8 z-20">
             <button
               onClick={handleUploadClick}
               disabled={uploading}
-              className="px-4 py-2 text-xs bg-black/60 backdrop-blur-md text-gold/80 hover:text-gold border border-gold/20 hover:border-gold/50 rounded-full transition-all flex items-center gap-2"
+              className="px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs bg-black/60 backdrop-blur-md text-gold/80 hover:text-gold border border-gold/20 hover:border-gold/50 rounded-full transition-all flex items-center gap-1.5 md:gap-2"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
               </svg>
               {uploading ? '上传中...' : '上传转轮图'}
             </button>
-            <p className="text-[10px] text-text-secondary/30 mt-1 text-right">建议竖版图片 · 自动裁剪</p>
+            <p className="text-[10px] text-text-secondary/30 mt-1 text-right hidden md:block">建议竖版图片 · 自动裁剪</p>
           </div>
         )}
 

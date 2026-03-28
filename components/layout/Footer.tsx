@@ -5,8 +5,8 @@ import { InkDivider } from '@/components/ui/InkDecoration';
 export default function Footer() {
   return (
     <footer className="border-t border-gold/10 bg-bg-secondary">
-      <div className="max-w-[1600px] mx-auto px-8 py-16">
-        <div className="grid grid-cols-4 gap-12">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
           {/* Logo & Description */}
           <div className="col-span-1">
             <div className="flex items-center gap-2 mb-4">
@@ -53,7 +53,7 @@ export default function Footer() {
         <InkDivider />
 
         {/* Copyright */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 text-center sm:text-left">
           <p className="text-text-secondary/50 text-xs">
             &copy; 2026 月冕总坛 · YUEMIAN GUILD. All rights reserved.
           </p>

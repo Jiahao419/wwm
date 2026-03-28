@@ -36,7 +36,7 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
   }, [isInView, value]);
 
   return (
-    <span ref={ref} className="font-mono text-5xl text-gold gold-text-glow">
+    <span ref={ref} className="font-mono text-3xl sm:text-4xl lg:text-5xl text-gold gold-text-glow">
       {count}
       <span className="text-2xl text-gold/60 ml-1">{suffix}</span>
     </span>
@@ -143,9 +143,9 @@ export default function StatsSection() {
   };
 
   return (
-    <section className="py-20 px-8">
+    <section className="py-20 px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-8">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.sort_order}
@@ -153,7 +153,7 @@ export default function StatsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="relative text-center p-8 gold-border rounded-sm bg-bg-card/50 group"
+              className="relative text-center p-4 sm:p-6 lg:p-8 gold-border rounded-sm bg-bg-card/50 group"
             >
               {isAdminOrOwner && (
                 <button

@@ -320,7 +320,7 @@ export default function IntroSection() {
   const paragraphs = intro.split('\n').filter(line => line.trim());
 
   return (
-    <section className="relative py-24 px-8 overflow-hidden">
+    <section className="relative py-24 px-4 md:px-8 overflow-hidden">
       {/* Video background */}
       <video
         autoPlay

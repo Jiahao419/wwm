@@ -149,7 +149,7 @@ export default function SignupPage() {
     return (
       <>
         <PageHeader englishTitle="EVENT SIGNUP" chineseTitle="赛事报名" />
-        <div className="max-w-[1200px] mx-auto px-8 pb-20 text-center text-text-secondary">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-20 text-center text-text-secondary">
           加载中...
         </div>
       </>
@@ -160,7 +160,7 @@ export default function SignupPage() {
     <>
       <PageHeader englishTitle="EVENT SIGNUP" chineseTitle="赛事报名" />
 
-      <div className="max-w-[1200px] mx-auto px-8 pb-20">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-20">
         {/* Admin create event button */}
         {isAdminOrOwner && (
           <motion.div
@@ -181,7 +181,7 @@ export default function SignupPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex gap-4 mb-8"
+            className="flex flex-wrap gap-2 md:gap-4 mb-8"
           >
             {activeEvents.map(event => {
               const isActive = event.id === selectedEvent;
@@ -190,7 +190,7 @@ export default function SignupPage() {
                 <button
                   key={event.id}
                   onClick={() => setSelectedEvent(event.id)}
-                  className={`flex-1 p-4 rounded-sm border transition-all text-left ${
+                  className={`flex-1 min-w-[140px] p-3 md:p-4 rounded-sm border transition-all text-left ${
                     isActive
                       ? 'bg-bg-card border-gold/40 shadow-[0_0_20px_rgba(201,168,76,0.1)]'
                       : 'bg-bg-card/50 border-gold/10 hover:border-gold/20'
@@ -200,7 +200,7 @@ export default function SignupPage() {
                     <span className={`px-1.5 py-0.5 text-[10px] rounded ${st.cls}`}>{st.text}</span>
                     <span className="text-[10px] text-text-secondary">{EVENT_TYPES[event.event_type]?.label}</span>
                   </div>
-                  <h4 className={`text-sm font-title ${isActive ? 'text-gold' : 'text-text-primary'}`}>
+                  <h4 className={`text-xs md:text-sm font-title ${isActive ? 'text-gold' : 'text-text-primary'}`}>
                     {event.title}
                   </h4>
                 </button>
@@ -287,7 +287,7 @@ export default function SignupPage() {
             <DungeonTeamGrid event={current} onRefresh={fetchEvents} />
           ) : (
             /* 其他类型：常规报名表单 + 名单 */
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -327,8 +327,8 @@ export default function SignupPage() {
               <span className="w-1 h-5 bg-gold/40 rounded-full" />
               往期赛事
             </h3>
-            <div className="bg-bg-card gold-border rounded-sm overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="bg-bg-card gold-border rounded-sm overflow-hidden overflow-x-auto">
+              <table className="w-full text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-gold/10 text-text-secondary text-xs">
                     <th className="py-3 px-4 text-left font-normal">日期</th>

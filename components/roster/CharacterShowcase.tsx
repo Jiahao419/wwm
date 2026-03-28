@@ -108,7 +108,7 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
   const firstChar = profile.nickname.charAt(0);
 
   return (
-    <section className="relative w-full h-screen overflow-hidden bg-black">
+    <section className="relative w-full h-[70vh] md:h-screen overflow-hidden bg-black">
       {/* Background image with 3D flip */}
       <div className="absolute inset-0" style={{ perspective: '1200px' }}>
         <AnimatePresence mode="wait">
@@ -152,7 +152,7 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
       )}
 
       {/* Left info panel */}
-      <div className="absolute left-0 top-0 bottom-0 z-[5] flex flex-col justify-center px-8 md:px-16 max-w-[600px]">
+      <div className="absolute left-0 top-0 bottom-0 z-[5] flex flex-col justify-center px-4 md:px-16 max-w-[85vw] md:max-w-[600px]">
         <motion.div
           key={selectedIdx}
           initial={{ opacity: 0, x: -30 }}
@@ -226,7 +226,7 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="flex gap-2 mt-6"
+            className="flex flex-wrap gap-2 mt-4 md:mt-6"
           >
             <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
             <button
@@ -281,7 +281,7 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
                     isActive ? 'scale-110' : 'opacity-60 hover:opacity-90'
                   }`}
                 >
-                  <div className={`w-14 h-14 rounded overflow-hidden border-2 transition-all ${
+                  <div className={`w-10 h-10 md:w-14 md:h-14 rounded overflow-hidden border-2 transition-all ${
                     isActive ? 'border-gold shadow-lg shadow-gold/20' : 'border-white/10'
                   }`}>
                     {thumbImg ? (
@@ -292,7 +292,7 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
                       </div>
                     )}
                   </div>
-                  <span className={`text-[10px] leading-tight truncate max-w-[56px] ${
+                  <span className={`text-[9px] md:text-[10px] leading-tight truncate max-w-[40px] md:max-w-[56px] ${
                     isActive ? 'text-gold' : 'text-white/40'
                   }`}>
                     {p.nickname}

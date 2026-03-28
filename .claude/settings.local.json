@@ -21,7 +21,12 @@
       "mcp__Claude_in_Chrome__navigate",
       "mcp__Claude_in_Chrome__tabs_create_mcp",
       "mcp__Desktop_Commander__list_directory",
-      "mcp__Desktop_Commander__read_file"
+      "mcp__Desktop_Commander__read_file",
+      "Bash(ls \"C:\\\\Users\\\\24075\\\\Desktop\\\\wwm\\\\public\\\\fonts\"\" 2>/dev/null || ls \"C:Users24075Desktopwwmfonts\"\")",
+      "Bash(find /c/Users/24075/Desktop/wwm/components -name *Activity* -o -name *activity*)",
+      "Bash(find /c/Users/24075/Desktop/wwm -maxdepth 2 -name *.webmanifest -o -name *manifest.json)",
+      "Bash(git rm:*)",
+      "Bash(find C:Users24075Desktop -maxdepth 3 -type d -name *FengHua* -o -name *风华*)"
     ]
   }
 }
