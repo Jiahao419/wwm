@@ -376,7 +376,20 @@ export default function BattlePage() {
   }
 
   return (
-    <>
+    <div className="relative min-h-screen">
+      {/* Background image */}
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/images/d0667c99ffa04d11c8374ffa3e4a4b8d522628429.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="fixed inset-0 z-0 bg-black/60" />
+
+      <div className="relative z-10">
       <PageHeader englishTitle="BATTLE OPERATIONS" chineseTitle="百业战务" />
 
       <div className="max-w-[1600px] mx-auto px-4 md:px-8 pb-20">
@@ -781,6 +794,7 @@ export default function BattlePage() {
           </motion.div>
         </div>
       )}
-    </>
+      </div>
+    </div>
   );
 }
