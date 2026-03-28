@@ -197,7 +197,7 @@ export default function RelationsPage() {
         const groupB = getJieyiGroup(targetProfileId);
 
         // 合并两个团体，所有未连接的pair都要建立关系
-        const allMembers = new Set([...groupA, ...groupB]);
+        const allMembers = new Set([...Array.from(groupA), ...Array.from(groupB)]);
         const existingPairs = new Set<string>();
         relations
           .filter(r => r.relation_type === 'jieyi')
