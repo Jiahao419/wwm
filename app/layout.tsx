@@ -1,10 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlobalLeaves from '@/components/layout/GlobalLeaves';
 import AudioPlayer from '@/components/ui/AudioPlayer';
 import AuthProvider from '@/components/providers/AuthProvider';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: '月冕总坛 · YUEMIAN',

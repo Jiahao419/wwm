@@ -52,7 +52,6 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Noto Sans SC', sans-serif;
-  min-width: 1280px;
   overflow-x: hidden;
 }
 
