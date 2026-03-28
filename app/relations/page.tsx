@@ -91,6 +91,24 @@ export default function RelationsPage() {
     }
   };
 
+  // 找到某人的所有结义伙伴
+  const getJieyiGroup = (profileId: string): Set<string> => {
+    const group = new Set<string>();
+    const queue = [profileId];
+    while (queue.length > 0) {
+      const current = queue.pop()!;
+      if (group.has(current)) continue;
+      group.add(current);
+      relations
+        .filter(r => r.relation_type === 'jieyi' && (r.from_user_id === current || r.to_user_id === current))
+        .forEach(r => {
+          const other = r.from_user_id === current ? r.to_user_id : r.from_user_id;
+          if (!group.has(other)) queue.push(other);
+        });
+    }
+    return group;
+  };
+
   const handleAddRelation = async (
     targetProfileId: string,
     relationType: MemberRelation['relation_type']
@@ -107,31 +125,76 @@ export default function RelationsPage() {
       let storeType = relationType;
 
       if (relationType === 'shifu') {
-        // 当前用户要添加师父 → 目标是师父(from)，当前用户是徒弟(to)
         fromId = targetProfileId;
         toId = selectedProfileId;
         storeType = 'shifu';
       } else if (relationType === 'tudi') {
-        // 当前用户要添加徒弟 → 当前用户是师父(from)，目标是徒弟(to)
         fromId = selectedProfileId;
         toId = targetProfileId;
         storeType = 'shifu';
       }
 
-      const { error } = await createRelation({
-        from_user_id: fromId,
-        to_user_id: toId,
-        relation_type: storeType,
-        label: RELATION_TYPES.find(t => t.id === storeType)?.label || null,
-        line_color: null,
-        group_name: null,
-        created_by: user.id,
-      });
-      if (error) {
-        console.error('Failed to create relation:', error);
-        alert('添加关系失败：' + error.message);
-      } else {
+      if (relationType === 'jieyi') {
+        // 结义是团体关系：A加B时，B也要和A的所有结义伙伴互相建立关系
+        const groupA = getJieyiGroup(selectedProfileId);
+        const groupB = getJieyiGroup(targetProfileId);
+
+        // 合并两个团体，所有未连接的pair都要建立关系
+        const allMembers = new Set([...groupA, ...groupB]);
+        const existingPairs = new Set<string>();
+        relations
+          .filter(r => r.relation_type === 'jieyi')
+          .forEach(r => {
+            existingPairs.add([r.from_user_id, r.to_user_id].sort().join('|'));
+          });
+
+        const newPairs: [string, string][] = [];
+        const members = Array.from(allMembers);
+        for (let i = 0; i < members.length; i++) {
+          for (let j = i + 1; j < members.length; j++) {
+            const pairKey = [members[i], members[j]].sort().join('|');
+            if (!existingPairs.has(pairKey)) {
+              newPairs.push([members[i], members[j]]);
+            }
+          }
+        }
+
+        const errors: string[] = [];
+        for (const [a, b] of newPairs) {
+          const { error } = await createRelation({
+            from_user_id: a,
+            to_user_id: b,
+            relation_type: 'jieyi',
+            label: RELATION_TYPES.find(t => t.id === 'jieyi')?.label || null,
+            line_color: null,
+            group_name: null,
+            created_by: user.id,
+          });
+          if (error) errors.push(error.message);
+        }
+
+        if (errors.length > 0) {
+          console.error('部分结义关系创建失败:', errors);
+          alert('部分结义关系创建失败');
+        }
         await fetchData();
+      } else {
+        // 非结义关系：正常创建单条
+        const { error } = await createRelation({
+          from_user_id: fromId,
+          to_user_id: toId,
+          relation_type: storeType,
+          label: RELATION_TYPES.find(t => t.id === storeType)?.label || null,
+          line_color: null,
+          group_name: null,
+          created_by: user.id,
+        });
+        if (error) {
+          console.error('Failed to create relation:', error);
+          alert('添加关系失败：' + error.message);
+        } else {
+          await fetchData();
+        }
       }
     } catch (err) {
       console.error('Failed to create relation:', err);
@@ -143,17 +206,44 @@ export default function RelationsPage() {
 
   const handleDeleteRelation = async (relationId: string) => {
     if (usingMock) return;
-    if (!confirm('确定删除此关系？')) return;
-    try {
-      const { error } = await deleteRelation(relationId);
-      if (error) {
-        console.error('Failed to delete relation:', error);
-        alert('删除关系失败：' + error.message);
-      } else {
-        await fetchData();
+    // 查找这条关系
+    const rel = relations.find(r => r.id === relationId);
+    if (!rel) return;
+
+    if (rel.relation_type === 'jieyi') {
+      // 结义删除：删除该人与当前选中人的结义关系
+      // 同时删除该人与当前选中人的整个结义团体之间的所有连线
+      const otherPersonId = rel.from_user_id === selectedProfileId ? rel.to_user_id : rel.from_user_id;
+      if (!confirm(`确定将该成员从结义团体中移除？将同时删除此人与团体所有成员的结义关系。`)) return;
+
+      // 找到当前团体中除了被移除的人之外的所有人
+      const jieyiRelations = relations.filter(
+        r => r.relation_type === 'jieyi' &&
+        (r.from_user_id === otherPersonId || r.to_user_id === otherPersonId)
+      );
+
+      const errors: string[] = [];
+      for (const r of jieyiRelations) {
+        const { error } = await deleteRelation(r.id);
+        if (error) errors.push(error.message);
       }
-    } catch (err) {
-      console.error('Failed to delete relation:', err);
+      if (errors.length > 0) {
+        console.error('部分结义关系删除失败:', errors);
+      }
+      await fetchData();
+    } else {
+      if (!confirm('确定删除此关系？')) return;
+      try {
+        const { error } = await deleteRelation(relationId);
+        if (error) {
+          console.error('Failed to delete relation:', error);
+          alert('删除关系失败：' + error.message);
+        } else {
+          await fetchData();
+        }
+      } catch (err) {
+        console.error('Failed to delete relation:', err);
+      }
     }
   };
 
