@@ -152,25 +152,94 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
     setUploadTarget(null);
   };
 
+  // Mobile auto-scroll
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const mobileAutoScrollRef = useRef<number>(0);
+  const mobileIsTouchingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isMobile || !mobileScrollRef.current) return;
+    const el = mobileScrollRef.current;
+    let scrollPos = 0;
+
+    const autoScroll = () => {
+      if (!mobileIsTouchingRef.current && el) {
+        scrollPos += 0.5;
+        // Loop: when past half, reset to start seamlessly
+        const halfWidth = el.scrollWidth / 2;
+        if (scrollPos >= halfWidth) {
+          scrollPos -= halfWidth;
+        }
+        el.scrollLeft = scrollPos;
+      } else if (el) {
+        scrollPos = el.scrollLeft;
+      }
+      mobileAutoScrollRef.current = requestAnimationFrame(autoScroll);
+    };
+    mobileAutoScrollRef.current = requestAnimationFrame(autoScroll);
+    return () => cancelAnimationFrame(mobileAutoScrollRef.current);
+  }, [isMobile, count]);
+
   if (count === 0) return null;
+
+  // Shared card renderer
+  const renderCard = (profile: Profile, opts?: { w?: number; h?: number; className?: string }) => {
+    const firstChar = profile.nickname.charAt(0);
+    const hasShowcase = !!profile.showcase_url;
+    return (
+      <div
+        className={`overflow-hidden border border-gold/10 hover:border-gold/50 transition-all duration-500 cursor-pointer group relative flex-shrink-0 ${opts?.className || ''}`}
+        style={{
+          width: opts?.w ? `${opts.w}px` : undefined,
+          height: opts?.h ? `${opts.h}px` : undefined,
+          borderRadius: '8px',
+          boxShadow: '0 10px 50px rgba(0,0,0,0.6), 0 0 15px rgba(201,168,76,0.04)',
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (Math.abs(dragVelocityRef.current) < 0.3) {
+            onProfileClick(profile);
+          }
+        }}
+      >
+        {hasShowcase ? (
+          <img src={profile.showcase_url!} alt={profile.nickname} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" draggable={false} />
+        ) : profile.avatar_url ? (
+          <img src={profile.avatar_url} alt={profile.nickname} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" draggable={false} />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(180deg, ${profile.node_color || '#9a8a6a'}10 0%, ${profile.node_color || '#9a8a6a'}30 40%, ${profile.node_color || '#9a8a6a'}10 100%)` }}>
+            <span className="font-brush text-[60px] md:text-[100px] opacity-25 select-none" style={{ color: profile.node_color || '#9a8a6a' }}>{firstChar}</span>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent pointer-events-none" />
+        {profile.role !== 'member' && (
+          <div className="absolute top-2 right-2 z-10">
+            <span className={`px-1.5 py-0.5 text-[9px] md:text-[10px] font-title rounded-sm backdrop-blur-md ${profile.role === 'owner' ? 'bg-cinnabar/60 text-white/90 border border-cinnabar-light/30' : 'bg-blue-900/60 text-blue-200/90 border border-blue-400/30'}`}>
+              {profile.role === 'owner' ? '坛主' : '管理'}
+            </span>
+          </div>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 z-10">
+          <h3 className="font-title text-sm md:text-lg text-white/90 mb-0.5 drop-shadow-lg group-hover:text-gold transition-colors duration-300 text-center">
+            {profile.nickname}
+          </h3>
+          {profile.identity && (
+            <p className="text-gold/40 text-[10px] md:text-xs drop-shadow-md text-center truncate">{profile.identity}</p>
+          )}
+        </div>
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" style={{ boxShadow: 'inset 0 0 80px rgba(201,168,76,0.1)' }} />
+      </div>
+    );
+  };
+
+  // Duplicate profiles for seamless mobile looping
+  const mobileProfiles = [...profiles, ...profiles];
 
   return (
     <>
-      <div
-        className="relative w-full overflow-hidden select-none h-[500px] md:h-[800px]"
-      >
-        {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gold/[0.03] blur-[120px]" />
-        </div>
-
-        {/* Edge fades */}
-        <div className="absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-bg-primary via-bg-primary/70 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-bg-primary via-bg-primary/70 to-transparent z-10 pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-bg-primary to-transparent z-10 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-bg-primary to-transparent z-10 pointer-events-none" />
-
-        {/* Upload button - visible for logged in users */}
+      {/* Upload button - shared between mobile and desktop */}
+      <div className="relative">
         {(myProfile || isAdminOrOwner) && (
           <div className="absolute top-4 right-4 md:right-8 z-20">
             <button
@@ -187,125 +256,79 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
           </div>
         )}
 
-        {/* 3D Scene */}
-        <div
-          className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-          style={{ perspective: '4000px', perspectiveOrigin: '50% 45%' }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-        >
-          <div
-            ref={cylinderRef}
-            className="relative"
-            style={{
-              width: '1px',
-              height: '1px',
-              transformStyle: 'preserve-3d',
-            }}
-          >
-            {profiles.map((profile, i) => {
-              const angle = i * angleStep;
-              const firstChar = profile.nickname.charAt(0);
-              const hasShowcase = !!profile.showcase_url;
+        {/* === MOBILE: Horizontal scroll carousel === */}
+        <div className="md:hidden relative w-full overflow-hidden select-none h-[380px]">
+          {/* Edge fades */}
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-bg-primary to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-bg-primary to-transparent z-10 pointer-events-none" />
 
-              return (
-                <div
-                  key={profile.id}
-                  className="absolute"
-                  style={{
-                    width: `${CARD_W}px`,
-                    height: `${CARD_H}px`,
-                    left: `${-CARD_W / 2}px`,
-                    top: `${-CARD_H / 2}px`,
-                    transformStyle: 'preserve-3d',
-                    transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
-                    backfaceVisibility: 'hidden',
-                  }}
-                >
+          <div
+            ref={mobileScrollRef}
+            className="flex gap-3 px-6 py-6 h-full items-center overflow-x-auto scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onTouchStart={() => { mobileIsTouchingRef.current = true; }}
+            onTouchEnd={() => { mobileIsTouchingRef.current = false; }}
+          >
+            {mobileProfiles.map((profile, i) => (
+              <div key={`${profile.id}-${i}`} className="flex-shrink-0">
+                {renderCard(profile, { w: 120, h: 300 })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* === DESKTOP: 3D Cylinder === */}
+        <div className="hidden md:block relative w-full overflow-hidden select-none h-[800px]">
+          {/* Ambient glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gold/[0.03] blur-[120px]" />
+          </div>
+
+          {/* Edge fades */}
+          <div className="absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-bg-primary via-bg-primary/70 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-bg-primary via-bg-primary/70 to-transparent z-10 pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-bg-primary to-transparent z-10 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-bg-primary to-transparent z-10 pointer-events-none" />
+
+          {/* 3D Scene */}
+          <div
+            className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+            style={{ perspective: '4000px', perspectiveOrigin: '50% 45%' }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+          >
+            <div
+              ref={cylinderRef}
+              className="relative"
+              style={{
+                width: '1px',
+                height: '1px',
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              {profiles.map((profile, i) => {
+                const angle = i * angleStep;
+                return (
                   <div
-                    className="w-full h-full overflow-hidden border border-gold/10 hover:border-gold/50 transition-all duration-500 cursor-pointer group relative"
+                    key={profile.id}
+                    className="absolute"
                     style={{
-                      borderRadius: '8px',
-                      boxShadow: '0 10px 50px rgba(0,0,0,0.6), 0 0 15px rgba(201,168,76,0.04)',
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (Math.abs(dragVelocityRef.current) < 0.3) {
-                        onProfileClick(profile);
-                      }
+                      width: `${CARD_W}px`,
+                      height: `${CARD_H}px`,
+                      left: `${-CARD_W / 2}px`,
+                      top: `${-CARD_H / 2}px`,
+                      transformStyle: 'preserve-3d',
+                      transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                      backfaceVisibility: 'hidden',
                     }}
                   >
-                    {/* Image */}
-                    {hasShowcase ? (
-                      <img
-                        src={profile.showcase_url!}
-                        alt={profile.nickname}
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                        draggable={false}
-                      />
-                    ) : profile.avatar_url ? (
-                      <img
-                        src={profile.avatar_url}
-                        alt={profile.nickname}
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                        draggable={false}
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center"
-                        style={{
-                          background: `linear-gradient(180deg, ${profile.node_color || '#9a8a6a'}10 0%, ${profile.node_color || '#9a8a6a'}30 40%, ${profile.node_color || '#9a8a6a'}10 100%)`,
-                        }}
-                      >
-                        <span
-                          className="font-brush text-[100px] opacity-25 select-none"
-                          style={{ color: profile.node_color || '#9a8a6a' }}
-                        >
-                          {firstChar}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Bottom gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent pointer-events-none" />
-
-                    {/* Top subtle gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent pointer-events-none" />
-
-                    {/* Role badge */}
-                    {profile.role !== 'member' && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <span className={`px-2 py-0.5 text-[10px] font-title rounded-sm backdrop-blur-md ${
-                          profile.role === 'owner'
-                            ? 'bg-cinnabar/60 text-white/90 border border-cinnabar-light/30'
-                            : 'bg-blue-900/60 text-blue-200/90 border border-blue-400/30'
-                        }`}>
-                          {profile.role === 'owner' ? '坛主' : '管理'}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Name at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                      <h3 className="font-title text-lg text-white/90 mb-0.5 drop-shadow-lg group-hover:text-gold transition-colors duration-300 text-center">
-                        {profile.nickname}
-                      </h3>
-                      {profile.identity && (
-                        <p className="text-gold/40 text-xs drop-shadow-md text-center">{profile.identity}</p>
-                      )}
-                    </div>
-
-                    {/* Hover inner glow */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg"
-                      style={{ boxShadow: 'inset 0 0 80px rgba(201,168,76,0.1)' }}
-                    />
+                    {renderCard(profile, { w: CARD_W, h: CARD_H })}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
