@@ -268,7 +268,7 @@ export default function ForceGraph({ profiles, relations, selectedProfileId, vie
   }, [nodeCount, linkCount]);
 
   return (
-    <div ref={containerRef} className={`w-full bg-bg-secondary gold-border rounded-sm overflow-hidden relative ${isFullscreen ? 'h-screen' : 'h-[400px] md:h-[600px]'}`}>
+    <div ref={containerRef} className={`w-full bg-bg-secondary gold-border rounded-sm overflow-hidden relative ${isFullscreen ? 'h-screen' : 'h-[450px] md:h-[750px]'}`}>
       {/* Legend */}
       <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
         {[
