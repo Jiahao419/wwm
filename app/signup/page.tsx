@@ -157,7 +157,11 @@ export default function SignupPage() {
   }
 
   return (
-    <>
+    <div className="relative min-h-screen">
+      <div className="fixed inset-0 z-0" style={{ backgroundImage: 'url(/images/baoming.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      <div className="fixed inset-0 z-0 bg-black/60" />
+
+      <div className="relative z-10">
       <PageHeader englishTitle="EVENT SIGNUP" chineseTitle="赛事报名" />
 
       <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-20">
@@ -408,6 +412,7 @@ export default function SignupPage() {
         onClose={() => setShowCreateModal(false)}
         onCreated={fetchEvents}
       />
-    </>
+      </div>
+    </div>
   );
 }
