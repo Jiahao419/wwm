@@ -283,7 +283,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
         </div>
 
         {/* === DESKTOP: 3D Cylinder === */}
-        <div className="hidden md:block relative w-full overflow-hidden select-none" style={{ height: `${Math.ceil(CARD_H * (4000 / (4000 - radius))) + 120}px` }}>
+        <div className="hidden md:block relative w-full overflow-hidden select-none" style={{ height: `${Math.min(850, Math.ceil(CARD_H * (4000 / (4000 - radius))) + 120)}px` }}>
           {/* Ambient glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gold/[0.03] blur-[120px]" />
