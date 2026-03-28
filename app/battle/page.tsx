@@ -70,7 +70,14 @@ export default function BattlePage() {
         setAssignments([]);
       }
     } else {
-      setAssignments(assigns as AssignmentWithProfile[]);
+      // 去重：同一个 user_id 只保留第一条
+      const seen = new Set<string>();
+      const unique = (assigns as AssignmentWithProfile[]).filter(a => {
+        if (seen.has(a.user_id)) return false;
+        seen.add(a.user_id);
+        return true;
+      });
+      setAssignments(unique);
       setUsingMock(false);
     }
   }, []);
