@@ -40,15 +40,20 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
 
   const count = profiles.length;
   const angleStep = count > 0 ? 360 / count : 0;
-  // 半径随人数增长，保证卡片间距舒适；移动端缩小半径
-  const baseRadius = Math.min(Math.max(400, count * 75), 1200);
-  const radius = isMobile ? Math.min(baseRadius * 0.55, 500) : baseRadius;
-  // 自动转速随人数增多而减慢，保持视觉舒适
-  const autoSpeed = count > 1 ? Math.max(0.03, 0.15 / Math.sqrt(count)) : 0.12;
 
   // Card dimensions — smaller on mobile
   const CARD_W = isMobile ? 130 : 200;
   const CARD_H = isMobile ? 325 : 500;
+
+  // 根据卡片宽度 + 固定间距计算半径，保证不管多少人间距都一样
+  // 圆周 = 2πr = count * (CARD_W + gap)，所以 r = count * (CARD_W + gap) / (2π)
+  const CARD_GAP = 60; // 卡片间固定间距 px
+  const minRadius = 400;
+  const baseRadius = Math.max(minRadius, (count * (CARD_W + CARD_GAP)) / (2 * Math.PI));
+  const radius = isMobile ? baseRadius * 0.55 : baseRadius;
+
+  // 自动转速随人数增多而减慢，保持视觉舒适
+  const autoSpeed = count > 1 ? Math.max(0.02, 0.12 / Math.sqrt(count)) : 0.12;
 
   // My own profile
   const myProfile = currentUserId ? profiles.find(p => p.user_id === currentUserId) : null;
