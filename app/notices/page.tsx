@@ -95,7 +95,11 @@ export default function NoticesPage() {
   }
 
   return (
-    <>
+    <div className="relative min-h-screen">
+      <div className="fixed inset-0 z-0" style={{ backgroundImage: 'url(/images/gonggao.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      <div className="fixed inset-0 z-0 bg-black/60" />
+
+      <div className="relative z-10">
       <PageHeader
         englishTitle="GUILD NOTICES"
         chineseTitle="公告檄文"
@@ -200,6 +204,7 @@ export default function NoticesPage() {
         onSaved={fetchNotices}
         notice={editingNotice}
       />
-    </>
+      </div>
+    </div>
   );
 }
