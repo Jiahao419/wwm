@@ -124,7 +124,7 @@ export default function RelationsPage() {
     const allJieyiMembers = new Set<string>();
     jieyiRelations.forEach(r => { allJieyiMembers.add(r.from_user_id); allJieyiMembers.add(r.to_user_id); });
 
-    for (const member of allJieyiMembers) {
+    for (const member of Array.from(allJieyiMembers)) {
       if (visited.has(member)) continue;
       const group = getJieyiGroup(member);
       group.forEach(m => visited.add(m));
