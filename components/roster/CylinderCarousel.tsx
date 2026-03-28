@@ -283,7 +283,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
         </div>
 
         {/* === DESKTOP: 3D Cylinder === */}
-        <div className="hidden md:block relative w-full overflow-hidden select-none h-[700px]">
+        <div className="hidden md:block relative w-full overflow-hidden select-none h-[850px]">
           {/* Ambient glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gold/[0.03] blur-[120px]" />
@@ -298,7 +298,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
           {/* 3D Scene */}
           <div
             className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-            style={{ perspective: '4000px', perspectiveOrigin: '50% 45%' }}
+            style={{ perspective: '4000px', perspectiveOrigin: '50% 50%' }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
