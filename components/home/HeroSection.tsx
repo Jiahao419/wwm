@@ -50,13 +50,13 @@ export default function HeroSection() {
       {/* Right side intentionally empty for clean layout */}
 
       {/* Content */}
-      <div className="relative z-10 text-center">
+      <div className="relative z-10 text-center px-4">
         {/* WWM Logo - with mix-blend to avoid black bg standing out */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-4 md:mb-8"
         >
           <img
             src="/images/wwm-logo.png"
@@ -92,7 +92,7 @@ export default function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="font-display text-[11px] tracking-[0.3em] text-text-secondary/25 uppercase mb-10"
+          className="font-display text-[11px] tracking-[0.3em] text-text-secondary/25 uppercase mb-6 md:mb-10"
         >
           WHERE WINDS MEET · 燕云十六声
         </motion.p>
@@ -105,7 +105,7 @@ export default function HeroSection() {
           className="flex items-center justify-center gap-3 sm:gap-6 px-4 md:px-8"
         >
           <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-gold/30" />
-          <p className="text-gold/50 text-lg tracking-[0.4em] font-title">
+          <p className="text-gold/50 text-sm md:text-lg tracking-[0.2em] md:tracking-[0.4em] font-title">
             执剑天涯，护我月冕
           </p>
           <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-gold/30" />
