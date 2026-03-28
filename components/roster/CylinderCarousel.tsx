@@ -43,7 +43,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
 
   // Card dimensions
   const CARD_W = isMobile ? 130 : 200;
-  const CARD_H = isMobile ? 325 : 700;
+  const CARD_H = isMobile ? 325 : 500;
 
   // 根据卡片宽度 + 固定间距计算半径，保证不管多少人间距都一样
   // 圆周 = 2πr = count * (CARD_W + gap)，所以 r = count * (CARD_W + gap) / (2π)
@@ -283,7 +283,7 @@ export default function CylinderCarousel({ profiles, onProfileClick, currentUser
         </div>
 
         {/* === DESKTOP: 3D Cylinder === */}
-        <div className="hidden md:block relative w-full overflow-hidden select-none h-[950px]">
+        <div className="hidden md:block relative w-full overflow-hidden select-none h-[700px]">
           {/* Ambient glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gold/[0.03] blur-[120px]" />
