@@ -310,7 +310,21 @@ export default function RelationsPage() {
   };
 
   return (
-    <>
+    <div className="relative min-h-screen">
+      {/* Background image */}
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/images/relations-bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      {/* Dark overlay for readability */}
+      <div className="fixed inset-0 z-0 bg-black/60" />
+
+      <div className="relative z-10">
       <PageHeader
         englishTitle="GUILD RELATIONS"
         chineseTitle="月冕关系谱"
@@ -457,6 +471,7 @@ export default function RelationsPage() {
           }}
         />
       )}
-    </>
+      </div>
+    </div>
   );
 }
