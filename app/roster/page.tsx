@@ -178,6 +178,7 @@ export default function RosterPage() {
           isAdminOrOwner={isAdminOrOwner}
           onRefresh={fetchData}
           onEditProfile={(p) => setEditingProfile(p)}
+          onDeleteProfile={(p) => handleDelete(p.id)}
         />
       )}
 

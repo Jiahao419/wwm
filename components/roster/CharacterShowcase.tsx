@@ -16,12 +16,13 @@ interface CharacterShowcaseProps {
   isAdminOrOwner: boolean;
   onRefresh: () => void;
   onEditProfile: (profile: Profile) => void;
+  onDeleteProfile?: (profile: Profile) => void;
 }
 
 const ARROW_PREV = 'https://www.yysls.cn/pc/fab/20250723194326/img/feature_prev_d3634779.png?image_process=format,png';
 const ARROW_NEXT = 'https://www.yysls.cn/pc/fab/20250723194326/img/feature_next_6f404b40.png?image_process=format,png';
 
-export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOwner, onRefresh, onEditProfile }: CharacterShowcaseProps) {
+export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOwner, onRefresh, onEditProfile, onDeleteProfile }: CharacterShowcaseProps) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [imgIdx, setImgIdx] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -248,6 +249,14 @@ export default function CharacterShowcase({ profiles, currentUserId, isAdminOrOw
                 className="px-4 py-2 text-xs bg-black/50 backdrop-blur-md text-red-300/60 hover:text-red-300 border border-red-500/20 hover:border-red-400/40 rounded-full transition-all"
               >
                 删除当前图
+              </button>
+            )}
+            {isAdminOrOwner && onDeleteProfile && profile.user_id !== currentUserId && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onDeleteProfile(profile); }}
+                className="px-4 py-2 text-xs bg-black/50 backdrop-blur-md text-red-300/60 hover:text-red-300 border border-red-500/20 hover:border-red-400/40 rounded-full transition-all"
+              >
+                删除成员
               </button>
             )}
           </motion.div>
