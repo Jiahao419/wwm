@@ -115,12 +115,12 @@ export const mockAssignments: (BattleAssignment & { profile: Profile })[] = [
 ];
 
 export const mockNotices: Notice[] = [
-  { id: 'n1', title: '第三十二届百业战报名开启', type: 'event', summary: '月冕 vs 风雷阁，3月29日晚8点开战', content: '# 第三十二届百业战\n\n**对手：风雷阁**\n\n比赛时间：3月29日 20:00\n报名截止：3月28日 18:00\n\n请各位成员尽快完成报名，管理层将根据报名情况进行分队。', is_pinned: true, created_by: 'u1', created_at: '2026-03-20T10:00:00Z', updated_at: '2026-03-20T10:00:00Z' },
-  { id: 'n2', title: '百业好声音第二季启动', type: 'activity', summary: '月冕内部K歌赛开始报名', content: '# 百业好声音 第二季\n\n上一季大家玩得很开心，这次我们继续！\n\n报名时间：即日起至4月5日\n比赛形式：线上K歌对决', is_pinned: true, created_by: 'u10', created_at: '2026-03-18T14:00:00Z', updated_at: '2026-03-18T14:00:00Z' },
-  { id: 'n3', title: '新成员招募公告', type: 'recruit', summary: '月冕总坛长期招募新成员', content: '月冕总坛面向全服招募活跃成员，有意者请联系外交使夜阑珊。', is_pinned: true, created_by: 'u1', created_at: '2026-03-15T09:00:00Z', updated_at: '2026-03-15T09:00:00Z' },
-  { id: 'n4', title: '第三十一届百业战复盘', type: 'review', summary: '月冕 vs 天机阁 胜利复盘', content: '恭喜月冕以3:1战胜天机阁！本次战术执行优秀，特别表扬一队和四队的配合。', is_pinned: false, created_by: 'u2', created_at: '2026-03-14T22:00:00Z', updated_at: '2026-03-14T22:00:00Z' },
-  { id: 'n5', title: '本周副本安排', type: 'daily', summary: '周三周六10人本，周日5人本', content: '本周副本时间安排如下：\n- 周三 21:00 十人本\n- 周六 20:00 十人本\n- 周日 15:00 五人本', is_pinned: false, created_by: 'u5', created_at: '2026-03-12T08:00:00Z', updated_at: '2026-03-12T08:00:00Z' },
-  { id: 'n6', title: '百业战战术调整通知', type: 'tactic', summary: '针对下周对手调整防守策略', content: '根据风雷阁的战术特点，我们将调整防守阵型，详见战术频道。', is_pinned: false, created_by: 'u2', created_at: '2026-03-10T16:00:00Z', updated_at: '2026-03-10T16:00:00Z' },
+  { id: 'n1', title: '第三十二届百业战报名开启', type: 'event', summary: '月冕 vs 风雷阁，3月29日晚8点开战', content: '# 第三十二届百业战\n\n**对手：风雷阁**\n\n比赛时间：3月29日 20:00\n报名截止：3月28日 18:00\n\n请各位成员尽快完成报名，管理层将根据报名情况进行分队。', image_url: null, is_pinned: true, created_by: 'u1', created_at: '2026-03-20T10:00:00Z', updated_at: '2026-03-20T10:00:00Z' },
+  { id: 'n2', title: '百业好声音第二季启动', type: 'activity', summary: '月冕内部K歌赛开始报名', content: '# 百业好声音 第二季\n\n上一季大家玩得很开心，这次我们继续！\n\n报名时间：即日起至4月5日\n比赛形式：线上K歌对决', image_url: null, is_pinned: true, created_by: 'u10', created_at: '2026-03-18T14:00:00Z', updated_at: '2026-03-18T14:00:00Z' },
+  { id: 'n3', title: '新成员招募公告', type: 'recruit', summary: '月冕总坛长期招募新成员', content: '月冕总坛面向全服招募活跃成员，有意者请联系外交使夜阑珊。', image_url: null, is_pinned: true, created_by: 'u1', created_at: '2026-03-15T09:00:00Z', updated_at: '2026-03-15T09:00:00Z' },
+  { id: 'n4', title: '第三十一届百业战复盘', type: 'review', summary: '月冕 vs 天机阁 胜利复盘', content: '恭喜月冕以3:1战胜天机阁！本次战术执行优秀，特别表扬一队和四队的配合。', image_url: null, is_pinned: false, created_by: 'u2', created_at: '2026-03-14T22:00:00Z', updated_at: '2026-03-14T22:00:00Z' },
+  { id: 'n5', title: '本周副本安排', type: 'daily', summary: '周三周六10人本，周日5人本', content: '本周副本时间安排如下：\n- 周三 21:00 十人本\n- 周六 20:00 十人本\n- 周日 15:00 五人本', image_url: null, is_pinned: false, created_by: 'u5', created_at: '2026-03-12T08:00:00Z', updated_at: '2026-03-12T08:00:00Z' },
+  { id: 'n6', title: '百业战战术调整通知', type: 'tactic', summary: '针对下周对手调整防守策略', content: '根据风雷阁的战术特点，我们将调整防守阵型，详见战术频道。', image_url: null, is_pinned: false, created_by: 'u2', created_at: '2026-03-10T16:00:00Z', updated_at: '2026-03-10T16:00:00Z' },
 ];
 
 export const mockRelations: MemberRelation[] = [
