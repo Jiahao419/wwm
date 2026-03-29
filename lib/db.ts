@@ -216,18 +216,38 @@ export async function getAssignments(eventId: string) {
     }
   }
 
-  // Fetch signups for this event to attach preference data
-  const { data: signups } = await getAnonSupabase()
+  // Fetch signups to attach preference data
+  // Try this event first, then fall back to all signups matching these users
+  const userIds = assigns.map(a => a.user_id).filter(Boolean);
+  const profileIds = profiles?.map(p => p.id).filter(Boolean) || [];
+  const allLookupIds = [...new Set([...userIds, ...profileIds])];
+
+  // Query signups: first by event_id, then by user_id across all events
+  const { data: eventSignups } = await getAnonSupabase()
     .from('battle_signups')
     .select('*')
     .eq('event_id', eventId)
     .returns<BattleSignup[]>();
 
+  const { data: userSignups } = allLookupIds.length > 0
+    ? await getAnonSupabase()
+        .from('battle_signups')
+        .select('*')
+        .in('user_id', allLookupIds)
+        .returns<BattleSignup[]>()
+    : { data: [] as BattleSignup[] };
+
   const signupMap = new Map<string, BattleSignup>();
-  if (signups) {
-    for (const s of signups) {
+  // Add user signups first (lower priority)
+  if (userSignups) {
+    for (const s of userSignups) {
       if (s.user_id) signupMap.set(s.user_id, s);
-      if (s.profile_id) signupMap.set(s.profile_id, s);
+    }
+  }
+  // Event signups override (higher priority)
+  if (eventSignups) {
+    for (const s of eventSignups) {
+      if (s.user_id) signupMap.set(s.user_id, s);
     }
   }
 
