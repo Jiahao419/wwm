@@ -61,16 +61,18 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-t border-gold/10 text-text-secondary text-xs">
-                    <th className="px-4 py-2 text-left font-normal w-[140px]">成员</th>
-                    <th className="px-4 py-2 text-left font-normal">偏好(参考)</th>
+                    <th className="px-3 py-2 text-left font-normal w-[130px]">成员</th>
+                    <th className="px-2 py-2 text-left font-normal w-[80px]">
+                      <span title="报名时填写的偏好，仅供参考">偏好<br/>(参考)</span>
+                    </th>
                     {isAdmin && (
-                      <th className="px-4 py-2 text-left font-normal">队伍</th>
+                      <th className="px-2 py-2 text-left font-normal">队伍</th>
                     )}
-                    <th className="px-4 py-2 text-left font-normal">分配职责</th>
-                    <th className="px-4 py-2 text-left font-normal">地图位置</th>
-                    <th className="px-4 py-2 text-left font-normal">备注</th>
+                    <th className="px-2 py-2 text-left font-normal">分配职责</th>
+                    <th className="px-2 py-2 text-left font-normal">地图位置</th>
+                    <th className="px-2 py-2 text-left font-normal">备注</th>
                     {isAdmin && onRemoveAssignment && (
-                      <th className="px-4 py-2 text-center font-normal w-[50px]">操作</th>
+                      <th className="px-2 py-2 text-center font-normal w-[40px]">操作</th>
                     )}
                   </tr>
                 </thead>
@@ -82,20 +84,23 @@ export default function AssignmentTable({ assignments, isAdmin, onAssignmentChan
 
                     return (
                       <tr key={a.id} className="border-t border-gold/5 hover:bg-bg-panel/30 transition-colors">
-                        <td className="px-4 py-2.5">
+                        <td className="px-3 py-2.5">
                           <div className="flex items-center gap-2">
                             <span
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                               style={{ backgroundColor: `${rowColor}20`, color: rowColor, border: `1px solid ${rowColor}40` }}
                             >
                               {a.profile?.nickname?.charAt(0)}
                             </span>
-                            <span className="text-text-primary">{a.profile?.nickname || '未知'}</span>
+                            <span className="text-text-primary text-xs truncate">{a.profile?.nickname || '未知'}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-2.5 text-text-secondary/50 text-xs">
-                          {a.signup?.preferred_route && <span>{a.signup.preferred_route} · </span>}
-                          {a.signup?.preferred_roles?.join(', ')}
+                        <td className="px-2 py-2.5">
+                          <div className="text-text-secondary/60 text-[10px] leading-tight max-w-[80px]" title={`${a.signup?.preferred_route || ''} ${a.signup?.preferred_roles?.join(', ') || ''}`}>
+                            {a.signup?.preferred_route && <div className="text-gold/50 truncate">{a.signup.preferred_route}</div>}
+                            {a.signup?.preferred_roles?.length ? <div className="truncate">{a.signup.preferred_roles.join(', ')}</div> : null}
+                            {!a.signup?.preferred_route && !a.signup?.preferred_roles?.length && <span className="text-text-secondary/20">-</span>}
+                          </div>
                         </td>
 
                         {isAdmin && (
