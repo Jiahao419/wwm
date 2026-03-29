@@ -92,6 +92,18 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   // User clicks empty slot to sign up
   const handleSignup = async (teamNum: number, slotIdx: number) => {
     if (!user || !currentProfile) return;
+    // 检查该用户是否已在这个队伍中报名
+    const alreadyInTeam = assignments.some(
+      a => a.team_number === teamNum && (
+        a.user_id === currentProfile.id ||
+        a.user_id === currentProfile.user_id ||
+        a.user_id === user.id
+      )
+    );
+    if (alreadyInTeam) {
+      alert('你已经在这个队伍中报名了！');
+      return;
+    }
     setSavingSlot(`${teamNum}-${slotIdx}`);
     const slotDef = SLOT_DEFS[slotIdx];
     try {
@@ -383,11 +395,15 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
             <tr>
               <td className="py-2 px-3 text-text-secondary/30 text-xs">人数</td>
               {config.teams.map(team => {
-                const count = assignments.filter(a => a.team_number === team.number).length;
+                const teamAssignments = assignments.filter(a => a.team_number === team.number);
+                // Deduplicate by user_id
+                const uniqueUsers = new Set(teamAssignments.map(a => a.user_id));
+                const count = uniqueUsers.size;
+                const maxSlots = SLOT_DEFS.length;
                 return (
                   <td key={team.number} className="py-2 px-3 text-center">
-                    <span className={`text-xs ${count >= 10 ? 'text-green-400' : count > 0 ? 'text-gold/60' : 'text-text-secondary/20'}`}>
-                      {count}/10
+                    <span className={`text-xs ${count >= maxSlots ? 'text-green-400' : count > 0 ? 'text-gold/60' : 'text-text-secondary/20'}`}>
+                      {count}/{maxSlots}
                     </span>
                   </td>
                 );
