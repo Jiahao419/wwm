@@ -23,8 +23,13 @@ const statusLabels: Record<string, { text: string; cls: string }> = {
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return '-';
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  // 直接截取日期字符串前10位，避免时区转换问题
+  if (dateStr.length >= 10) {
+    const [y, m, d] = dateStr.substring(0, 10).split('-');
+    return `${y}.${m}.${d}`;
+  }
+  const dt = new Date(dateStr);
+  return `${dt.getFullYear()}.${String(dt.getMonth() + 1).padStart(2, '0')}.${String(dt.getDate()).padStart(2, '0')}`;
 }
 
 // Fallback mock events
@@ -395,7 +400,7 @@ export default function SignupPage() {
                             <input
                               type="date"
                               value={editBattleTime ? editBattleTime.split('T')[0] : ''}
-                              onChange={e => setEditBattleTime(e.target.value ? e.target.value + 'T00:00:00Z' : '')}
+                              onChange={e => setEditBattleTime(e.target.value ? e.target.value + 'T12:00:00Z' : '')}
                               className="bg-bg-card border border-gold/10 px-2 py-1 text-text-primary text-xs focus:border-gold/40 focus:outline-none rounded-sm"
                             />
                           ) : formatDate(event.battle_time)}
