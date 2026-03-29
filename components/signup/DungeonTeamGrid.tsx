@@ -113,6 +113,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
       alert('你已经在这个队伍中报名了！');
       return;
     }
+    if (!confirm(`确定报名 ${teamNum}车？`)) return;
     setSavingSlot(`${teamNum}-${slotIdx}`);
     const slotDef = SLOT_DEFS[slotIdx];
     try {
@@ -162,6 +163,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
   // Admin: assign a profile to a slot
   const handleAdminAssign = async (profile: Profile, teamNum: number, slotIdx: number) => {
+    if (!confirm(`确定将「${profile.nickname}」分配到 ${teamNum}车？`)) return;
     const slotDef = SLOT_DEFS[slotIdx];
     await upsertAssignment({
       id: '',
@@ -184,6 +186,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
   // Admin: clear a slot
   const handleClearSlot = async (assignmentId: string) => {
+    if (!confirm('确定清除该位置的成员？')) return;
     await deleteAssignment(assignmentId);
     await fetchAssignments();
   };
