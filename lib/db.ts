@@ -216,10 +216,29 @@ export async function getAssignments(eventId: string) {
     }
   }
 
-  const enriched = assigns.map(a => ({
-    ...a,
-    profile: a.user_id ? profileMap.get(a.user_id) || null : null,
-  }));
+  // Fetch signups for this event to attach preference data
+  const { data: signups } = await getAnonSupabase()
+    .from('battle_signups')
+    .select('*')
+    .eq('event_id', eventId)
+    .returns<BattleSignup[]>();
+
+  const signupMap = new Map<string, BattleSignup>();
+  if (signups) {
+    for (const s of signups) {
+      if (s.user_id) signupMap.set(s.user_id, s);
+      if (s.profile_id) signupMap.set(s.profile_id, s);
+    }
+  }
+
+  const enriched = assigns.map(a => {
+    const profile = a.user_id ? profileMap.get(a.user_id) || null : null;
+    // Try to find signup by assignment user_id, or by profile's user_id
+    const signup = a.user_id
+      ? signupMap.get(a.user_id) || (profile?.user_id ? signupMap.get(profile.user_id) : null) || (profile?.id ? signupMap.get(profile.id) : null)
+      : null;
+    return { ...a, profile, signup: signup || null };
+  });
 
   return { data: enriched, error: null };
 }
