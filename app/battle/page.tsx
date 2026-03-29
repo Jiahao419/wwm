@@ -653,7 +653,7 @@ export default function BattlePage() {
                             >
                               <option value="">未设置</option>
                               <option value="匹配">匹配</option>
-                              <option value="排位">排位</option>
+                              <option value="联赛">联赛</option>
                             </select>
                           ) : evt.battle_mode ? (
                             <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">{evt.battle_mode}</span>
