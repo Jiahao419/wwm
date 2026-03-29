@@ -309,7 +309,23 @@ export default function SignupPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <h3 className="font-title text-lg text-text-primary mb-4">已报名</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-title text-lg text-text-primary">已报名</h3>
+                  {isAdminOrOwner && signups.length > 0 && (
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`确定要清空所有 ${signups.length} 个报名吗？此操作不可撤销！`)) return;
+                        for (const s of signups) {
+                          await deleteSignup(s.id);
+                        }
+                        setSignups([]);
+                      }}
+                      className="text-xs text-red-400/60 hover:text-red-400 transition-colors border border-red-400/20 hover:border-red-400/40 px-2 py-1 rounded"
+                    >
+                      清空报名
+                    </button>
+                  )}
+                </div>
                 <SignupList
                   signups={signups}
                   maxParticipants={current.max_participants}

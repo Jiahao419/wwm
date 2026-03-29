@@ -509,6 +509,15 @@ export default function BattlePage() {
                   <GoldButton variant="ghost" size="sm" onClick={handleResetAll}>
                     重置
                   </GoldButton>
+                  <GoldButton variant="ghost" size="sm" onClick={async () => {
+                    if (!confirm(`确定要清空所有 ${assignments.length} 个报名人员吗？此操作不可撤销！`)) return;
+                    for (const a of assignments) {
+                      await deleteAssignment(a.id);
+                    }
+                    setAssignments([]);
+                  }}>
+                    清空报名
+                  </GoldButton>
                 </div>
               )}
             </div>

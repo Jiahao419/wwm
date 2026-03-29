@@ -222,6 +222,21 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                 <GoldButton variant="ghost" size="sm" onClick={() => setEditingMeta(false)}>取消</GoldButton>
               </>
             )}
+            {isAdminOrOwner && assignments.length > 0 && (
+              <button
+                onClick={async () => {
+                  if (!confirm(`确定要清空所有 ${assignments.length} 个报名吗？此操作不可撤销！`)) return;
+                  for (const a of assignments) {
+                    await deleteAssignment(a.id);
+                  }
+                  setAssignments([]);
+                  onRefresh?.();
+                }}
+                className="text-xs text-red-400/60 hover:text-red-400 transition-colors border border-red-400/20 hover:border-red-400/40 px-2 py-1 rounded"
+              >
+                清空报名
+              </button>
+            )}
           </div>
         )}
       </div>
