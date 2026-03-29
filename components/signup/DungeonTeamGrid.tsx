@@ -25,7 +25,7 @@ const SLOT_DEFS = [
 ];
 
 const DEFAULT_CONFIG: DungeonTeamConfig = {
-  teams: Array.from({ length: 6 }, (_, i) => ({
+  teams: Array.from({ length: 10 }, (_, i) => ({
     number: i + 1,
     time: '',
     target: '双十',
@@ -36,7 +36,16 @@ function parseConfig(tactic_notes: string | null): DungeonTeamConfig {
   if (!tactic_notes) return DEFAULT_CONFIG;
   try {
     const parsed = JSON.parse(tactic_notes);
-    if (parsed?.teams?.length) return parsed;
+    if (parsed?.teams?.length) {
+      // If saved config has fewer teams than default, extend it
+      const existing = parsed.teams;
+      if (existing.length < DEFAULT_CONFIG.teams.length) {
+        for (let i = existing.length; i < DEFAULT_CONFIG.teams.length; i++) {
+          existing.push({ number: i + 1, time: '', target: '双十' });
+        }
+      }
+      return { ...parsed, teams: existing };
+    }
   } catch { /* not JSON, ignore */ }
   return DEFAULT_CONFIG;
 }
@@ -255,9 +264,9 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
       {/* Hint */}
       {user && (
-        <p className="text-text-secondary/40 text-xs mb-4">
+        <p className={`text-xs mb-4 ${myAssignments.length > 0 ? 'text-gold/80' : 'text-text-secondary/60'}`}>
           {myAssignments.length > 0
-            ? `你已报名 ${myAssignments.map(a => `${a.team_number}车`).join('、')} · 点击你的名字可退出`
+            ? `✦ 你已报名 ${myAssignments.map(a => `${a.team_number}车`).join('、')} · 点击你的名字可退出`
             : '点击空位即可报名'}
         </p>
       )}
