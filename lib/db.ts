@@ -146,6 +146,24 @@ export function deleteNotice(id: string) {
   return getSupabase().from('notices').delete().eq('id', id);
 }
 
+// ─── Notice Comments ─────────────────────────────────────────────────
+
+export function getNoticeComments(noticeId: string) {
+  return getAnonSupabase()
+    .from('notice_comments')
+    .select('*')
+    .eq('notice_id', noticeId)
+    .order('created_at', { ascending: true });
+}
+
+export function createNoticeComment(data: { notice_id: string; user_id: string; content: string; image_url?: string | null }) {
+  return getSupabase().from('notice_comments').insert(data).select().single();
+}
+
+export function deleteNoticeComment(id: string) {
+  return getSupabase().from('notice_comments').delete().eq('id', id);
+}
+
 // ─── Battle Events ───────────────────────────────────────────────────
 
 export function getBattleEvents() {

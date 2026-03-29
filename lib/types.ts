@@ -81,10 +81,22 @@ export interface Notice {
   type: string;
   summary: string | null;
   content: string | null;
+  image_url: string | null;
   is_pinned: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface NoticeComment {
+  id: string;
+  notice_id: string;
+  user_id: string;
+  content: string;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  profile?: Profile;
 }
 
 export interface MemberRelation {
