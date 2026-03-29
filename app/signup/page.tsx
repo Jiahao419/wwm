@@ -9,7 +9,7 @@ import SignupList from '@/components/signup/SignupList';
 import CreateEventModal from '@/components/signup/CreateEventModal';
 import DungeonTeamGrid from '@/components/signup/DungeonTeamGrid';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getBattleEvents, getSignups, updateBattleEvent } from '@/lib/db';
+import { getBattleEvents, getSignups, updateBattleEvent, deleteSignup } from '@/lib/db';
 import { mockBattleEvent, mockSignups } from '@/lib/mockData';
 import { EVENT_TYPES } from '@/lib/constants';
 import { BattleEvent, BattleSignup, Profile } from '@/lib/types';
@@ -313,6 +313,15 @@ export default function SignupPage() {
                 <SignupList
                   signups={signups}
                   maxParticipants={current.max_participants}
+                  isAdminOrOwner={isAdminOrOwner}
+                  onDelete={async (id) => {
+                    const { error } = await deleteSignup(id);
+                    if (error) {
+                      alert('删除失败：' + error.message);
+                    } else {
+                      setSignups(prev => prev.filter(s => s.id !== id));
+                    }
+                  }}
                 />
               </motion.div>
             </div>

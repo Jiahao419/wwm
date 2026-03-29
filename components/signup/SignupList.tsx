@@ -5,9 +5,11 @@ import { BattleSignup, Profile } from '@/lib/types';
 interface SignupListProps {
   signups: (BattleSignup & { profile: Profile })[];
   maxParticipants: number;
+  isAdminOrOwner?: boolean;
+  onDelete?: (id: string, nickname: string) => void;
 }
 
-export default function SignupList({ signups, maxParticipants }: SignupListProps) {
+export default function SignupList({ signups, maxParticipants, isAdminOrOwner, onDelete }: SignupListProps) {
   return (
     <div className="p-6 bg-bg-card gold-border rounded-sm">
       <div className="flex items-center justify-between mb-4">
@@ -42,6 +44,19 @@ export default function SignupList({ signups, maxParticipants }: SignupListProps
                   </span>
                 ))}
               </div>
+            )}
+            {isAdminOrOwner && onDelete && (
+              <button
+                onClick={() => {
+                  if (confirm(`确定要删除 ${signup.nickname_snapshot} 的报名吗？`)) {
+                    onDelete(signup.id, signup.nickname_snapshot);
+                  }
+                }}
+                className="ml-auto text-red-400/60 hover:text-red-400 text-sm transition-colors flex-shrink-0"
+                title="删除报名"
+              >
+                ✕
+              </button>
             )}
           </div>
         ))}
