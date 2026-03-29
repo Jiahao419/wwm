@@ -10,7 +10,7 @@ import ResultDisplay from '@/components/battle/ResultDisplay';
 import GoldButton from '@/components/ui/GoldButton';
 import { useAuth } from '@/components/providers/AuthProvider';
 import {
-  getBattleEvents, getAssignments, updateBattleEvent,
+  getBattleEvents, getAssignments, updateBattleEvent, deleteBattleEvent,
   upsertAssignment, deleteAssignment, getProfiles, getSignups,
 } from '@/lib/db';
 import { mockBattleEvent, mockAssignments } from '@/lib/mockData';
@@ -729,6 +729,14 @@ export default function BattlePage() {
                                   }}
                                   className="text-xs text-blue-400/50 hover:text-blue-400 transition-colors"
                                 >恢复</button>
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm(`确定要删除「${evt.title}」？此操作不可撤销！`)) return;
+                                    await deleteBattleEvent(evt.id);
+                                    await fetchData();
+                                  }}
+                                  className="text-xs text-red-400/50 hover:text-red-400 transition-colors"
+                                >删除</button>
                               </div>
                             )}
                           </td>
