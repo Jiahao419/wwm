@@ -56,6 +56,7 @@ export default function SignupPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPastEvent, setEditingPastEvent] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState<string>('');
+  const [editBattleTime, setEditBattleTime] = useState<string>('');
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [editingHeader, setEditingHeader] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -136,9 +137,13 @@ export default function SignupPage() {
   const handleSavePastEvent = async (eventId: string) => {
     if (!editStatus) return;
     try {
-      await updateBattleEvent(eventId, { status: editStatus as BattleEvent['status'] });
+      await updateBattleEvent(eventId, {
+        status: editStatus as BattleEvent['status'],
+        battle_time: editBattleTime || null,
+      });
       setEditingPastEvent(null);
       setEditStatus('');
+      setEditBattleTime('');
       fetchEvents();
     } catch (err) {
       console.error('Failed to update event:', err);
@@ -385,7 +390,16 @@ export default function SignupPage() {
                     const isEditing = editingPastEvent === event.id;
                     return (
                       <tr key={event.id} className="border-b border-gold/5 last:border-0 hover:bg-gold/5 transition-colors">
-                        <td className="py-3 px-4 text-text-secondary">{formatDate(event.battle_time)}</td>
+                        <td className="py-3 px-4 text-text-secondary">
+                          {isEditing ? (
+                            <input
+                              type="date"
+                              value={editBattleTime ? editBattleTime.split('T')[0] : ''}
+                              onChange={e => setEditBattleTime(e.target.value ? e.target.value + 'T00:00:00Z' : '')}
+                              className="bg-bg-card border border-gold/10 px-2 py-1 text-text-primary text-xs focus:border-gold/40 focus:outline-none rounded-sm"
+                            />
+                          ) : formatDate(event.battle_time)}
+                        </td>
                         <td className="py-3 px-4 text-text-primary">{event.title}</td>
                         <td className="py-3 px-4">
                           <span className="px-2 py-0.5 text-xs bg-bg-panel text-text-secondary rounded">
@@ -417,7 +431,7 @@ export default function SignupPage() {
                                   保存
                                 </button>
                                 <button
-                                  onClick={() => { setEditingPastEvent(null); setEditStatus(''); }}
+                                  onClick={() => { setEditingPastEvent(null); setEditStatus(''); setEditBattleTime(''); }}
                                   className="text-xs text-text-secondary hover:text-text-primary transition-colors"
                                 >
                                   取消
@@ -426,7 +440,7 @@ export default function SignupPage() {
                             ) : (
                               <div className="flex gap-3 justify-end">
                                 <button
-                                  onClick={() => { setEditingPastEvent(event.id); setEditStatus(event.status); }}
+                                  onClick={() => { setEditingPastEvent(event.id); setEditStatus(event.status); setEditBattleTime(event.battle_time || ''); }}
                                   className="text-xs text-gold/60 hover:text-gold transition-colors"
                                 >
                                   编辑
