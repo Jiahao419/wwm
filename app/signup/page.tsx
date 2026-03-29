@@ -9,7 +9,7 @@ import SignupList from '@/components/signup/SignupList';
 import CreateEventModal from '@/components/signup/CreateEventModal';
 import DungeonTeamGrid from '@/components/signup/DungeonTeamGrid';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getBattleEvents, getSignups, updateBattleEvent, deleteSignup } from '@/lib/db';
+import { getBattleEvents, getSignups, updateBattleEvent, deleteSignup, deleteBattleEvent } from '@/lib/db';
 import { mockBattleEvent, mockSignups } from '@/lib/mockData';
 import { EVENT_TYPES } from '@/lib/constants';
 import { BattleEvent, BattleSignup, Profile } from '@/lib/types';
@@ -275,6 +275,18 @@ export default function SignupPage() {
                       ✎
                     </button>
                   )}
+                  {isAdminOrOwner && (
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`确定要结束「${current.title}」？活动将移至往期赛事。`)) return;
+                        await updateBattleEvent(current.id, { status: 'finished' });
+                        fetchEvents();
+                      }}
+                      className="ml-auto text-xs text-red-400/60 hover:text-red-400 transition-colors border border-red-400/20 hover:border-red-400/40 px-3 py-1 rounded"
+                    >
+                      结束活动
+                    </button>
+                  )}
                 </div>
                 {current.description && (
                   <p className="text-text-secondary text-sm mt-2">{current.description}</p>
@@ -412,12 +424,24 @@ export default function SignupPage() {
                                 </button>
                               </div>
                             ) : (
-                              <button
-                                onClick={() => { setEditingPastEvent(event.id); setEditStatus(event.status); }}
-                                className="text-xs text-gold/60 hover:text-gold transition-colors"
-                              >
-                                编辑
-                              </button>
+                              <div className="flex gap-3 justify-end">
+                                <button
+                                  onClick={() => { setEditingPastEvent(event.id); setEditStatus(event.status); }}
+                                  className="text-xs text-gold/60 hover:text-gold transition-colors"
+                                >
+                                  编辑
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm(`确定要删除「${event.title}」？此操作不可撤销！`)) return;
+                                    await deleteBattleEvent(event.id);
+                                    fetchEvents();
+                                  }}
+                                  className="text-xs text-red-400/50 hover:text-red-400 transition-colors"
+                                >
+                                  删除
+                                </button>
+                              </div>
                             )}
                           </td>
                         )}
