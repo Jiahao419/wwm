@@ -220,7 +220,7 @@ export async function getAssignments(eventId: string) {
   // Try this event first, then fall back to all signups matching these users
   const userIds = assigns.map(a => a.user_id).filter(Boolean);
   const profileIds = profiles?.map(p => p.id).filter(Boolean) || [];
-  const allLookupIds = [...new Set([...userIds, ...profileIds])];
+  const allLookupIds = Array.from(new Set([...userIds, ...profileIds]));
 
   // Query signups: first by event_id, then by user_id across all events
   const { data: eventSignups } = await getAnonSupabase()
