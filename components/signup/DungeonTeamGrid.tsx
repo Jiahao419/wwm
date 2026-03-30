@@ -416,7 +416,8 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
               <td className="py-2 px-3 text-text-secondary/30 text-xs">人数</td>
               {config.teams.map(team => {
                 const teamAssignments = assignments.filter(a => a.team_number === team.number);
-                const count = teamAssignments.length;
+                const uniqueUsers = new Set(teamAssignments.map(a => a.user_id));
+                const count = uniqueUsers.size;
                 const maxSlots = SLOT_DEFS.length;
                 return (
                   <td key={team.number} className="py-2 px-3 text-center">
