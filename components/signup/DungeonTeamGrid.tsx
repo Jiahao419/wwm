@@ -163,6 +163,14 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
   // Admin: assign a profile to a slot
   const handleAdminAssign = async (profile: Profile, teamNum: number, slotIdx: number) => {
+    // 检查是否已在这个队伍中
+    const alreadyInTeam = assignments.some(
+      a => a.team_number === teamNum && (a.user_id === profile.id || a.user_id === profile.user_id)
+    );
+    if (alreadyInTeam) {
+      alert(`「${profile.nickname}」已经在 ${teamNum}车 中了！`);
+      return;
+    }
     if (!confirm(`确定将「${profile.nickname}」分配到 ${teamNum}车？`)) return;
     const slotDef = SLOT_DEFS[slotIdx];
     await upsertAssignment({
@@ -408,9 +416,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
               <td className="py-2 px-3 text-text-secondary/30 text-xs">人数</td>
               {config.teams.map(team => {
                 const teamAssignments = assignments.filter(a => a.team_number === team.number);
-                // Deduplicate by user_id
-                const uniqueUsers = new Set(teamAssignments.map(a => a.user_id));
-                const count = uniqueUsers.size;
+                const count = teamAssignments.length;
                 const maxSlots = SLOT_DEFS.length;
                 return (
                   <td key={team.number} className="py-2 px-3 text-center">
