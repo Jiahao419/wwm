@@ -10,6 +10,7 @@ import type {
   ActivityRecord,
   SiteStat,
   SiteConfig,
+  Feedback,
 } from './types';
 
 // Authenticated client — for INSERT / UPDATE / DELETE (needs auth token)
@@ -387,6 +388,48 @@ export function upsertSiteConfig(key: string, value: string) {
     .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
     .select()
     .single<SiteConfig>();
+}
+
+// ─── Feedback ───────────────────────────────────────────────────────
+
+export function getFeedback() {
+  return getAnonSupabase()
+    .from('feedback')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .returns<Feedback[]>();
+}
+
+export function createFeedback(data: {
+  user_id?: string | null;
+  nickname: string;
+  type: string;
+  content: string;
+}) {
+  return getSupabase()
+    .from('feedback')
+    .insert({
+      user_id: data.user_id || null,
+      nickname: data.nickname,
+      type: data.type,
+      content: data.content,
+      status: 'pending',
+    })
+    .select()
+    .single<Feedback>();
+}
+
+export function updateFeedback(id: string, data: Partial<Feedback>) {
+  return getSupabase()
+    .from('feedback')
+    .update(data)
+    .eq('id', id)
+    .select()
+    .single<Feedback>();
+}
+
+export function deleteFeedback(id: string) {
+  return getSupabase().from('feedback').delete().eq('id', id);
 }
 
 // ─── Gallery (Supabase Storage) ─────────────────────────────────────

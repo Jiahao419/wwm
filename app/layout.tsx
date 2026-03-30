@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlobalLeaves from '@/components/layout/GlobalLeaves';
 import AudioPlayer from '@/components/ui/AudioPlayer';
+import FeedbackButton from '@/components/feedback/FeedbackButton';
 import AuthProvider from '@/components/providers/AuthProvider';
 
 export const viewport: Viewport = {
@@ -40,6 +41,7 @@ export default function RootLayout({
           <main className="min-h-screen">{children}</main>
           <Footer />
           <GlobalLeaves />
+          <FeedbackButton />
           <AudioPlayer />
         </AuthProvider>
       </body>

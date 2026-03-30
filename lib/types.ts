@@ -164,3 +164,14 @@ export interface ActivityRecord {
   created_by: string;
   created_at: string;
 }
+
+export interface Feedback {
+  id: string;
+  user_id: string | null;
+  nickname: string;
+  type: string;
+  content: string;
+  status: string;
+  admin_reply: string | null;
+  created_at: string;
+}
