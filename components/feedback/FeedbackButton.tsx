@@ -24,46 +24,41 @@ export default function FeedbackButton() {
     fetchPendingCount();
   }, [fetchPendingCount]);
 
-  const handleClick = () => {
-    if (isAdminOrOwner) {
-      setShowAdmin(true);
-    } else {
-      setShowModal(true);
-    }
-  };
-
   return (
     <>
       {/* Floating button - bottom left */}
       <div
         className="fixed bottom-5 left-5 z-[1000] flex flex-col items-center gap-1 select-none"
       >
+        {/* Main feedback button - always opens submit modal */}
         <button
-          onClick={handleClick}
+          onClick={() => setShowModal(true)}
           className="relative w-11 h-11 rounded-full flex items-center justify-center text-lg transition-all duration-300 hover:scale-110"
           style={{
             background: 'rgba(0,0,0,0.7)',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
           }}
-          title="意见反馈"
+          title="提交反馈"
         >
           <span className="text-gold text-xl leading-none">&#x1F4EE;</span>
-          {/* Admin badge */}
-          {isAdminOrOwner && pendingCount > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-cinnabar text-white text-[10px] font-bold flex items-center justify-center leading-none">
-              {pendingCount > 99 ? '99+' : pendingCount}
-            </span>
-          )}
         </button>
-        {/* Small label for non-admin users */}
-        {!isAdminOrOwner && (
+        {/* Admin: extra button to view all feedback */}
+        {isAdminOrOwner && (
           <button
-            onClick={() => setShowModal(true)}
-            className="text-[10px] text-text-secondary/50 hover:text-gold/60 transition-colors"
+            onClick={() => setShowAdmin(true)}
+            className="relative text-[10px] text-text-secondary/50 hover:text-gold/60 transition-colors"
           >
-            反馈
+            管理
+            {pendingCount > 0 && (
+              <span className="absolute -top-2 -right-3 min-w-[14px] h-[14px] px-0.5 rounded-full bg-cinnabar text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                {pendingCount > 99 ? '99+' : pendingCount}
+              </span>
+            )}
           </button>
+        )}
+        {!isAdminOrOwner && (
+          <span className="text-[10px] text-text-secondary/50">反馈</span>
         )}
       </div>
 
