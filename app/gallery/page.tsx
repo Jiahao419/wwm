@@ -160,8 +160,8 @@ export default function GalleryPage() {
               ))}
             </div>
 
-            {/* Upload button — shown for logged-in users */}
-            {user && (
+            {/* Upload button — admin only */}
+            {isAdminOrOwner && (
               <GoldButton
                 variant="secondary"
                 size="sm"
