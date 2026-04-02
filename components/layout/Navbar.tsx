@@ -250,19 +250,34 @@ export default function Navbar() {
         >
           <div className="px-4 py-3 glass-heavy flex flex-col gap-1">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || (item.href === '/signup' && pathname.startsWith('/signup'));
+              const hasSubEvents = item.href === '/signup' && activeEvents.length > 0;
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-4 py-3 text-sm tracking-wider transition-all duration-200 border-l-2 ${
-                    isActive
-                      ? 'text-gold border-gold bg-gold/5'
-                      : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gold/30 hover:bg-gold/5'
-                  }`}
-                >
-                  {item.label}
-                </Link>
+                <div key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`px-4 py-3 text-sm tracking-wider transition-all duration-200 border-l-2 block ${
+                      isActive
+                        ? 'text-gold border-gold bg-gold/5'
+                        : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gold/30 hover:bg-gold/5'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                  {hasSubEvents && (
+                    <div className="ml-6 flex flex-col gap-0.5">
+                      {activeEvents.map(evt => (
+                        <Link
+                          key={evt.id}
+                          href={`/signup?event=${evt.id}`}
+                          className="px-4 py-2 text-xs text-text-secondary/60 hover:text-gold border-l-2 border-gold/10 hover:border-gold/40 hover:bg-gold/5 transition-all"
+                        >
+                          ↳ {evt.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
