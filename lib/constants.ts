@@ -113,6 +113,7 @@ export const NAV_ITEMS = [
   { href: '/roster', label: '月冕名册' },
   { href: '/battle', label: '百业战务' },
   { href: '/signup', label: '赛事报名' },
+  { href: '/gallery', label: '月冕影阁' },
   { href: '/relations', label: '关系谱' },
   { href: '/notices', label: '公告檄文' },
 ] as const;
