@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import GoldButton from '@/components/ui/GoldButton';
@@ -55,6 +56,8 @@ const fallbackEvents: BattleEvent[] = [
 
 export default function SignupPage() {
   const { isAdminOrOwner } = useAuth();
+  const searchParams = useSearchParams();
+  const eventFromUrl = searchParams.get('event');
   const [events, setEvents] = useState<BattleEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>('');
   const [signups, setSignups] = useState<(BattleSignup & { profile: Profile })[]>([]);
@@ -77,6 +80,8 @@ export default function SignupPage() {
       } else {
         setEvents(data);
         setSelectedEvent(prev => {
+          // URL param takes priority
+          if (eventFromUrl && data.find(e => e.id === eventFromUrl)) return eventFromUrl;
           if (prev && data.find(e => e.id === prev)) return prev;
           const active = data.find(e => e.status === 'active' || e.status === 'upcoming');
           return active?.id || data[0].id;

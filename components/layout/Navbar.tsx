@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '@/lib/constants';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getProfiles, updateProfile } from '@/lib/db';
+import { getProfiles, updateProfile, getBattleEvents } from '@/lib/db';
 import EditModal from '@/components/roster/EditModal';
-import type { Profile } from '@/lib/types';
+import type { Profile, BattleEvent } from '@/lib/types';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,6 +15,7 @@ export default function Navbar() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [myProfile, setMyProfile] = useState<Profile | null>(null);
+  const [activeEvents, setActiveEvents] = useState<BattleEvent[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -39,6 +40,16 @@ export default function Navbar() {
   useEffect(() => {
     fetchMyProfile();
   }, [fetchMyProfile]);
+
+  // Fetch active signup events for submenu
+  useEffect(() => {
+    (async () => {
+      const { data } = await getBattleEvents();
+      if (data) {
+        setActiveEvents(data.filter(e => e.status !== 'finished' && e.status !== 'ended'));
+      }
+    })();
+  }, [pathname]);
 
   // Close user dropdown when clicking outside
   useEffect(() => {
@@ -106,22 +117,42 @@ export default function Navbar() {
           {/* Center: Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || (item.href === '/signup' && pathname.startsWith('/signup'));
+              const hasSubmenu = item.href === '/signup' && activeEvents.length > 0;
+
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-4 py-2 text-sm tracking-wider transition-all duration-200 relative ${
-                    isActive
-                      ? 'text-gold'
-                      : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  {item.label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-px bg-gold" />
+                <div key={item.href} className="relative group">
+                  <Link
+                    href={item.href}
+                    className={`px-4 py-2 text-sm tracking-wider transition-all duration-200 relative block ${
+                      isActive
+                        ? 'text-gold'
+                        : 'text-text-secondary hover:text-text-primary'
+                    }`}
+                  >
+                    {item.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-px bg-gold" />
+                    )}
+                  </Link>
+
+                  {/* Submenu for 赛事报名 */}
+                  {hasSubmenu && (
+                    <div className="absolute left-0 top-full pt-1 hidden group-hover:block z-50" style={{ minWidth: '160px' }}>
+                      <div className="glass-heavy border border-gold/20 shadow-lg shadow-black/30 py-1">
+                        {activeEvents.map(evt => (
+                          <Link
+                            key={evt.id}
+                            href={`/signup?event=${evt.id}`}
+                            className="block px-4 py-2 text-xs text-text-secondary hover:text-gold hover:bg-gold/5 transition-colors truncate"
+                          >
+                            {evt.title}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                </Link>
+                </div>
               );
             })}
           </div>
