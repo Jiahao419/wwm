@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
@@ -54,7 +54,7 @@ const fallbackEvents: BattleEvent[] = [
   },
 ];
 
-export default function SignupPage() {
+function SignupPageContent() {
   const { isAdminOrOwner } = useAuth();
   const searchParams = useSearchParams();
   const eventFromUrl = searchParams.get('event');
@@ -487,5 +487,13 @@ export default function SignupPage() {
       />
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-text-secondary">加载中...</div>}>
+      <SignupPageContent />
+    </Suspense>
   );
 }
