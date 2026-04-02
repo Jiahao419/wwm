@@ -122,6 +122,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   };
 
   const doSignup = async (teamNum: number, slotIdx: number) => {
+    if (!user || !currentProfile) return;
     setSavingSlot(`${teamNum}-${slotIdx}`);
     const slotDef = SLOT_DEFS[slotIdx];
     try {
