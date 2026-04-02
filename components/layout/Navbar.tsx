@@ -46,7 +46,7 @@ export default function Navbar() {
     (async () => {
       const { data } = await getBattleEvents();
       if (data) {
-        setActiveEvents(data.filter(e => e.status !== 'finished' && e.status !== 'ended'));
+        setActiveEvents(data.filter(e => e.status !== 'finished' && e.status !== 'closed'));
       }
     })();
   }, [pathname]);
