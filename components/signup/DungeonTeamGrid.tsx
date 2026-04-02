@@ -67,6 +67,8 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   // Admin pick member
   const [pickingSlot, setPickingSlot] = useState<{ team: number; slot: number } | null>(null);
   const [searchText, setSearchText] = useState('');
+  // Custom confirm dialog (Safari compatible)
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const fetchAssignments = useCallback(async () => {
     const { data } = await getAssignments(event.id);
@@ -113,7 +115,13 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
       alert('你已经在这个队伍中报名了！');
       return;
     }
-    if (!confirm(`确定报名 ${teamNum}车？`)) return;
+    setConfirmDialog({
+      message: `确定报名 ${teamNum}车？`,
+      onConfirm: () => doSignup(teamNum, slotIdx),
+    });
+  };
+
+  const doSignup = async (teamNum: number, slotIdx: number) => {
     setSavingSlot(`${teamNum}-${slotIdx}`);
     const slotDef = SLOT_DEFS[slotIdx];
     try {
@@ -144,8 +152,14 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   };
 
   // User withdraws from their slot
-  const handleWithdraw = async (assignmentId: string) => {
-    if (!confirm('确定退出该位置？')) return;
+  const handleWithdraw = (assignmentId: string) => {
+    setConfirmDialog({
+      message: '确定退出该位置？',
+      onConfirm: () => doWithdraw(assignmentId),
+    });
+  };
+
+  const doWithdraw = async (assignmentId: string) => {
     try {
       const { error } = await deleteAssignment(assignmentId);
       if (error) {
@@ -171,7 +185,13 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
       alert(`「${profile.nickname}」已经在 ${teamNum}车 中了！`);
       return;
     }
-    if (!confirm(`确定将「${profile.nickname}」分配到 ${teamNum}车？`)) return;
+    setConfirmDialog({
+      message: `确定将「${profile.nickname}」分配到 ${teamNum}车？`,
+      onConfirm: () => doAdminAssign(profile, teamNum, slotIdx),
+    });
+  };
+
+  const doAdminAssign = async (profile: Profile, teamNum: number, slotIdx: number) => {
     const slotDef = SLOT_DEFS[slotIdx];
     await upsertAssignment({
       id: '',
@@ -193,10 +213,14 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   };
 
   // Admin: clear a slot
-  const handleClearSlot = async (assignmentId: string) => {
-    if (!confirm('确定清除该位置的成员？')) return;
-    await deleteAssignment(assignmentId);
-    await fetchAssignments();
+  const handleClearSlot = (assignmentId: string) => {
+    setConfirmDialog({
+      message: '确定清除该位置的成员？',
+      onConfirm: async () => {
+        await deleteAssignment(assignmentId);
+        await fetchAssignments();
+      },
+    });
   };
 
   // Admin: open member picker
@@ -484,6 +508,31 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
               <GoldButton variant="ghost" size="sm" onClick={() => setPickingSlot(null)}>取消</GoldButton>
             </div>
           </motion.div>
+        </div>
+      )}
+      {/* Custom confirm dialog - Safari compatible */}
+      {confirmDialog && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={() => setConfirmDialog(null)}>
+          <div className="bg-bg-panel border border-gold/30 rounded-sm p-6 max-w-sm mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <p className="text-text-primary text-sm mb-6">{confirmDialog.message}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDialog(null)}
+                className="px-4 py-2 text-sm text-text-secondary border border-gold/20 hover:border-gold/40 hover:text-text-primary transition-colors rounded-sm"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  confirmDialog.onConfirm();
+                  setConfirmDialog(null);
+                }}
+                className="px-4 py-2 text-sm text-bg-primary bg-gold hover:bg-gold-light transition-colors rounded-sm font-bold"
+              >
+                确定
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </motion.div>
