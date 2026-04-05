@@ -72,7 +72,7 @@ export default function GalleryLightbox({ items, currentIndex, onClose, onChange
       {/* Close button — absolute within lightbox overlay, above everything */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute top-20 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center rounded-full border-2 border-white/30 bg-black/70 text-white hover:text-gold hover:border-gold/60 transition-all z-50"
+        className="absolute top-20 right-4 md:top-20 md:right-8 w-12 h-12 flex items-center justify-center rounded-full border-2 border-white/30 bg-black/70 text-white hover:text-gold hover:border-gold/60 transition-all z-50"
       >
         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
           <path d="M18 6L6 18M6 6l12 12" />
