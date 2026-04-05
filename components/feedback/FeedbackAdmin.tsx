@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import GoldButton from '@/components/ui/GoldButton';
 import { getFeedback, updateFeedback, deleteFeedback } from '@/lib/db';
+import { useAuditLog } from '@/lib/useAuditLog';
 import type { Feedback } from '@/lib/types';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -28,6 +29,7 @@ interface FeedbackAdminProps {
 }
 
 export default function FeedbackAdmin({ onClose, onCountChange }: FeedbackAdminProps) {
+  const audit = useAuditLog();
   const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>('all');
@@ -59,6 +61,7 @@ export default function FeedbackAdmin({ onClose, onCountChange }: FeedbackAdminP
     if (!replyText.trim()) return;
     setActionLoading(id);
     await updateFeedback(id, { admin_reply: replyText.trim() });
+    audit({ action: '回复反馈', category: 'feedback', targetType: 'feedback', targetId: id });
     setReplyingId(null);
     setReplyText('');
     setActionLoading(null);
@@ -68,6 +71,7 @@ export default function FeedbackAdmin({ onClose, onCountChange }: FeedbackAdminP
   const handleResolve = async (id: string) => {
     setActionLoading(id);
     await updateFeedback(id, { status: 'resolved' });
+    audit({ action: '标记反馈已解决', category: 'feedback', targetType: 'feedback', targetId: id });
     setActionLoading(null);
     fetchData();
   };
@@ -76,6 +80,7 @@ export default function FeedbackAdmin({ onClose, onCountChange }: FeedbackAdminP
     if (!confirm('确定删除这条反馈？')) return;
     setActionLoading(id);
     await deleteFeedback(id);
+    audit({ action: '删除反馈', category: 'feedback', targetType: 'feedback', targetId: id });
     setActionLoading(null);
     fetchData();
   };

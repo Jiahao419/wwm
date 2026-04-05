@@ -6,6 +6,7 @@ import GoldButton from '@/components/ui/GoldButton';
 import { EVENT_TYPES, EventType } from '@/lib/constants';
 import { createBattleEvent } from '@/lib/db';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 interface CreateEventModalProps {
   open: boolean;
@@ -20,6 +21,7 @@ const eventTypeOptions = Object.entries(EVENT_TYPES).map(([key, val]) => ({
 
 export default function CreateEventModal({ open, onClose, onCreated }: CreateEventModalProps) {
   const { user } = useAuth();
+  const audit = useAuditLog();
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [eventType, setEventType] = useState<EventType>('baiye_war');
@@ -62,6 +64,7 @@ export default function CreateEventModal({ open, onClose, onCreated }: CreateEve
         result: null,
         created_by: user.id,
       });
+      audit({ action: '创建赛事', category: 'event', details: { title: title.trim(), type: eventType } });
       reset();
       onCreated();
       onClose();

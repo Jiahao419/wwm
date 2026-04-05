@@ -200,6 +200,15 @@ export default function Navbar() {
                         编辑档案
                       </button>
                     )}
+                    {myProfile?.role === 'owner' && (
+                      <Link
+                        href="/admin/audit-log"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-text-secondary hover:text-gold hover:bg-gold/5 transition-colors"
+                      >
+                        审计日志
+                      </Link>
+                    )}
                     <button
                       onClick={() => { setMenuOpen(false); signOut(); }}
                       className="w-full text-left px-4 py-2.5 text-sm text-text-secondary hover:text-cinnabar hover:bg-cinnabar/5 transition-colors"

@@ -175,3 +175,15 @@ export interface Feedback {
   admin_reply: string | null;
   created_at: string;
 }
+
+export interface AuditLog {
+  id: string;
+  user_id: string;
+  user_nickname: string;
+  action: string;
+  category: string;
+  target_type: string | null;
+  target_id: string | null;
+  details: Record<string, unknown>;
+  created_at: string;
+}

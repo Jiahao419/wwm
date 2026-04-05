@@ -9,6 +9,7 @@ import GalleryLightbox from '@/components/gallery/GalleryLightbox';
 import GalleryUploadModal from '@/components/gallery/GalleryUploadModal';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getGalleryImages, deleteGalleryImage, uploadGalleryImage } from '@/lib/db';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 // Tags for filtering
 const GALLERY_TAGS = ['全部', '百业战', '日常', '风景', '搞笑', '合影', '活动'] as const;
@@ -23,6 +24,7 @@ export interface GalleryItem {
 
 export default function GalleryPage() {
   const { user, isAdminOrOwner } = useAuth();
+  const audit = useAuditLog();
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState<GalleryTag>('全部');
@@ -78,6 +80,7 @@ export default function GalleryPage() {
       return;
     }
     if (url) {
+      audit({ action: '上传画廊图片', category: 'gallery', details: { tag } });
       await fetchImages();
     }
     setShowUpload(false);
@@ -91,6 +94,7 @@ export default function GalleryPage() {
       if (error) {
         alert('删除失败：' + error.message);
       } else {
+        audit({ action: '删除画廊图片', category: 'gallery' });
         await fetchImages();
       }
     } catch {

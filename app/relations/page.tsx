@@ -11,11 +11,13 @@ import { getRelations, getProfiles, createRelation, deleteRelation } from '@/lib
 import { mockProfiles, mockRelations } from '@/lib/mockData';
 import { RELATION_TYPES } from '@/lib/constants';
 import type { Profile, MemberRelation } from '@/lib/types';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 type ViewMode = 'individual' | 'global';
 
 export default function RelationsPage() {
   const { isAdminOrOwner, user, profile: myProfile } = useAuth();
+  const audit = useAuditLog();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [relations, setRelations] = useState<MemberRelation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -162,6 +164,7 @@ export default function RelationsPage() {
       });
       if (!error) created++;
     }
+    audit({ action: '同步结义关系', category: 'relation', details: { created } });
     alert(`已补全 ${created} 条结义关系`);
     await fetchData();
   };
@@ -234,6 +237,9 @@ export default function RelationsPage() {
           console.error('部分结义关系创建失败:', errors);
           alert('部分结义关系创建失败');
         }
+        const fromP = profiles.find(p => p.id === selectedProfileId);
+        const toP = profiles.find(p => p.id === targetProfileId);
+        audit({ action: '添加结义关系', category: 'relation', details: { from: fromP?.nickname, to: toP?.nickname, pairs: newPairs.length } });
         await fetchData();
       } else {
         // 非结义关系：正常创建单条
@@ -250,6 +256,9 @@ export default function RelationsPage() {
           console.error('Failed to create relation:', error);
           alert('添加关系失败：' + error.message);
         } else {
+          const fromP = profiles.find(p => p.id === fromId);
+          const toP = profiles.find(p => p.id === toId);
+          audit({ action: '添加关系', category: 'relation', details: { type: storeType, from: fromP?.nickname, to: toP?.nickname } });
           await fetchData();
         }
       }
@@ -287,6 +296,8 @@ export default function RelationsPage() {
       if (errors.length > 0) {
         console.error('部分结义关系删除失败:', errors);
       }
+      const otherP = profiles.find(p => p.id === otherPersonId);
+      audit({ action: '移除结义成员', category: 'relation', details: { nickname: otherP?.nickname, deletedCount: jieyiRelations.length } });
       await fetchData();
     } else {
       if (!confirm('确定删除此关系？')) return;
@@ -296,6 +307,9 @@ export default function RelationsPage() {
           console.error('Failed to delete relation:', error);
           alert('删除关系失败：' + error.message);
         } else {
+          const fromP = profiles.find(p => p.id === rel.from_user_id);
+          const toP = profiles.find(p => p.id === rel.to_user_id);
+          audit({ action: '删除关系', category: 'relation', details: { type: rel.relation_type, from: fromP?.nickname, to: toP?.nickname } });
           await fetchData();
         }
       } catch (err) {

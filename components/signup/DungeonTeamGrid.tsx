@@ -7,6 +7,7 @@ import { getAssignments, upsertAssignment, deleteAssignment, updateBattleEvent, 
 import { TEAM_COLORS } from '@/lib/constants';
 import type { BattleEvent, BattleAssignment, Profile, DungeonTeamConfig } from '@/lib/types';
 import GoldButton from '@/components/ui/GoldButton';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 type AssignmentWithProfile = BattleAssignment & { profile?: Profile | null };
 
@@ -62,6 +63,7 @@ interface Props {
 
 export default function DungeonTeamGrid({ event, onRefresh }: Props) {
   const { isAdminOrOwner, user, profile: currentProfile } = useAuth();
+  const audit = useAuditLog();
   const [config, setConfig] = useState<DungeonTeamConfig>(parseConfig(event.tactic_notes));
   const [assignments, setAssignments] = useState<AssignmentWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,6 +215,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
       updated_by: user?.id || null,
       updated_at: new Date().toISOString(),
     });
+    audit({ action: '分配副本成员', category: 'dungeon', targetType: 'battle_event', targetId: event.id, details: { nickname: profile.nickname, team: teamNum, slot: slotDef.role } });
     setPickingSlot(null);
     setSearchText('');
     await fetchAssignments();
@@ -223,7 +226,9 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
     setConfirmDialog({
       message: '确定清除该位置的成员？',
       onConfirm: async () => {
+        const removed = assignments.find(a => a.id === assignmentId);
         await deleteAssignment(assignmentId);
+        audit({ action: '清除副本位置', category: 'dungeon', targetType: 'battle_assignment', targetId: assignmentId, details: { nickname: removed?.profile?.nickname } });
         await fetchAssignments();
       },
     });
@@ -249,6 +254,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
         alert(`保存失败：${error.message}`);
         return;
       }
+      audit({ action: '编辑副本时间表', category: 'dungeon', targetType: 'battle_event', targetId: event.id });
       setConfig(metaDraft);
       setEditingMeta(false);
       onRefresh?.();
@@ -291,6 +297,7 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                   for (const a of assignments) {
                     await deleteAssignment(a.id);
                   }
+                  audit({ action: '清空副本报名', category: 'dungeon', targetType: 'battle_event', targetId: event.id, details: { count: assignments.length } });
                   setAssignments([]);
                   onRefresh?.();
                 }}

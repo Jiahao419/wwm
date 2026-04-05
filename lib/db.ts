@@ -11,6 +11,7 @@ import type {
   SiteStat,
   SiteConfig,
   Feedback,
+  AuditLog,
 } from './types';
 
 // Authenticated client — for INSERT / UPDATE / DELETE (needs auth token)
@@ -478,6 +479,45 @@ export async function getGalleryImages(): Promise<{ urls: string[]; error: Error
 
   return { urls, error: null };
 }
+
+// ─── Audit Logs ─────────────────────────────────────────────────────
+
+/** Fire-and-forget audit log — never blocks UI */
+export function logAuditAction(params: {
+  userId: string;
+  userNickname: string;
+  action: string;
+  category: string;
+  targetType?: string;
+  targetId?: string;
+  details?: Record<string, unknown>;
+}) {
+  getSupabase()
+    .from('audit_logs')
+    .insert({
+      user_id: params.userId,
+      user_nickname: params.userNickname,
+      action: params.action,
+      category: params.category,
+      target_type: params.targetType || null,
+      target_id: params.targetId || null,
+      details: params.details || {},
+    })
+    .then(({ error }) => {
+      if (error) console.error('[audit] log failed:', error);
+    });
+}
+
+export function getAuditLogs(limit = 200, offset = 0) {
+  return getAnonSupabase()
+    .from('audit_logs')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1)
+    .returns<AuditLog[]>();
+}
+
+// ─── Gallery (Supabase Storage) ─────────────────────────────────────
 
 export async function deleteGalleryImage(url: string): Promise<{ error: Error | null }> {
   const supabase = getSupabase();

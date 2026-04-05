@@ -11,6 +11,7 @@ import { getProfilesWithImages, updateProfile, deleteProfile, setUserRole, creat
 import { useAuth } from '@/components/providers/AuthProvider';
 import GoldButton from '@/components/ui/GoldButton';
 import PageHeader from '@/components/ui/PageHeader';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 type ProfileWithImages = Profile & { profile_images: ProfileImage[] };
 
@@ -21,6 +22,7 @@ export default function RosterPage() {
   const [viewingProfile, setViewingProfile] = useState<Profile | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { isAdminOrOwner, profile: currentProfile, user } = useAuth();
+  const audit = useAuditLog();
 
   const fetchData = useCallback(async () => {
     try {
@@ -45,6 +47,9 @@ export default function RosterPage() {
       console.error('updateProfile error:', error);
       alert('保存失败：' + error.message);
     } else {
+      if (isAdminOrOwner && editingProfile.user_id !== user?.id) {
+        audit({ action: '编辑成员档案', category: 'roster', targetType: 'profile', targetId: editingProfile.id, details: { nickname: editingProfile.nickname } });
+      }
       await fetchData();
     }
     setEditingProfile(null);
@@ -63,6 +68,7 @@ export default function RosterPage() {
       console.error('createProfile error:', error);
       alert('添加失败：' + error.message);
     } else {
+      audit({ action: '创建成员档案', category: 'roster', details: { nickname: data.nickname } });
       await fetchData();
     }
     setShowAddModal(false);
@@ -70,8 +76,10 @@ export default function RosterPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('确定要删除该成员档案吗？此操作不可恢复。')) return;
+    const deleted = profiles.find(p => p.id === id);
     const { error } = await deleteProfile(id);
     if (!error) {
+      audit({ action: '删除成员档案', category: 'roster', targetType: 'profile', targetId: id, details: { nickname: deleted?.nickname } });
       setProfiles(prev => prev.filter(p => p.id !== id));
       setViewingProfile(null);
     }
@@ -82,13 +90,21 @@ export default function RosterPage() {
   const handleSetAdmin = async (userId: string) => {
     if (!confirm('确定将该成员设为管理员？')) return;
     const { error } = await setUserRole(userId, 'admin');
-    if (!error) await fetchData();
+    if (!error) {
+      const target = profiles.find(p => p.user_id === userId);
+      audit({ action: '设为管理员', category: 'roster', targetType: 'profile', details: { nickname: target?.nickname } });
+      await fetchData();
+    }
   };
 
   const handleRemoveAdmin = async (userId: string) => {
     if (!confirm('确定取消该成员的管理员身份？')) return;
     const { error } = await setUserRole(userId, 'member');
-    if (!error) await fetchData();
+    if (!error) {
+      const target = profiles.find(p => p.user_id === userId);
+      audit({ action: '取消管理员', category: 'roster', targetType: 'profile', details: { nickname: target?.nickname } });
+      await fetchData();
+    }
   };
 
   const canEdit = (profile: Profile) => {

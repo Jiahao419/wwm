@@ -14,6 +14,7 @@ import { getBattleEvents, getSignups, updateBattleEvent, deleteSignup, deleteBat
 import { mockBattleEvent, mockSignups } from '@/lib/mockData';
 import { EVENT_TYPES } from '@/lib/constants';
 import { BattleEvent, BattleSignup, Profile } from '@/lib/types';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 const statusLabels: Record<string, { text: string; cls: string }> = {
   upcoming: { text: '即将开始', cls: 'bg-blue-900/30 text-blue-400' },
@@ -56,6 +57,7 @@ const fallbackEvents: BattleEvent[] = [
 
 function SignupPageContent() {
   const { isAdminOrOwner } = useAuth();
+  const audit = useAuditLog();
   const searchParams = useSearchParams();
   const eventFromUrl = searchParams.get('event');
   const [events, setEvents] = useState<BattleEvent[]>([]);
@@ -135,6 +137,7 @@ function SignupPageContent() {
         title: editTitle.trim(),
         description: editDescription.trim() || null,
       });
+      audit({ action: '编辑赛事信息', category: 'event', targetType: 'battle_event', targetId: current.id, details: { title: editTitle.trim() } });
       setEditingHeader(false);
       fetchEvents();
     } catch (err) {
@@ -151,6 +154,7 @@ function SignupPageContent() {
         status: editStatus as BattleEvent['status'],
         battle_time: editBattleTime || null,
       });
+      audit({ action: '编辑往期赛事', category: 'event', targetType: 'battle_event', targetId: eventId, details: { status: editStatus } });
       setEditingPastEvent(null);
       setEditStatus('');
       setEditBattleTime('');
@@ -295,6 +299,7 @@ function SignupPageContent() {
                       onClick={async () => {
                         if (!confirm(`确定要结束「${current.title}」？活动将移至往期赛事。`)) return;
                         await updateBattleEvent(current.id, { status: 'finished' });
+                        audit({ action: '结束赛事', category: 'event', targetType: 'battle_event', targetId: current.id, details: { title: current.title } });
                         fetchEvents();
                       }}
                       className="ml-auto text-xs text-red-400/60 hover:text-red-400 transition-colors border border-red-400/20 hover:border-red-400/40 px-3 py-1 rounded"
@@ -345,6 +350,7 @@ function SignupPageContent() {
                         for (const s of signups) {
                           await deleteSignup(s.id);
                         }
+                        audit({ action: '清空所有报名', category: 'signup', targetType: 'battle_event', targetId: current?.id, details: { count: signups.length } });
                         setSignups([]);
                       }}
                       className="text-xs text-red-400/60 hover:text-red-400 transition-colors border border-red-400/20 hover:border-red-400/40 px-2 py-1 rounded"
@@ -362,6 +368,8 @@ function SignupPageContent() {
                     if (error) {
                       alert('删除失败：' + error.message);
                     } else {
+                      const deleted = signups.find(s => s.id === id);
+                      audit({ action: '删除报名', category: 'signup', targetType: 'battle_signup', targetId: id, details: { nickname: deleted?.nickname_snapshot } });
                       setSignups(prev => prev.filter(s => s.id !== id));
                     }
                   }}
@@ -459,6 +467,7 @@ function SignupPageContent() {
                                   onClick={async () => {
                                     if (!confirm(`确定要删除「${event.title}」？此操作不可撤销！`)) return;
                                     await deleteBattleEvent(event.id);
+                                    audit({ action: '删除赛事', category: 'event', targetType: 'battle_event', targetId: event.id, details: { title: event.title } });
                                     fetchEvents();
                                   }}
                                   className="text-xs text-red-400/50 hover:text-red-400 transition-colors"

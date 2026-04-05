@@ -17,6 +17,7 @@ import { mockBattleEvent, mockAssignments } from '@/lib/mockData';
 import type { BattleEvent, BattleAssignment, Profile } from '@/lib/types';
 import { EVENT_TYPES } from '@/lib/constants';
 import ReactMarkdown from 'react-markdown';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 type AssignmentWithProfile = BattleAssignment & { profile?: any; signup?: any };
 
@@ -28,6 +29,7 @@ function stripJoined(a: AssignmentWithProfile): Omit<BattleAssignment, 'profile'
 
 export default function BattlePage() {
   const { isAdminOrOwner, user } = useAuth();
+  const audit = useAuditLog();
   const [allEvents, setAllEvents] = useState<BattleEvent[]>([]);
   const [event, setEvent] = useState<BattleEvent | null>(null);
   const [assignments, setAssignments] = useState<AssignmentWithProfile[]>([]);
@@ -152,6 +154,7 @@ export default function BattlePage() {
     } else {
       alert(`保存成功：${savedCount} 条记录`);
     }
+    audit({ action: '保存全部分配', category: 'assignment', targetType: 'battle_event', targetId: event?.id, details: { count: savedCount } });
     await fetchData();
   };
 
@@ -171,6 +174,7 @@ export default function BattlePage() {
       for (const a of resetted) {
         await upsertAssignment(stripJoined(a));
       }
+      audit({ action: '重置所有分配', category: 'assignment', targetType: 'battle_event', targetId: event.id, details: { count: resetted.length } });
     }
   };
 
@@ -225,9 +229,11 @@ export default function BattlePage() {
   // Remove member from assignments
   const handleRemoveAssignment = async (id: string) => {
     if (!confirm('确定移除该成员？')) return;
+    const removed = assignments.find(a => a.id === id);
     if (!usingMock) {
       await deleteAssignment(id);
     }
+    audit({ action: '移除战务成员', category: 'assignment', targetType: 'battle_assignment', targetId: id, details: { nickname: removed?.profile?.nickname } });
     setAssignments(prev => prev.filter(a => a.id !== id));
   };
 
@@ -279,7 +285,7 @@ export default function BattlePage() {
     const { data: inserted, error } = await upsertAssignment({ id: '', ...insertData });
     console.log('Insert result:', { inserted, error });
     if (!error && inserted) {
-      // Use the DB-generated id, not a client-side UUID
+      audit({ action: '添加战务成员', category: 'assignment', targetType: 'battle_event', targetId: event?.id, details: { nickname: profile.nickname } });
       setAssignments(prev => [...prev, { ...inserted, profile }]);
     } else {
       console.error('添加成员失败:', error);
@@ -330,6 +336,7 @@ export default function BattlePage() {
         }]);
       }
     }
+    audit({ action: '导入报名成员', category: 'assignment', targetType: 'battle_event', targetId: event?.id, details: { count: newSignups.length } });
     alert(`成功导入 ${newSignups.length} 名成员`);
   };
 
@@ -344,6 +351,7 @@ export default function BattlePage() {
     setSavingTactics(true);
     if (!usingMock) {
       await updateBattleEvent(event.id, { tactic_notes: tacticDraft });
+      audit({ action: '编辑战术部署', category: 'assignment', targetType: 'battle_event', targetId: event.id });
     }
     setEvent(prev => prev ? { ...prev, tactic_notes: tacticDraft } : prev);
     setEditingTactics(false);
@@ -514,6 +522,7 @@ export default function BattlePage() {
                     for (const a of assignments) {
                       await deleteAssignment(a.id);
                     }
+                    audit({ action: '清空战务人员', category: 'assignment', targetType: 'battle_event', targetId: event?.id, details: { count: assignments.length } });
                     setAssignments([]);
                   }}>
                     清空报名
@@ -591,6 +600,7 @@ export default function BattlePage() {
               onClick={async () => {
                 if (!confirm(`确定将「${event.title}」标记为已结束？该赛事将移入以往战务。`)) return;
                 await updateBattleEvent(event.id, { status: 'finished' });
+                audit({ action: '结束战务', category: 'event', targetType: 'battle_event', targetId: event.id, details: { title: event.title } });
                 await fetchData();
               }}
               className="px-4 py-2 text-xs text-red-300/70 hover:text-red-300 border border-red-500/20 hover:border-red-400/40 rounded-sm transition-all"
@@ -696,6 +706,7 @@ export default function BattlePage() {
                                       result: editPastData.result || null,
                                       battle_time: editPastData.battle_time || null,
                                     });
+                                    audit({ action: '编辑往期战务', category: 'event', targetType: 'battle_event', targetId: evt.id, details: { title: editPastData.title, result: editPastData.result } });
                                     setEditingPastId(null);
                                     await fetchData();
                                   }}
@@ -725,6 +736,7 @@ export default function BattlePage() {
                                   onClick={async () => {
                                     if (!confirm(`确定将「${evt.title}」恢复为进行中？`)) return;
                                     await updateBattleEvent(evt.id, { status: 'active' });
+                                    audit({ action: '恢复战务', category: 'event', targetType: 'battle_event', targetId: evt.id, details: { title: evt.title } });
                                     await fetchData();
                                   }}
                                   className="text-xs text-blue-400/50 hover:text-blue-400 transition-colors"
@@ -733,6 +745,7 @@ export default function BattlePage() {
                                   onClick={async () => {
                                     if (!confirm(`确定要删除「${evt.title}」？此操作不可撤销！`)) return;
                                     await deleteBattleEvent(evt.id);
+                                    audit({ action: '删除战务', category: 'event', targetType: 'battle_event', targetId: evt.id, details: { title: evt.title } });
                                     await fetchData();
                                   }}
                                   className="text-xs text-red-400/50 hover:text-red-400 transition-colors"

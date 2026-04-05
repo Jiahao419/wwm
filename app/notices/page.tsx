@@ -11,9 +11,11 @@ import { getNotices, deleteNotice } from '@/lib/db';
 import { mockNotices } from '@/lib/mockData';
 import { NOTICE_TYPES } from '@/lib/constants';
 import type { Notice } from '@/lib/types';
+import { useAuditLog } from '@/lib/useAuditLog';
 
 export default function NoticesPage() {
   const { isAdminOrOwner } = useAuth();
+  const audit = useAuditLog();
   const [activeType, setActiveType] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -66,6 +68,7 @@ export default function NoticesPage() {
         alert(`删除失败：${error.message}`);
         return;
       }
+      audit({ action: '删除公告', category: 'notice', targetType: 'notice', targetId: notice.id, details: { title: notice.title } });
       fetchNotices();
     } catch (err) {
       console.error('Failed to delete notice:', err);

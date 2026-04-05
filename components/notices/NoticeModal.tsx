@@ -7,6 +7,7 @@ import { NOTICE_TYPES } from '@/lib/constants';
 import { createNotice, updateNotice } from '@/lib/db';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useAuditLog } from '@/lib/useAuditLog';
 import type { Notice } from '@/lib/types';
 
 interface NoticeModalProps {
@@ -18,6 +19,7 @@ interface NoticeModalProps {
 
 export default function NoticeModal({ open, onClose, onSaved, notice }: NoticeModalProps) {
   const { user } = useAuth();
+  const audit = useAuditLog();
   const isEdit = !!notice;
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState('');
@@ -93,6 +95,7 @@ export default function NoticeModal({ open, onClose, onSaved, notice }: NoticeMo
           created_by: user.id,
         });
       }
+      audit({ action: isEdit ? '编辑公告' : '发布公告', category: 'notice', targetType: 'notice', targetId: notice?.id, details: { title: title.trim() } });
       onSaved();
       onClose();
     } catch (err) {
