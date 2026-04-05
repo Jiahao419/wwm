@@ -22,7 +22,12 @@ const SLOT_DEFS = [
   { index: 7, role: '队员', label: '队员' },
   { index: 8, role: '奶/队员', label: '奶/队员' },
   { index: 9, role: '奶/队员', label: '奶/队员' },
+  { index: 10, role: '黑工', label: '黑工' },
+  { index: 11, role: '黑工', label: '黑工' },
 ];
+
+// 黑工不计入人数
+const COUNT_SLOTS = SLOT_DEFS.filter(s => s.role !== '黑工').length;
 
 const DEFAULT_CONFIG: DungeonTeamConfig = {
   teams: Array.from({ length: 10 }, (_, i) => ({
@@ -376,9 +381,9 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
 
             {/* Slot rows */}
             {SLOT_DEFS.map(slotDef => (
-              <tr key={slotDef.index} className={`border-b border-gold/5 ${slotDef.role === '指挥' ? 'bg-gold/[0.03]' : ''}`}>
+              <tr key={slotDef.index} className={`border-b border-gold/5 ${slotDef.role === '指挥' ? 'bg-gold/[0.03]' : slotDef.role === '黑工' ? 'bg-purple-900/[0.05]' : ''}`}>
                 <td className="py-2 px-3 text-xs whitespace-nowrap" style={{
-                  color: slotDef.role === '指挥' ? '#c9a84c' : slotDef.role === '奶/队员' ? '#55b0e0' : 'rgba(255,255,255,0.35)',
+                  color: slotDef.role === '指挥' ? '#c9a84c' : slotDef.role === '奶/队员' ? '#55b0e0' : slotDef.role === '黑工' ? '#a78bfa' : 'rgba(255,255,255,0.35)',
                 }}>
                   {slotDef.label}
                 </td>
@@ -440,10 +445,10 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
             <tr>
               <td className="py-2 px-3 text-text-secondary/30 text-xs">人数</td>
               {config.teams.map(team => {
-                const teamAssignments = assignments.filter(a => a.team_number === team.number);
+                const teamAssignments = assignments.filter(a => a.team_number === team.number && !a.admin_note?.startsWith('slot_10') && !a.admin_note?.startsWith('slot_11'));
                 const uniqueUsers = new Set(teamAssignments.map(a => a.user_id));
                 const count = uniqueUsers.size;
-                const maxSlots = SLOT_DEFS.length;
+                const maxSlots = COUNT_SLOTS;
                 return (
                   <td key={team.number} className="py-2 px-3 text-center">
                     <span className={`text-xs ${count >= maxSlots ? 'text-green-400' : count > 0 ? 'text-gold/60' : 'text-text-secondary/20'}`}>
