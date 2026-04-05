@@ -69,21 +69,21 @@ export default function GalleryLightbox({ items, currentIndex, onClose, onChange
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" />
 
+      {/* Close button — outside content div so it's never blocked */}
+      <button
+        onClick={onClose}
+        className="fixed top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center border border-gold/20 bg-black/60 backdrop-blur-sm text-text-secondary hover:text-gold hover:border-gold/50 transition-all z-[110]"
+      >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+      </button>
+
       {/* Content */}
       <div
         className="relative z-10 w-full h-full flex items-center justify-center p-4 md:p-12"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center border border-gold/20 bg-black/40 backdrop-blur-sm text-text-secondary hover:text-gold hover:border-gold/50 transition-all z-20"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-
         {/* Counter */}
         <div className="absolute top-4 left-4 md:top-6 md:left-6 px-3 py-1.5 bg-black/40 backdrop-blur-sm border border-gold/10 text-text-secondary text-sm z-20">
           <span className="text-gold">{currentIndex + 1}</span> / {items.length}
