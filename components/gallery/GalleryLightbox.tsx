@@ -69,14 +69,14 @@ export default function GalleryLightbox({ items, currentIndex, onClose, onChange
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" />
 
-      {/* Close button — outside content div so it's never blocked */}
+      {/* Close button — absolute within lightbox overlay, above everything */}
       <button
-        onClick={onClose}
-        className="fixed top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center border border-gold/20 bg-black/60 backdrop-blur-sm text-text-secondary hover:text-gold hover:border-gold/50 transition-all z-[110]"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="absolute top-20 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center rounded-full border-2 border-white/30 bg-black/70 text-white hover:text-gold hover:border-gold/60 transition-all z-50"
       >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
+        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
       </button>
 
       {/* Content */}
