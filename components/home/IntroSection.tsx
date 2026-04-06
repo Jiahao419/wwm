@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getSiteConfig, upsertSiteConfig, getGalleryImages, uploadGalleryImage, deleteGalleryImage } from '@/lib/db';
+import { getSiteConfig, upsertSiteConfig, getShowcaseImages, uploadShowcaseImage, deleteShowcaseImage } from '@/lib/db';
 
 const DEFAULT_INTRO = `月冕总坛是《燕云十六声》中的百业综合公会，致力于百业战竞技与公会运营。我们拥有完善的指挥体系、灵活的战术策略，以及一群热爱游戏的伙伴。
 
@@ -19,7 +19,7 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getGalleryImages().then(({ urls }) => {
+    getShowcaseImages().then(({ urls }) => {
       if (urls.length > 0) setImages(urls);
     });
   }, []);
@@ -32,7 +32,7 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
     const errors: string[] = [];
     for (let i = 0; i < files.length; i++) {
       console.log('上传文件:', files[i].name, files[i].size, files[i].type);
-      const { url, error } = await uploadGalleryImage(files[i]);
+      const { url, error } = await uploadShowcaseImage(files[i]);
       console.log('上传结果:', { url, error });
       if (url) newUrls.push(url);
       if (error) errors.push(`${files[i].name}: ${(error as any)?.message || JSON.stringify(error)}`);
@@ -54,7 +54,7 @@ function ImageCarousel({ isAdmin }: { isAdmin: boolean }) {
     setDeleting(true);
     const url = images[current];
     console.log('[gallery] deleting url:', url);
-    const { error } = await deleteGalleryImage(url);
+    const { error } = await deleteShowcaseImage(url);
     console.log('[gallery] delete result:', { error });
     if (!error) {
       const updated = images.filter((_, i) => i !== current);

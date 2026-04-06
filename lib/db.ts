@@ -433,7 +433,7 @@ export function deleteFeedback(id: string) {
   return getSupabase().from('feedback').delete().eq('id', id);
 }
 
-// ─── Gallery (Supabase Storage) ─────────────────────────────────────
+// ─── Gallery / 月冕影阁 (Supabase Storage) ──────────────────────────
 
 const GALLERY_BUCKET = 'gallery';
 
@@ -442,13 +442,9 @@ export async function uploadGalleryImage(file: File): Promise<{ url: string | nu
   const ext = file.name.split('.').pop() || 'jpg';
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
 
-  console.log('[gallery] uploading to bucket:', GALLERY_BUCKET, 'file:', fileName);
-
   const { data: uploadData, error } = await supabase.storage
     .from(GALLERY_BUCKET)
     .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-  console.log('[gallery] upload result:', { uploadData, error });
 
   if (error) return { url: null, error: error as unknown as Error };
 
@@ -456,7 +452,6 @@ export async function uploadGalleryImage(file: File): Promise<{ url: string | nu
     .from(GALLERY_BUCKET)
     .getPublicUrl(fileName);
 
-  console.log('[gallery] public url:', urlData.publicUrl);
   return { url: urlData.publicUrl, error: null };
 }
 
@@ -478,6 +473,72 @@ export async function getGalleryImages(): Promise<{ urls: string[]; error: Error
     });
 
   return { urls, error: null };
+}
+
+// ─── Showcase / 首页轮播图 (Supabase Storage) ───────────────────────
+
+const SHOWCASE_BUCKET = 'showcase';
+
+export async function uploadShowcaseImage(file: File): Promise<{ url: string | null; error: Error | null }> {
+  const supabase = getSupabase();
+  const ext = file.name.split('.').pop() || 'jpg';
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+
+  const { data: uploadData, error } = await supabase.storage
+    .from(SHOWCASE_BUCKET)
+    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+  if (error) return { url: null, error: error as unknown as Error };
+
+  const { data: urlData } = supabase.storage
+    .from(SHOWCASE_BUCKET)
+    .getPublicUrl(fileName);
+
+  return { url: urlData.publicUrl, error: null };
+}
+
+export async function getShowcaseImages(): Promise<{ urls: string[]; error: Error | null }> {
+  const supabase = getAnonSupabase();
+  const { data, error } = await supabase.storage
+    .from(SHOWCASE_BUCKET)
+    .list('', { sortBy: { column: 'created_at', order: 'desc' } });
+
+  if (error || !data) return { urls: [], error: error as unknown as Error };
+
+  const urls = data
+    .filter(f => !f.name.startsWith('.') && f.metadata && f.id)
+    .map(f => {
+      const { data: urlData } = supabase.storage
+        .from(SHOWCASE_BUCKET)
+        .getPublicUrl(f.name);
+      return urlData.publicUrl;
+    });
+
+  return { urls, error: null };
+}
+
+export async function deleteShowcaseImage(url: string): Promise<{ error: Error | null }> {
+  const supabase = getSupabase();
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const bucketPrefix = `/storage/v1/object/public/${SHOWCASE_BUCKET}/`;
+    let filePath: string;
+    if (pathname.includes(bucketPrefix)) {
+      filePath = pathname.split(bucketPrefix)[1];
+    } else {
+      filePath = pathname.split('/').pop() || '';
+    }
+    filePath = decodeURIComponent(filePath);
+
+    const { error } = await supabase.storage
+      .from(SHOWCASE_BUCKET)
+      .remove([filePath]);
+
+    return { error: error as unknown as Error | null };
+  } catch (e) {
+    return { error: e as Error };
+  }
 }
 
 // ─── Audit Logs ─────────────────────────────────────────────────────
@@ -517,7 +578,7 @@ export function getAuditLogs(limit = 200, offset = 0) {
     .returns<AuditLog[]>();
 }
 
-// ─── Gallery (Supabase Storage) ─────────────────────────────────────
+// ─── Gallery Delete ──────────────────────────────────────────────────
 
 export async function deleteGalleryImage(url: string): Promise<{ error: Error | null }> {
   const supabase = getSupabase();
