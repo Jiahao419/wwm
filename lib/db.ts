@@ -442,7 +442,7 @@ export async function uploadGalleryImage(file: File): Promise<{ url: string | nu
   const ext = file.name.split('.').pop() || 'jpg';
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
 
-  const { data: uploadData, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from(GALLERY_BUCKET)
     .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
@@ -484,7 +484,7 @@ export async function uploadShowcaseImage(file: File): Promise<{ url: string | n
   const ext = file.name.split('.').pop() || 'jpg';
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
 
-  const { data: uploadData, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from(SHOWCASE_BUCKET)
     .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
