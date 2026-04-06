@@ -419,8 +419,11 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                             className={`px-2 py-1 text-xs rounded-sm transition-all w-full truncate ${
                               isMine
                                 ? 'bg-gold/15 text-gold border border-gold/30 hover:bg-red-900/20 hover:text-red-300 hover:border-red-400/30'
-                                : 'bg-bg-card/80 text-text-primary border border-transparent hover:border-red-400/20'
+                                : assignment?.profile?.faction === '牵丝·霖'
+                                  ? 'text-green-200 border border-green-500/40'
+                                  : 'bg-bg-card/80 text-text-primary border border-transparent hover:border-red-400/20'
                             } ${!isMine && !isAdminOrOwner ? 'cursor-default' : 'cursor-pointer'}`}
+                            style={!isMine && assignment?.profile?.faction === '牵丝·霖' ? { background: 'rgba(34,197,94,0.18)' } : undefined}
                             title={isMine ? '点击退出' : isAdminOrOwner ? '点击清除' : displayName || ''}
                           >
                             {displayName}
