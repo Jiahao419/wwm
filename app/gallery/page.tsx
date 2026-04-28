@@ -22,6 +22,19 @@ export interface GalleryItem {
   title?: string;
 }
 
+// Tag mapping: Chinese display name <-> English filename key
+const TAG_TO_KEY: Record<string, string> = {
+  '百业战': 'baiye',
+  '日常': 'daily',
+  '风景': 'scenery',
+  '搞笑': 'funny',
+  '合影': 'group',
+  '活动': 'event',
+};
+const KEY_TO_TAG: Record<string, string> = Object.fromEntries(
+  Object.entries(TAG_TO_KEY).map(([cn, en]) => [en, cn])
+);
+
 export default function GalleryPage() {
   const { user, isAdminOrOwner } = useAuth();
   const audit = useAuditLog();
@@ -42,14 +55,17 @@ export default function GalleryPage() {
         const mapped: GalleryItem[] = urls.map(url => {
           const ext = url.split('.').pop()?.toLowerCase().split('?')[0] || '';
           const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
-          // Try to extract tag from filename: tag-timestamp.ext
+          // Try to extract tag from filename: key-timestamp.ext
           const rawFileName = url.split('/').pop() || '';
           const fileName = decodeURIComponent(rawFileName);
-          const tagMatch = fileName.match(/^(百业战|日常|风景|搞笑|合影|活动)-/);
+          // Match English key (new uploads) or Chinese tag (old uploads)
+          const englishMatch = fileName.match(/^(baiye|daily|scenery|funny|group|event)-/);
+          const chineseMatch = fileName.match(/^(百业战|日常|风景|搞笑|合影|活动)-/);
+          const tag = englishMatch ? KEY_TO_TAG[englishMatch[1]] : chineseMatch ? chineseMatch[1] : undefined;
           return {
             url,
             type: isVideo ? 'video' : 'image',
-            tag: tagMatch ? tagMatch[1] : undefined,
+            tag,
           };
         });
         setItems(mapped);
@@ -70,9 +86,10 @@ export default function GalleryPage() {
     : items.filter(item => item.tag === activeTag);
 
   const handleUpload = async (file: File, tag: string) => {
-    // Prepend tag to filename for categorization
+    // Use English key in filename (Supabase Storage doesn't allow Chinese characters)
+    const key = TAG_TO_KEY[tag] || 'other';
     const ext = file.name.split('.').pop() || 'jpg';
-    const taggedName = `${tag}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const taggedName = `${key}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const taggedFile = new File([file], taggedName, { type: file.type });
 
     const { url, error } = await uploadGalleryImage(taggedFile);
