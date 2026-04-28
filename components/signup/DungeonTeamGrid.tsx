@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getAssignments, upsertAssignment, deleteAssignment, updateBattleEvent, getProfiles } from '@/lib/db';
-import { TEAM_COLORS } from '@/lib/constants';
+import { TEAM_COLORS, FACTION_COLORS } from '@/lib/constants';
 import type { BattleEvent, BattleAssignment, Profile, DungeonTeamConfig } from '@/lib/types';
 import GoldButton from '@/components/ui/GoldButton';
 import { useAuditLog } from '@/lib/useAuditLog';
@@ -404,6 +404,8 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                   );
                   const isSaving = savingSlot === `${team.number}-${slotDef.index}`;
                   const displayName = assignment?.profile?.nickname || (assignment ? '已占位' : null);
+                  const faction = assignment?.profile?.faction || null;
+                  const factionColor = faction ? FACTION_COLORS[faction] : null;
 
                   return (
                     <td key={team.number} className="py-1.5 px-2 text-center">
@@ -416,17 +418,36 @@ export default function DungeonTeamGrid({ event, onRefresh }: Props) {
                               else if (isAdminOrOwner) handleClearSlot(assignment.id);
                             }}
                             disabled={!isMine && !isAdminOrOwner}
-                            className={`px-2 py-1 text-xs rounded-sm transition-all w-full truncate ${
+                            className={`px-2 py-1.5 text-xs rounded-sm transition-all w-full overflow-hidden ${
                               isMine
-                                ? 'bg-gold/15 text-gold border border-gold/30 hover:bg-red-900/20 hover:text-red-300 hover:border-red-400/30'
-                                : assignment?.profile?.faction === '牵丝·霖'
-                                  ? 'text-green-200 border border-green-500/40'
-                                  : 'bg-bg-card/80 text-text-primary border border-transparent hover:border-red-400/20'
+                                ? 'border border-gold/40 hover:border-red-400/30'
+                                : 'border hover:border-red-400/20'
                             } ${!isMine && !isAdminOrOwner ? 'cursor-default' : 'cursor-pointer'}`}
-                            style={!isMine && assignment?.profile?.faction === '牵丝·霖' ? { background: 'rgba(34,197,94,0.18)' } : undefined}
-                            title={isMine ? '点击退出' : isAdminOrOwner ? '点击清除' : displayName || ''}
+                            style={{
+                              background: isMine
+                                ? factionColor
+                                  ? `linear-gradient(135deg, ${factionColor.bg.replace('0.12', '0.25')} 0%, rgba(201,168,76,0.1) 100%)`
+                                  : 'rgba(201,168,76,0.15)'
+                                : factionColor
+                                  ? `linear-gradient(135deg, ${factionColor.bg.replace('0.12', '0.3')} 0%, rgba(19,19,26,0.8) 100%)`
+                                  : 'rgba(19,19,26,0.8)',
+                              borderColor: isMine
+                                ? 'rgba(201,168,76,0.4)'
+                                : factionColor?.border || 'transparent',
+                            }}
+                            title={isMine ? '点击退出' : isAdminOrOwner ? '点击清除' : `${displayName}${faction ? ` · ${faction}` : ''}`}
                           >
-                            {displayName}
+                            <span className={`block truncate leading-tight ${isMine ? 'text-gold' : 'text-text-primary'}`}>
+                              {displayName}
+                            </span>
+                            {faction && (
+                              <span
+                                className="block text-[9px] leading-tight mt-0.5 truncate opacity-70"
+                                style={{ color: factionColor?.text || '#9a8a6a' }}
+                              >
+                                {faction}
+                              </span>
+                            )}
                           </button>
                         </div>
                       ) : (
