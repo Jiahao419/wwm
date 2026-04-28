@@ -443,8 +443,8 @@ const GALLERY_BUCKET = 'gallery';
 
 export async function uploadGalleryImage(file: File): Promise<{ url: string | null; error: Error | null }> {
   const supabase = getSupabase();
-  const ext = file.name.split('.').pop() || 'jpg';
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  // Use the file's own name (which already includes the tag prefix from handleUpload)
+  const fileName = file.name;
 
   const { error } = await supabase.storage
     .from(GALLERY_BUCKET)
