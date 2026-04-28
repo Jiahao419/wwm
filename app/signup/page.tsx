@@ -10,7 +10,7 @@ import SignupList from '@/components/signup/SignupList';
 import CreateEventModal from '@/components/signup/CreateEventModal';
 import DungeonTeamGrid from '@/components/signup/DungeonTeamGrid';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getBattleEvents, getSignups, updateBattleEvent, deleteSignup, deleteBattleEvent } from '@/lib/db';
+import { getBattleEvents, getSignups, updateBattleEvent, deleteSignup, deleteAllSignups, deleteBattleEvent } from '@/lib/db';
 import { mockBattleEvent, mockSignups } from '@/lib/mockData';
 import { EVENT_TYPES } from '@/lib/constants';
 import { BattleEvent, BattleSignup, Profile } from '@/lib/types';
@@ -347,8 +347,10 @@ function SignupPageContent() {
                     <button
                       onClick={async () => {
                         if (!confirm(`确定要清空所有 ${signups.length} 个报名吗？此操作不可撤销！`)) return;
-                        for (const s of signups) {
-                          await deleteSignup(s.id);
+                        const { error } = await deleteAllSignups(current.id);
+                        if (error) {
+                          alert('清空失败：' + error.message);
+                          return;
                         }
                         audit({ action: '清空所有报名', category: 'signup', targetType: 'battle_event', targetId: current?.id, details: { count: signups.length } });
                         setSignups([]);

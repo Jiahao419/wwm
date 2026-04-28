@@ -210,6 +210,10 @@ export function deleteSignup(id: string) {
   return getSupabase().from('battle_signups').delete().eq('id', id);
 }
 
+export function deleteAllSignups(eventId: string) {
+  return getSupabase().from('battle_signups').delete().eq('event_id', eventId);
+}
+
 // ─── Battle Assignments ──────────────────────────────────────────────
 
 export async function getAssignments(eventId: string) {
