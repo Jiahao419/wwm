@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 const BGM_URL = 'https://s3plus.meituan.net/opapisdk/op_ticket_885190757_1758424375681_qdqqd_t01hdm.mp3';
 
@@ -9,30 +9,6 @@ export default function AudioPlayer() {
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const [showVolume, setShowVolume] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-
-  // Try autoplay after first user interaction
-  useEffect(() => {
-    const handleFirstInteraction = () => {
-      if (!hasInteracted) {
-        setHasInteracted(true);
-        const audio = audioRef.current;
-        if (audio) {
-          audio.volume = volume;
-          audio.play().then(() => setPlaying(true)).catch(() => {});
-        }
-      }
-    };
-
-    window.addEventListener('click', handleFirstInteraction, { once: true });
-    window.addEventListener('keydown', handleFirstInteraction, { once: true });
-    window.addEventListener('scroll', handleFirstInteraction, { once: true });
-    return () => {
-      window.removeEventListener('click', handleFirstInteraction);
-      window.removeEventListener('keydown', handleFirstInteraction);
-      window.removeEventListener('scroll', handleFirstInteraction);
-    };
-  }, [hasInteracted, volume]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -54,7 +30,7 @@ export default function AudioPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src={BGM_URL} loop preload="auto" />
+      <audio ref={audioRef} src={BGM_URL} loop preload="none" />
       <div
         className="fixed bottom-5 right-5 z-[1000] flex items-center gap-2.5 px-3.5 py-2.5 rounded-full transition-all duration-300 hover:scale-105 select-none"
         style={{
