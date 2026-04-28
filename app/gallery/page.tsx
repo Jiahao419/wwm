@@ -43,7 +43,8 @@ export default function GalleryPage() {
           const ext = url.split('.').pop()?.toLowerCase().split('?')[0] || '';
           const isVideo = ['mp4', 'webm', 'mov'].includes(ext);
           // Try to extract tag from filename: tag-timestamp.ext
-          const fileName = url.split('/').pop() || '';
+          const rawFileName = url.split('/').pop() || '';
+          const fileName = decodeURIComponent(rawFileName);
           const tagMatch = fileName.match(/^(百业战|日常|风景|搞笑|合影|活动)-/);
           return {
             url,
