@@ -60,6 +60,31 @@ body {
   color: #fff;
 }
 
+/* ─── Google Translate widget: hide default banner & UI ─── */
+.goog-te-banner-frame,
+.skiptranslate iframe.goog-te-banner-frame,
+.goog-te-gadget-icon {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+.goog-te-gadget {
+  height: 0;
+  overflow: hidden;
+}
+
+/* Hide the "originally in Chinese" hover tooltip */
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-text-highlight {
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
 @layer components {
   .gold-border {
     border: 1px solid var(--border-gold);

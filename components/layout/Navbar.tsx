@@ -7,6 +7,7 @@ import { NAV_ITEMS } from '@/lib/constants';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getProfiles, updateProfile, getBattleEvents } from '@/lib/db';
 import EditModal from '@/components/roster/EditModal';
+import GoogleTranslate from '@/components/ui/GoogleTranslate';
 import type { Profile, BattleEvent } from '@/lib/types';
 
 export default function Navbar() {
@@ -157,8 +158,11 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Right: Auth + Hamburger */}
+          {/* Right: Language + Auth + Hamburger */}
           <div className="flex items-center gap-2">
+            {/* Language switcher */}
+            <GoogleTranslate />
+
             {loading ? (
               <div className="w-[120px] md:w-[180px] h-10 animate-pulse bg-gold/5 border border-gold/10" />
             ) : user ? (
