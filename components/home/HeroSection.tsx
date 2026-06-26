@@ -73,7 +73,7 @@ export default function HeroSection() {
           className="mb-5 relative"
         >
           <h1
-            className="font-brush text-[3rem] sm:text-[5rem] md:text-[7rem] lg:text-[10rem] leading-none tracking-[0.15em] relative inline-block hero-title-glow"
+            className="font-brush text-[3rem] sm:text-[5rem] md:text-[7rem] lg:text-[10rem] leading-none tracking-[0.15em] relative inline-block hero-title-glow notranslate"
             style={{
               background: 'linear-gradient(105deg, #8a6d2f 0%, #c9a84c 25%, #f0d878 45%, #fffbe6 50%, #f0d878 55%, #c9a84c 75%, #8a6d2f 100%)',
               backgroundSize: '200% 100%',

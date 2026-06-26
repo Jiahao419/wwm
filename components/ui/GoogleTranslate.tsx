@@ -79,6 +79,19 @@ export default function GoogleTranslate() {
       'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
     document.body.appendChild(script);
+
+    // Fallback cleanup: Google injects a banner & shifts body.top via inline
+    // styles that can beat our CSS. Force-remove them repeatedly after load.
+    const cleanup = () => {
+      const banner = document.querySelector<HTMLIFrameElement>('.goog-te-banner-frame');
+      if (banner) banner.style.display = 'none';
+      if (document.body.style.top !== '0px') {
+        document.body.style.top = '0px';
+      }
+    };
+    const cleanupTimer = window.setInterval(cleanup, 300);
+    // Stop the interval after 5s — by then the widget has settled
+    window.setTimeout(() => window.clearInterval(cleanupTimer), 5000);
   }, []);
 
   // Close dropdown when clicking outside

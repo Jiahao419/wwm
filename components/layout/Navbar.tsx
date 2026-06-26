@@ -110,7 +110,7 @@ export default function Navbar() {
           {/* Left: Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <img src="/images/wwm-icon.ico" alt="月冕" width={28} height={28} className="opacity-70 group-hover:opacity-100 transition-opacity" />
-            <span className="font-title text-base md:text-xl text-text-primary group-hover:text-gold transition-colors tracking-wider">
+            <span className="font-title text-base md:text-xl text-text-primary group-hover:text-gold transition-colors tracking-wider notranslate">
               月冕总坛
             </span>
           </Link>

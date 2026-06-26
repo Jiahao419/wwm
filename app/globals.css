@@ -62,24 +62,31 @@ body {
 
 /* ─── Google Translate widget: hide default banner & UI ─── */
 .goog-te-banner-frame,
-.skiptranslate iframe.goog-te-banner-frame,
-.goog-te-gadget-icon {
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+.skiptranslate > iframe {
   display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
 }
 
 body {
   top: 0 !important;
+  position: static !important;
 }
 
 .goog-te-gadget {
+  font-size: 0 !important;
   height: 0;
   overflow: hidden;
 }
 
-/* Hide the "originally in Chinese" hover tooltip */
+/* Hide highlight, tooltip & balloon popups */
 .goog-tooltip,
 .goog-tooltip:hover,
-.goog-text-highlight {
+.goog-text-highlight,
+#goog-gt-tt,
+.goog-te-balloon-frame {
   display: none !important;
   background: none !important;
   box-shadow: none !important;
